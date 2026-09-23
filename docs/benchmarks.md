@@ -1,8 +1,10 @@
 # Benchmarks
 
-This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), [five-task Jolty loop](controlled-loop.md), and [hybrid fallback](fallback.md) benchmarks. General-site and post-action recovery comparisons remain unmeasured.
+This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), [five-task Jolty loop](controlled-loop.md), and [hybrid fallback](fallback.md) benchmarks. Representative general-site and post-action recovery comparisons remain unmeasured.
 
 The [Kena dashboard probe](kena-benchmark.md) measures seven one-step flows on a separate application's local fake-adapter server. It is an early held-out application check, not a representative multi-site evaluation.
+
+The [public-site probe](public-site-benchmark.md) adds seven one-step flows across The Internet, TodoMVC React, and SauceDemo. It compares candidate retrieval, the Top-1 heuristic, and Laya presentation variants on live demonstration sites. These cases are still too few for a representative general-site claim.
 
 ## Controlled hybrid fallback
 

@@ -21,6 +21,7 @@
     "benchmark:loop": "node --experimental-strip-types apps/cli/benchmarks/loop.ts",
     "benchmark:compare": "node --experimental-strip-types apps/cli/benchmarks/compare.ts",
     "benchmark:kena": "node --experimental-strip-types apps/cli/benchmarks/kena-navigation.ts",
+    "benchmark:public": "node --experimental-strip-types apps/cli/benchmarks/public-sites.ts",
     "benchmark:hybrid": "node --experimental-strip-types apps/cli/benchmarks/hybrid.ts",
     "lint": "biome check .",
     "format": "biome format --write ."
