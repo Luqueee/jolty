@@ -102,6 +102,7 @@ test("omits freeform control contents while retaining their state", async () => 
     <div role="textbox" contenteditable="true" aria-label="Editor">private draft</div>
     <input type="submit" value="Save notes">
     <div role="switch" aria-checked="true">Alerts</div>
+    <div role="listbox" aria-label="Tags" aria-disabled="true"></div>
   `);
 
   const { state } = await extractBrowserState(page);
@@ -110,6 +111,7 @@ test("omits freeform control contents while retaining their state", async () => 
     { name: "Editor", text: "", hasValue: true, editable: true },
     { name: "Save notes", role: "button", editable: false },
     { name: "Alerts", role: "switch", selected: true },
+    { name: "Tags", role: "listbox", enabled: false },
   ]);
   expect(JSON.stringify(state)).not.toContain("private note");
   expect(JSON.stringify(state)).not.toContain("private draft");
