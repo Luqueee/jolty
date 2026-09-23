@@ -95,6 +95,26 @@ describe("decision question", () => {
     ]);
   });
 
+  it("keeps candidate keys and targets stable across presentation variants", () => {
+    const input = {
+      goal: "Open settings",
+      state,
+      candidates: [
+        ranked(element("e1", "link")),
+        ranked(element("e2", "button")),
+      ],
+    };
+    const compact = buildModelQuestion(input, {
+      descriptionStyle: "compact",
+      candidateOrder: "reversed",
+    });
+    expect(compact.options.slice(0, 2)).toMatchObject([
+      { key: "c2", targetId: "e2", description: "click button: e2" },
+      { key: "c1", targetId: "e1", description: "click link: e1" },
+    ]);
+    expect(selectedOption(compact.options, "c1").targetId).toBe("e1");
+  });
+
   it("rejects duplicate IDs and unknown model output", () => {
     expect(() =>
       buildModelQuestion({

@@ -17,7 +17,11 @@ import {
 } from "../../retrieval/eval/cases.ts";
 import { filterCandidates } from "../../retrieval/src/candidate-filter.ts";
 import { retrieveCandidates } from "../../retrieval/src/candidate-retrieval.ts";
-import { actionFor, type DecisionInput } from "../src/decision.ts";
+import {
+  actionFor,
+  type DecisionInput,
+  type DecisionQuestionOptions,
+} from "../src/decision.ts";
 import { LAYA_REVISION, LayaDecisionModel } from "../src/laya-decision.ts";
 import { uniqueLabelDecision } from "../src/unique-label-gate.ts";
 import { summarizeSteps } from "./step-summary.ts";
@@ -26,6 +30,12 @@ const topK = Number(process.env.JOLTY_DECISION_TOP_K ?? 10);
 if (!Number.isInteger(topK) || topK < 1 || topK > 10)
   throw new Error("JOLTY_DECISION_TOP_K must be an integer from 1 to 10");
 const includeBack = process.env.JOLTY_DECISION_INCLUDE_BACK !== "0";
+const descriptionStyle = process.env.JOLTY_DECISION_DESCRIPTION ?? "verbose";
+const candidateOrder = process.env.JOLTY_DECISION_ORDER ?? "ranked";
+if (!["verbose", "compact"].includes(descriptionStyle))
+  throw new Error("JOLTY_DECISION_DESCRIPTION must be verbose or compact");
+if (!["ranked", "reversed"].includes(candidateOrder))
+  throw new Error("JOLTY_DECISION_ORDER must be ranked or reversed");
 
 interface MeasuredCase {
   fixture: string;
@@ -50,6 +60,8 @@ interface MeasuredCase {
   inference_ms: number | null;
   decision_latency_ms: number;
   input_tokens: number | null;
+  option_tokens_dropped: number | null;
+  state_tokens_dropped: number | null;
   retrieval_rank: number;
   retrieval_top_k: number;
   heuristic_action: string | null;
@@ -215,9 +227,13 @@ const loadStart = performance.now();
 const model = await LayaDecisionModel.load();
 const modelLoadMs = performance.now() - loadStart;
 try {
-  const questionConfig = includeBack
-    ? undefined
-    : { targetFreeActions: ["scroll", "wait", "done"] as const };
+  const questionConfig: DecisionQuestionOptions = {
+    descriptionStyle: descriptionStyle as "verbose" | "compact",
+    candidateOrder: candidateOrder as "ranked" | "reversed",
+    ...(includeBack
+      ? {}
+      : { targetFreeActions: ["scroll", "wait", "done"] as const }),
+  };
   await model.decide(inputs[0].input, questionConfig);
   const cases: MeasuredCase[] = [];
   for (const entry of inputs) {
@@ -262,6 +278,8 @@ try {
       inference_ms: result.metrics.inference_ms,
       decision_latency_ms: result.metrics.decision_latency_ms,
       input_tokens: result.metrics.input_tokens,
+      option_tokens_dropped: result.metrics.option_tokens_dropped ?? null,
+      state_tokens_dropped: result.metrics.state_tokens_dropped ?? null,
       retrieval_rank: entry.retrievalRank,
       retrieval_top_k: entry.retrievalTopK,
       heuristic_action: entry.heuristicAction,
@@ -312,6 +330,8 @@ try {
         benchmark: "laya-decision-baseline-v0",
         candidate_top_k: topK,
         back_option_included: includeBack,
+        description_style: descriptionStyle,
+        candidate_order: candidateOrder,
         unique_label_gate: {
           selected_cases: cases.filter(
             ({ unique_label_gate_selected }) => unique_label_gate_selected,

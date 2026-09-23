@@ -25,6 +25,8 @@ An option-set probe used one warmup and three measured repetitions per flow. `JO
 
 The opt-in unique-label gate (`JOLTY_KENA_INCLUDE_GATE=1`) selected the settings-prefix textbox in all three measured runs and deferred to Laya on the other six flows. Laya plus the gate completed **15/21** tasks, versus **12/21** for Laya alone in the same run; the heuristic completed **21/21**. Staff and language-menu selection remain Laya failures. These are three repetitions of one newly covered case, not evidence of general-site reliability or calibrated gate precision. The normal runner does not use the gate.
 
+A presentation probe kept all candidates and target-free actions fixed while varying `JOLTY_KENA_DESCRIPTION=verbose|compact` and `JOLTY_KENA_ORDER=ranked|reversed`. In one measured pass, Laya completed **4/7** with verbose/ranked, **4/7** with compact/ranked, **6/7** with verbose/reversed, and **4/7** with compact/reversed. The model input dropped 540 option tokens in the verbose pass and 201 in the compact pass; no state tokens were dropped. A fresh three-run comparison confirmed **12/21** for verbose/ranked and **18/21** for verbose/reversed, with Staff and the language menu changing from three failures to three successes each. The settings-prefix flow still failed under either order. When the existing editable-label gate was combined with verbose/reversed, the benchmark completed **21/21** tasks. These are repetitions of seven cases in one application, and reversing option order may exploit position sensitivity rather than improve generalization. The normal runner retains verbose/ranked presentation and does not enable the gate.
+
 Further candidates from Kena's E2E suite:
 
 | Flow | Steps | Deterministic outcome | Status |

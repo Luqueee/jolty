@@ -80,6 +80,8 @@ A paired option-set probe on 2026-09-23 used `JOLTY_DECISION_TOP_K=5` and `3` wi
 
 The experimental unique-label gate selected **6/26** fixture decisions and matched all six labels. Using its selection when available and Laya otherwise matched **19/26**, versus Laya's **17/26**. The gate corrected the initial email and message inputs. A broader prototype that allowed click targets also selected two buttons in terminal states where the correct action was `done`, so the retained rule is limited to explicit writing goals and editable elements. This is a decision-label probe; it does not measure full fixture task completion. The gate is opt-in only in the Kena benchmark (`JOLTY_KENA_INCLUDE_GATE=1`) and is not active in the normal runner.
 
+A 2×2 presentation probe on the same 26 fixture states used `JOLTY_DECISION_DESCRIPTION=verbose|compact` and `JOLTY_DECISION_ORDER=ranked|reversed`. Exact Laya decisions were **17/26** for verbose/ranked, **19/26** for compact/ranked, **20/26** for verbose/reversed, and **20/26** for compact/reversed. No option or state tokens were dropped on these small fixtures. With the editable-label gate, verbose/reversed reached **21/26** in a decision-only counterfactual. The variants ran serially, not as a randomized latency comparison; no speedup is claimed. The normal runner retains verbose/ranked presentation.
+
 ## Comparison baselines
 
 Evaluate the same test scenarios with:

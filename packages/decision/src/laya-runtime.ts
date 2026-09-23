@@ -21,6 +21,8 @@ export interface LayaAnswer {
   probabilities: Record<string, number>;
   confidence: number;
   input_tokens: number;
+  option_tokens_dropped: number;
+  state_tokens_dropped: number;
   tokenization_ms: number;
   inference_ms: number;
 }
@@ -85,10 +87,12 @@ export class LayaRuntime {
       throw new Error("Laya choice needs at least two options");
     const { cls, sep, mask } = this.special;
     let header = this.encode(`choice question: ${instructions}`);
-    let options = keys.map((key) => [
-      mask,
-      ...this.encode(` ${key}: ${criteria[key]}`).slice(0, 48),
-    ]);
+    let optionTokensDropped = 0;
+    let options = keys.map((key) => {
+      const encoded = this.encode(` ${key}: ${criteria[key]}`);
+      optionTokensDropped += Math.max(0, encoded.length - 48);
+      return [mask, ...encoded.slice(0, 48)];
+    });
     const optionTokens = () =>
       options.reduce((sum, ids) => sum + ids.length, 0);
     let headerBudget = this.config.head_max_len - optionTokens();
@@ -97,7 +101,10 @@ export class LayaRuntime {
         4,
         Math.floor((this.config.head_max_len - 16) / options.length),
       );
-      options = options.map((ids) => ids.slice(0, perOption));
+      options = options.map((ids) => {
+        optionTokensDropped += Math.max(0, ids.length - perOption);
+        return ids.slice(0, perOption);
+      });
       headerBudget = this.config.head_max_len - optionTokens();
     }
     header = header.slice(0, Math.max(8, headerBudget));
@@ -112,7 +119,9 @@ export class LayaRuntime {
     const state = `{${Object.entries(question.state)
       .map(([key, value]) => `${JSON.stringify(key)}: ${JSON.stringify(value)}`)
       .join(", ")}}`;
-    sequence.push(...this.encode(state).slice(0, room), sep);
+    const stateTokens = this.encode(state);
+    const stateTokensDropped = Math.max(0, stateTokens.length - room);
+    sequence.push(...stateTokens.slice(0, room), sep);
     if (
       sequence.length > this.config.max_len ||
       markers.some((pos) => pos >= this.config.max_len)
@@ -170,6 +179,8 @@ export class LayaRuntime {
       ),
       confidence: round4(1 - entropy / Math.log(keys.length)),
       input_tokens: sequence.length,
+      option_tokens_dropped: optionTokensDropped,
+      state_tokens_dropped: stateTokensDropped,
       tokenization_ms,
       inference_ms,
     };

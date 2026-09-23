@@ -16,6 +16,8 @@ export type TargetFreeAction = "scroll" | "wait" | "back" | "done";
 
 export interface DecisionQuestionOptions {
   targetFreeActions?: readonly TargetFreeAction[];
+  descriptionStyle?: "verbose" | "compact";
+  candidateOrder?: "ranked" | "reversed";
 }
 
 export interface DecisionOption {
@@ -56,7 +58,7 @@ export function buildModelQuestion(
 ): ModelQuestion {
   if (!input.goal.trim()) throw new Error("Decision goal must not be empty");
   const seenIds = new Set<string>();
-  const options: DecisionOption[] = input.candidates.map(
+  const candidateOptions: DecisionOption[] = input.candidates.map(
     ({ element }, index) => {
       if (!element.id || seenIds.has(element.id))
         throw new Error(`Duplicate or empty candidate ID: ${element.id}`);
@@ -68,10 +70,17 @@ export function buildModelQuestion(
         key: `c${index + 1}`,
         action,
         targetId: element.id,
-        description: `${action} ${element.role} "${label}" (id ${element.id}${state})`,
+        description:
+          config.descriptionStyle === "compact"
+            ? `${action} ${element.role}: ${label}`
+            : `${action} ${element.role} "${label}" (id ${element.id}${state})`,
       };
     },
   );
+  const options =
+    config.candidateOrder === "reversed"
+      ? candidateOptions.reverse()
+      : candidateOptions;
   for (const action of config.targetFreeActions ?? [
     "scroll",
     "wait",

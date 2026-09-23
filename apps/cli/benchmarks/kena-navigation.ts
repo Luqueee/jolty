@@ -10,7 +10,10 @@ import {
   runControlledTask,
 } from "@jolty/core";
 import { LAYA_REVISION, LayaDecisionModel } from "@jolty/decision";
-import type { DecisionInput } from "@jolty/decision/contract";
+import type {
+  DecisionInput,
+  DecisionQuestionOptions,
+} from "@jolty/decision/contract";
 import { uniqueLabelDecision } from "@jolty/decision/unique-label-gate";
 import { chromium, type Page } from "playwright";
 import { codexFallback } from "../src/codex-fallback.ts";
@@ -32,6 +35,19 @@ if (!Number.isInteger(layaTopK) || layaTopK < 1 || layaTopK > 10)
   throw new Error("JOLTY_KENA_LAYA_TOP_K must be an integer from 1 to 10");
 const includeBack = process.env.JOLTY_KENA_INCLUDE_BACK !== "0";
 const includeGate = process.env.JOLTY_KENA_INCLUDE_GATE === "1";
+const descriptionStyle = process.env.JOLTY_KENA_DESCRIPTION ?? "verbose";
+const candidateOrder = process.env.JOLTY_KENA_ORDER ?? "ranked";
+if (!["verbose", "compact"].includes(descriptionStyle))
+  throw new Error("JOLTY_KENA_DESCRIPTION must be verbose or compact");
+if (!["ranked", "reversed"].includes(candidateOrder))
+  throw new Error("JOLTY_KENA_ORDER must be ranked or reversed");
+const questionConfig: DecisionQuestionOptions = {
+  descriptionStyle: descriptionStyle as "verbose" | "compact",
+  candidateOrder: candidateOrder as "ranked" | "reversed",
+  ...(includeBack
+    ? {}
+    : { targetFreeActions: ["scroll", "wait", "done"] as const }),
+};
 const includeCodex = process.env.JOLTY_INCLUDE_CODEX === "1";
 const guildId = "222222222222222222"; // Kena's published fake-adapter guild slot.
 const userId = "111111111111111111"; // Accepted only in KENA_TEST_MODE.
@@ -159,9 +175,7 @@ try {
                 ...input,
                 candidates: input.candidates.slice(0, layaTopK),
               },
-              includeBack
-                ? undefined
-                : { targetFreeActions: ["scroll", "wait", "done"] },
+              questionConfig,
             );
           },
         },
@@ -195,9 +209,7 @@ try {
                       ...input,
                       candidates: input.candidates.slice(0, layaTopK),
                     },
-                    includeBack
-                      ? undefined
-                      : { targetFreeActions: ["scroll", "wait", "done"] },
+                    questionConfig,
                   );
                 },
               },
@@ -234,6 +246,8 @@ try {
           candidate_rank: number | null;
           selected_choice: string;
           decision_latency_ms: number | null;
+          option_tokens_dropped: number | null;
+          state_tokens_dropped: number | null;
           failure: string | null;
           observed_path: string;
         }[] = [];
@@ -277,6 +291,8 @@ try {
             let candidateRank = -1;
             let correct = false;
             let selectedChoice = "failed";
+            let optionTokensDropped: number | null = null;
+            let stateTokensDropped: number | null = null;
             if (flow.kind === "type") {
               const state = (await extractBrowserState(page)).state;
               expectedId = await expectedTargetId(
@@ -299,6 +315,10 @@ try {
                 );
                 const decision = await policy.provider.decide(input);
                 correct = matchesDecisionLabel(decision, label, expectedId);
+                optionTokensDropped =
+                  decision.metrics.option_tokens_dropped ?? null;
+                stateTokensDropped =
+                  decision.metrics.state_tokens_dropped ?? null;
                 if (decision.status === "selected") {
                   const rank = input.candidates.findIndex(
                     ({ element }) => element.id === decision.targetId,
@@ -361,6 +381,8 @@ try {
                 selected_choice: selectedChoice,
                 decision_latency_ms:
                   result.steps[0]?.timing.decision_latency_ms ?? null,
+                option_tokens_dropped: optionTokensDropped,
+                state_tokens_dropped: stateTokensDropped,
                 failure:
                   result.status === "failed"
                     ? (result.steps[0]?.final_outcome ?? "no_step")
@@ -397,6 +419,14 @@ try {
             ]),
           ),
           measured_runs: samples.length,
+          option_tokens_dropped: samples.reduce(
+            (sum, sample) => sum + (sample.option_tokens_dropped ?? 0),
+            0,
+          ),
+          state_tokens_dropped: samples.reduce(
+            (sum, sample) => sum + (sample.state_tokens_dropped ?? 0),
+            0,
+          ),
           decision_latency_ms: {
             p50: percentile(
               samples.flatMap(({ decision_latency_ms }) =>
@@ -429,6 +459,8 @@ try {
           measured_runs_per_flow_policy: runs,
           laya_top_k: layaTopK,
           back_option_included: includeBack,
+          description_style: descriptionStyle,
+          candidate_order: candidateOrder,
           unique_label_gate_included: includeGate,
           model_revision: LAYA_REVISION,
           teacher_model: teacher?.model.version ?? null,

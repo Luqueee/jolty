@@ -15,6 +15,8 @@ export interface DecisionMetrics {
   tokenization_ms: number | null;
   inference_ms: number | null;
   input_tokens: number | null;
+  option_tokens_dropped?: number | null;
+  state_tokens_dropped?: number | null;
 }
 
 export type DecisionResult =
@@ -87,6 +89,8 @@ export class LayaDecisionModel {
           tokenization_ms: tokenizationMs,
           inference_ms: inferenceMs,
           input_tokens: inputTokens,
+          option_tokens_dropped: answer.option_tokens_dropped,
+          state_tokens_dropped: answer.state_tokens_dropped,
         },
       };
     } catch (error) {
