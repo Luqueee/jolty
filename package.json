@@ -12,6 +12,7 @@
     "test": "vitest run",
     "jolty": "node --experimental-strip-types apps/cli/src/main.ts",
     "dataset:export": "node --experimental-strip-types apps/cli/src/export-dataset.ts",
+    "research:readiness": "node --experimental-strip-types apps/cli/src/research-readiness.ts",
     "benchmark:state": "node --experimental-strip-types packages/browser/benchmarks/state.ts",
     "benchmark:playwright": "node --experimental-strip-types packages/browser/benchmarks/playwright-reference.ts",
     "benchmark:filter": "node --experimental-strip-types packages/retrieval/benchmarks/filter.ts",

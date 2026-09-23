@@ -182,7 +182,7 @@ export function validateDataset(rows: readonly DatasetRow[]): void {
   }
 }
 
-const columns = [
+export const DATASET_COLUMNS = [
   "schema_version",
   "sample_id",
   "fixture_id",
@@ -221,7 +221,10 @@ export async function writeDataset(
   const parquetPath = join(directory, "traces.parquet");
   const temporary = `${parquetPath}.tmp`;
   try {
-    const encode = (row: DatasetRow, name: (typeof columns)[number]) => {
+    const encode = (
+      row: DatasetRow,
+      name: (typeof DATASET_COLUMNS)[number],
+    ) => {
       const value = row[name];
       return value === null
         ? ""
@@ -231,7 +234,7 @@ export async function writeDataset(
     };
     parquetWriteFile({
       filename: temporary,
-      columnData: columns.map((name) =>
+      columnData: DATASET_COLUMNS.map((name) =>
         name === "schema_version"
           ? {
               name,
@@ -256,7 +259,7 @@ export async function writeDataset(
     for (const [index, row] of readback.entries()) {
       const expected = ordered[index];
       if (!expected) throw new Error("Parquet readback missing row");
-      for (const name of columns) {
+      for (const name of DATASET_COLUMNS) {
         const encoded = encode(expected, name);
         if (
           row[name] !== (name === "schema_version" ? encoded : String(encoded))

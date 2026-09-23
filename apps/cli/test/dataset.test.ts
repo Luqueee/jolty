@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { TaskRunResult } from "@jolty/core";
@@ -10,6 +10,8 @@ import {
   validateDataset,
   writeDataset,
 } from "../src/dataset.ts";
+import { readDataset } from "../src/dataset-reader.ts";
+import { assessResearchReadiness } from "../src/dataset-readiness.ts";
 
 const directories: string[] = [];
 afterEach(async () => {
@@ -120,6 +122,18 @@ test("exports Parquet with validated provenance and no form values", async () =>
       Buffer.from("private field contents"),
     ),
   ).toBe(false);
+  expect(await readDataset(directory)).toEqual([row]);
+});
+
+test("rejects a dataset with a changed manifest digest", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "jolty-dataset-"));
+  directories.push(directory);
+  await writeDataset([sample()], directory);
+  const path = join(directory, "manifest.json");
+  const manifest = JSON.parse(await readFile(path, "utf8"));
+  manifest.content_sha256 = "invalid";
+  await writeFile(path, JSON.stringify(manifest));
+  await expect(readDataset(directory)).rejects.toThrow(/checksum/);
 });
 
 test("does not train on a passing but incorrectly selected action", () => {
@@ -141,4 +155,26 @@ test("rejects sensitive text, duplicates, and invalid candidates", () => {
     })),
   };
   expect(() => validateDataset([invalid])).toThrow(/candidate/);
+});
+
+test("blocks encoder evaluation when labels, action coverage, and sites are missing", () => {
+  const train = sample();
+  const validation = {
+    ...sample(),
+    sample_id: "settings:1",
+    split_group: "settings" as const,
+    fixture_id: "settings" as const,
+    split: "validation" as const,
+    training_action: { action: "type" as const, target_id: "e1" },
+  };
+  const result = assessResearchReadiness([train, validation]);
+  expect(result.ready_for_encoder_experiment).toBe(false);
+  expect(result.unseen_evaluation_actions).toEqual(["type"]);
+  expect(result.reasons).toContain("Test split has no unseen site origin");
+  const repeated = assessResearchReadiness([
+    train,
+    { ...train, sample_id: "modal:repeated" },
+  ]);
+  expect(repeated.summary.train.validated_labels).toBe(2);
+  expect(repeated.summary.train.distinct_validated_decisions).toBe(1);
 });

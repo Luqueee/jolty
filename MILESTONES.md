@@ -552,8 +552,8 @@ Do not start this milestone before the complete inference and tracing pipeline e
 
 ### Checklist
 
-- [ ] Establish the existing fast-model baseline.
-- [ ] Select a pretrained encoder candidate.
+- [x] Establish the existing fast-model baseline.
+- [x] Select a pretrained encoder candidate.
 - [ ] Start with the least expensive adaptation strategy.
 - [ ] Evaluate:
   - [ ] frozen encoder + head

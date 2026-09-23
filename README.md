@@ -42,6 +42,7 @@ pnpm run benchmark:loop
 pnpm run benchmark:compare
 pnpm run benchmark:hybrid
 pnpm run dataset:export
+pnpm run research:readiness
 pnpm run jolty -- run modal --trace
 ```
 
@@ -62,6 +63,7 @@ The bootstrap `build` script currently checks TypeScript without emitting files.
 - [Large-model baseline](docs/large-model-baseline.md): the optional ChatGPT subscription comparison setup.
 - [Controlled fallback](docs/fallback.md): optional escalation, trace fields, and hybrid benchmark.
 - [Trace dataset](docs/dataset.md): versioned Parquet schema, label provenance, privacy limits, and split rules.
+- [Research readiness](docs/research-readiness.md): Milestone 13 dataset audit and experiment admission gates.
 - [Performance](docs/performance.md): fast-path design and engineering targets.
 - [Benchmarks](docs/benchmarks.md): comparison baselines and evaluation metrics.
 - [Roadmap](docs/roadmap.md): proposed development stages.
