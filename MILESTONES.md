@@ -152,26 +152,26 @@ Reduce the page to elements that could plausibly participate in the next action.
 
 ### Checklist
 
-- [ ] Filter non-visible elements when appropriate.
-- [ ] Filter non-interactive elements when appropriate.
-- [ ] Preserve editable elements.
-- [ ] Preserve enabled actionable controls.
-- [ ] Preserve ARIA-relevant interactive elements.
-- [ ] Preserve candidates required by fixture ground truth.
-- [ ] Keep filtering deterministic.
-- [ ] Add tests for edge cases.
+- [x] Filter non-visible elements when appropriate.
+- [x] Filter non-interactive elements when appropriate.
+- [x] Preserve editable elements.
+- [x] Preserve enabled actionable controls.
+- [x] Preserve ARIA-relevant interactive elements.
+- [x] Preserve candidates required by fixture ground truth.
+- [x] Keep filtering deterministic.
+- [x] Add tests for edge cases.
 
 ### Measure
 
-- [ ] input element count
-- [ ] output element count
-- [ ] `candidate_filter_ms`
+- [x] input element count
+- [x] output element count
+- [x] `candidate_filter_ms`
 
 ### Exit criteria
 
-- [ ] Filtering reduces the search space significantly.
-- [ ] Correct fixture targets are not accidentally removed.
-- [ ] Filtering remains cheap relative to model inference.
+- [x] Filtering reduces the search space significantly in controlled noisy cases.
+- [x] Correct fixture targets are not accidentally removed.
+- [ ] Filtering remains cheap relative to model inference. This comparison requires the Milestone 5 model baseline.
 
 ---
 

@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "benchmark:state": "node --experimental-strip-types packages/browser/benchmarks/state.ts",
+    "benchmark:filter": "node --experimental-strip-types packages/retrieval/benchmarks/filter.ts",
     "lint": "biome check .",
     "format": "biome format --write ."
   },
