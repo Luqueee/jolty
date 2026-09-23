@@ -1,6 +1,6 @@
 # Decision 0002: Gate encoder adaptation on independent labels
 
-Status: accepted for the Milestone 13 experiment setup. No Jolty BDM has been trained or deployed.
+Status: accepted for the Milestone 13 experiment setup. The first frozen-encoder research candidate has been measured but is not deployed.
 
 ## Context
 
@@ -8,7 +8,7 @@ The first Parquet dataset contains decisions from five local fixture templates u
 
 ## Decision
 
-Use `sentence-transformers/all-MiniLM-L6-v2` as the first **candidate** pretrained encoder, pinned to revision `acbb28c8aa70f5503c85d6b90e8cd65606993a20` when training becomes admissible. Its [model card](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/tree/acbb28c8aa70f5503c85d6b90e8cd65606993a20) documents an Apache-2.0 licensed, 384-dimensional sentence embedding model. This is a research choice, not a performance claim or a runtime dependency. The first adaptation should freeze the encoder and train a small candidate-action scoring head. Escalate to PEFT, partial fine-tuning, and full fine-tuning only after the cheaper candidate has a valid held-out comparison and a concrete failure mode.
+Use `sentence-transformers/all-MiniLM-L6-v2` as the first **candidate** pretrained encoder. The original selected revision `acbb28c8aa70f5503c85d6b90e8cd65606993a20` has no ONNX export. The Node experiment pins the official repository revision [`1110a243fdf4706b3f48f1d95db1a4f5529b4d41`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/tree/1110a243fdf4706b3f48f1d95db1a4f5529b4d41), which includes `onnx/model.onnx`. The encoder is frozen and only a small candidate-action scoring head is fitted. This research dependency is not part of the browser runtime. Escalate to PEFT, partial fine-tuning, and full fine-tuning only after the cheaper candidate has a valid held-out comparison and a concrete failure mode.
 
 Before fitting any head, run a readiness assessment on the versioned dataset. For the Parquet fixture dataset, use `pnpm run research:readiness`; the separate public-site pilot runs the same assessment during `pnpm run research:collect`. The admission gates require at least 20 distinct validated training decisions, 10 calibration decisions, and 10 held-out decisions. Every evaluated action needs at least three distinct training decisions and two calibration decisions. Training needs at least two site origins; training, calibration, and test origins must be disjoint. The four public benchmark origins are reserved for test. Distinctness uses observed browser state and action label, so goal paraphrases and candidate ordering cannot inflate it. These counts are conservative engineering gates for this first experiment, **not** statistical sufficiency guarantees. The report must retain per-split fixture groups, origin coverage, and action coverage. Duplicate observations of one template do not satisfy the independent-site gate.
 
@@ -16,4 +16,4 @@ When admitted, keep the encoder frozen, score each `(goal, state, candidate acti
 
 ## Consequences
 
-The five-fixture Parquet dataset fails the gate. A separate 55-case public-site pilot passes the engineering admission gates, with 28 training, 14 calibration, and 13 reserved test labels. Its JSON schema is a research prototype; it has not been promoted to the Parquet training contract. The pilot is dominated by simple form fields and navigation, so passing the gate does not establish generalization. Milestone 13 remains in progress until a frozen-encoder experiment and same-flow comparison can support the exit criterion. The browser hot path and existing Laya provider are unchanged.
+The five-fixture Parquet dataset fails the gate. A separate 55-case public-site pilot passes the engineering admission gates, with 28 training, 14 calibration, and 13 reserved test labels. Its JSON schema is a research prototype; it has not been promoted to the Parquet training contract. The [first frozen-encoder experiment](../frozen-encoder-experiment.md) scored 11/13 saved test decisions and completed 9/13 live test tasks, versus 12/13 for Laya in each respective comparison. The pilot is dominated by simple form fields and navigation, so these thirteen test cases do not establish a general performance difference. The candidate is retained as a negative research result and is not deployed. Milestone 13 remains in progress. The browser hot path and existing Laya provider are unchanged.

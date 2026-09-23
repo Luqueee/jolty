@@ -14,6 +14,9 @@
     "dataset:export": "node --experimental-strip-types apps/cli/src/export-dataset.ts",
     "research:readiness": "node --experimental-strip-types apps/cli/src/research-readiness.ts",
     "research:collect": "node --experimental-strip-types apps/cli/src/collect-research.ts",
+    "research:train-frozen": "node --experimental-strip-types apps/cli/src/train-frozen-encoder.ts",
+    "research:baseline-laya": "node --experimental-strip-types apps/cli/src/evaluate-laya-corpus.ts",
+    "research:benchmark-frozen": "node --experimental-strip-types apps/cli/src/benchmark-frozen-encoder.ts",
     "benchmark:state": "node --experimental-strip-types packages/browser/benchmarks/state.ts",
     "benchmark:playwright": "node --experimental-strip-types packages/browser/benchmarks/playwright-reference.ts",
     "benchmark:filter": "node --experimental-strip-types packages/retrieval/benchmarks/filter.ts",
@@ -29,6 +32,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
+    "@huggingface/transformers": "3.8.1",
     "@types/node": "24.13.6",
     "typescript": "5.9.3",
     "vitest": "5.0.1"

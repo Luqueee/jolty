@@ -15,6 +15,7 @@ const runs = Number(process.env.JOLTY_PUBLIC_RUNS ?? 3);
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error("JOLTY_PUBLIC_RUNS must be a positive integer");
 const requestedFlows = process.env.JOLTY_PUBLIC_FLOWS?.split(",") ?? null;
+const requestedPolicies = process.env.JOLTY_PUBLIC_POLICIES?.split(",") ?? null;
 const measuredFlows = requestedFlows
   ? flows.filter((flow) => requestedFlows.includes(flow.id))
   : flows;
@@ -60,7 +61,7 @@ try {
         return laya.decide(input, options);
       },
     });
-    const policies = [
+    const availablePolicies = [
       { name: "heuristic", provider: heuristicDecision, topK: 1 },
       {
         name: "Laya verbose/ranked",
@@ -83,6 +84,16 @@ try {
         topK: 10,
       },
     ];
+    const policies = requestedPolicies
+      ? availablePolicies.filter((policy) =>
+          requestedPolicies.includes(policy.name),
+        )
+      : availablePolicies;
+    if (
+      policies.length === 0 ||
+      (requestedPolicies && policies.length !== new Set(requestedPolicies).size)
+    )
+      throw new Error("JOLTY_PUBLIC_POLICIES must name known, unique policies");
     const results = [];
     for (const flow of measuredFlows) {
       for (const policy of policies) {

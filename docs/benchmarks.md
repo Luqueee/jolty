@@ -6,6 +6,8 @@ The [Kena dashboard probe](kena-benchmark.md) measures seven one-step flows on a
 
 The [public-site probe](public-site-benchmark.md) adds thirteen one-step flows across The Internet, TodoMVC React, SauceDemo, and Selenium's web form. It compares candidate retrieval, the Top-1 heuristic, and Laya presentation variants on live demonstration sites. These cases are still too few for a representative general-site claim.
 
+The [frozen-encoder experiment](frozen-encoder-experiment.md) trains a small head on separate public practice sites and compares it with Laya and a ChatGPT subscription reference on the thirteen reserved public flows. Its first candidate underperformed Laya and remains outside the runtime.
+
 ## Controlled hybrid fallback
 
 Run `pnpm run benchmark:hybrid` for one warmup and five measured serial runs per task and mode. It compares Laya-only with Laya plus optional Codex fallback on the same fresh fixtures and exact success texts. The experimental confidence threshold is `0.2` by default and can be set with `JOLTY_FALLBACK_THRESHOLD`. This value was selected after inspecting controlled Laya confidence and must not be interpreted as calibrated or validated on held-out sites. Each Codex choice is constrained to the same retrieved candidates and target-free actions. The report includes success, fast-path coverage, fallback rate, LLM calls and tokens per task, fallback latency, fast decision latency, and task duration. The fallback policy does not retry after a failed executed action.

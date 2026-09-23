@@ -554,15 +554,15 @@ Do not start this milestone before the complete inference and tracing pipeline e
 
 - [x] Establish the existing fast-model baseline.
 - [x] Select a pretrained encoder candidate.
-- [ ] Start with the least expensive adaptation strategy.
+- [x] Start with the least expensive adaptation strategy.
 - [ ] Evaluate:
-  - [ ] frozen encoder + head
+  - [x] frozen encoder + head
   - [ ] PEFT / LoRA
   - [ ] partial fine-tuning if needed
   - [ ] full fine-tuning only if justified
 - [ ] Export successful candidates to ONNX.
-- [ ] Evaluate calibration.
-- [ ] Evaluate unseen fixture/site generalization.
+- [x] Evaluate calibration on the first small public-site pilot.
+- [x] Evaluate unseen fixture/site generalization on the first small public-site pilot.
 
 ### Compare
 
