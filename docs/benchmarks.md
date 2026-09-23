@@ -4,7 +4,7 @@ This is an evaluation plan. The repository has controlled [browser-state extract
 
 The [Kena dashboard probe](kena-benchmark.md) measures seven one-step flows on a separate application's local fake-adapter server. It is an early held-out application check, not a representative multi-site evaluation.
 
-The [public-site probe](public-site-benchmark.md) adds seven one-step flows across The Internet, TodoMVC React, and SauceDemo. It compares candidate retrieval, the Top-1 heuristic, and Laya presentation variants on live demonstration sites. These cases are still too few for a representative general-site claim.
+The [public-site probe](public-site-benchmark.md) adds thirteen one-step flows across The Internet, TodoMVC React, SauceDemo, and Selenium's web form. It compares candidate retrieval, the Top-1 heuristic, and Laya presentation variants on live demonstration sites. These cases are still too few for a representative general-site claim.
 
 ## Controlled hybrid fallback
 

@@ -14,6 +14,15 @@ import { flows, targetId } from "./public-site-flows.ts";
 const runs = Number(process.env.JOLTY_PUBLIC_RUNS ?? 3);
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error("JOLTY_PUBLIC_RUNS must be a positive integer");
+const requestedFlows = process.env.JOLTY_PUBLIC_FLOWS?.split(",") ?? null;
+const measuredFlows = requestedFlows
+  ? flows.filter((flow) => requestedFlows.includes(flow.id))
+  : flows;
+if (
+  measuredFlows.length === 0 ||
+  (requestedFlows && measuredFlows.length !== new Set(requestedFlows).size)
+)
+  throw new Error("JOLTY_PUBLIC_FLOWS must name known, unique flow IDs");
 
 function percentile(values: number[], fraction: number): number | null {
   if (values.length === 0) return null;
@@ -75,7 +84,7 @@ try {
       },
     ];
     const results = [];
-    for (const flow of flows) {
+    for (const flow of measuredFlows) {
       for (const policy of policies) {
         const samples: {
           completed: boolean;
@@ -140,9 +149,13 @@ try {
               name: policy.name,
               version: policy.name === "heuristic" ? "v0" : LAYA_REVISION,
             });
+            const postconditionPassed =
+              result.status === "completed" &&
+              (flow.postcondition === undefined ||
+                (await flow.postcondition(page)));
             if (iteration > 0)
               samples.push({
-                completed: result.status === "completed",
+                completed: postconditionPassed,
                 correct,
                 candidate_rank: candidateRank,
                 selected_choice: selectedChoice,
@@ -154,7 +167,9 @@ try {
                 failure:
                   result.status === "failed"
                     ? (result.steps[0]?.final_outcome ?? "no_step")
-                    : null,
+                    : postconditionPassed
+                      ? null
+                      : "postcondition_failed",
               });
           } finally {
             await context.close();
@@ -229,7 +244,7 @@ try {
           node: process.version,
           chromium: browser.version(),
           cpu: cpus()[0]?.model ?? null,
-          sites: [...new Set(flows.map((flow) => flow.site))],
+          sites: [...new Set(measuredFlows.map((flow) => flow.site))],
           results,
         },
         null,

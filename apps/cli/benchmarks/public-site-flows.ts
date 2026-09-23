@@ -5,6 +5,7 @@ import type { Page } from "playwright";
 const internet = "https://the-internet.herokuapp.com";
 const todo = "https://todomvc.com/examples/react/dist/";
 const sauce = "https://www.saucedemo.com";
+const selenium = "https://www.selenium.dev/selenium/web";
 
 export interface Flow {
   id: string;
@@ -15,6 +16,7 @@ export interface Flow {
   target: string;
   prepare?: (page: Page) => Promise<void>;
   step: (targetId: string) => ControlledTask["steps"][number];
+  postcondition?: (page: Page) => Promise<boolean>;
 }
 
 export const flows: Flow[] = [
@@ -59,6 +61,21 @@ export const flows: Flow[] = [
     }),
   },
   {
+    id: "internet-delete-element",
+    site: "the-internet",
+    url: `${internet}/add_remove_elements/`,
+    goal: "Delete the added element",
+    action: "click",
+    target: "button:has-text('Delete')",
+    prepare: async (page) => {
+      await page.getByRole("button", { name: "Add Element" }).click();
+    },
+    step: () => ({
+      goal: "Delete the added element",
+      checks: [{ kind: "element_disappeared", role: "button", name: "Delete" }],
+    }),
+  },
+  {
     id: "todo-completed-filter",
     site: "todomvc-react",
     url: todo,
@@ -82,6 +99,25 @@ export const flows: Flow[] = [
     step: () => ({
       goal: "Show active tasks",
       checks: [{ kind: "url_changed", to: `${todo}#/active` }],
+    }),
+  },
+  {
+    id: "todo-clear-completed",
+    site: "todomvc-react",
+    url: todo,
+    goal: "Clear completed tasks",
+    action: "click",
+    target: "button.clear-completed",
+    prepare: prepareTodos,
+    step: () => ({
+      goal: "Clear completed tasks",
+      checks: [
+        {
+          kind: "element_disappeared",
+          role: "button",
+          name: "Clear completed",
+        },
+      ],
     }),
   },
   {
@@ -135,6 +171,89 @@ export const flows: Flow[] = [
     step: () => ({
       goal: "Open the shopping cart",
       checks: [{ kind: "url_changed", to: `${sauce}/cart.html` }],
+    }),
+  },
+  {
+    id: "sauce-add-backpack",
+    site: "saucedemo",
+    url: sauce,
+    goal: "Add Sauce Labs Backpack to the cart",
+    action: "click",
+    target: "#add-to-cart-sauce-labs-backpack",
+    prepare: prepareSauce,
+    step: () => ({
+      goal: "Add Sauce Labs Backpack to the cart",
+      checks: [{ kind: "element_appeared", role: "button", name: "Remove" }],
+    }),
+    postcondition: (page) =>
+      page.locator("#remove-sauce-labs-backpack").isVisible(),
+  },
+  {
+    id: "selenium-text-input",
+    site: "selenium-web-form",
+    url: `${selenium}/web-form.html`,
+    goal: "Enter text in the Text input field",
+    action: "type",
+    target: 'input[name="my-text"]',
+    step: (targetId) => ({
+      goal: "Enter text in the Text input field",
+      checks: [
+        {
+          kind: "input_value_changed",
+          targetId,
+          expectedValue: "Jolty",
+        },
+      ],
+      values: [
+        {
+          action: "type",
+          target: { role: "textbox", name: "Text input" },
+          value: "Jolty",
+        },
+      ],
+    }),
+  },
+  {
+    id: "selenium-select-two",
+    site: "selenium-web-form",
+    url: `${selenium}/web-form.html`,
+    goal: "Select Two from Dropdown (select)",
+    action: "select",
+    target: 'select[name="my-select"]',
+    step: (targetId) => ({
+      goal: "Select Two from Dropdown (select)",
+      checks: [
+        {
+          kind: "input_value_changed",
+          targetId,
+          expectedValue: "2",
+        },
+      ],
+      values: [
+        {
+          action: "select",
+          target: { role: "combobox", name: "Dropdown (select)" },
+          value: "2",
+        },
+      ],
+    }),
+  },
+  {
+    id: "selenium-submit-form",
+    site: "selenium-web-form",
+    url: `${selenium}/web-form.html`,
+    goal: "Submit the web form",
+    action: "click",
+    target: "button:has-text('Submit')",
+    prepare: async (page) => {
+      await page.locator('input[name="my-text"]').fill("Jolty");
+    },
+    step: () => ({
+      goal: "Submit the web form",
+      checks: [
+        { kind: "url_changed" },
+        { kind: "text_visible", text: "Received!" },
+      ],
     }),
   },
 ];
