@@ -2,6 +2,7 @@ import {
   buildModelQuestion,
   type DecisionInput,
   type DecisionOption,
+  type DecisionQuestionOptions,
   selectedOption,
 } from "./decision.ts";
 import { LayaRuntime } from "./laya-runtime.ts";
@@ -47,9 +48,12 @@ export class LayaDecisionModel {
     return new LayaDecisionModel(model);
   }
 
-  async decide(input: DecisionInput): Promise<DecisionResult> {
+  async decide(
+    input: DecisionInput,
+    config?: DecisionQuestionOptions,
+  ): Promise<DecisionResult> {
     const start = performance.now();
-    const question = buildModelQuestion(input);
+    const question = buildModelQuestion(input, config);
     const modelStart = performance.now();
     let inputTokens: number | null = null;
     let tokenizationMs: number | null = null;

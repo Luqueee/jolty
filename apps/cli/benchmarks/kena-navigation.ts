@@ -25,6 +25,10 @@ if (
 const runs = Number(process.env.JOLTY_KENA_RUNS ?? 2);
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error("JOLTY_KENA_RUNS must be a positive integer");
+const layaTopK = Number(process.env.JOLTY_KENA_LAYA_TOP_K ?? 10);
+if (!Number.isInteger(layaTopK) || layaTopK < 1 || layaTopK > 10)
+  throw new Error("JOLTY_KENA_LAYA_TOP_K must be an integer from 1 to 10");
+const includeBack = process.env.JOLTY_KENA_INCLUDE_BACK !== "0";
 const includeCodex = process.env.JOLTY_INCLUDE_CODEX === "1";
 const guildId = "222222222222222222"; // Kena's published fake-adapter guild slot.
 const userId = "111111111111111111"; // Accepted only in KENA_TEST_MODE.
@@ -133,15 +137,39 @@ try {
       name: string;
       version: string;
       provider: DecisionProvider;
+      candidateLimit: number;
     }[] = [
-      { name: "heuristic", version: "v0", provider: heuristicDecision },
-      { name: "Laya", version: LAYA_REVISION, provider: laya },
+      {
+        name: "heuristic",
+        version: "v0",
+        provider: heuristicDecision,
+        candidateLimit: 1,
+      },
+      {
+        name: "Laya",
+        version: LAYA_REVISION,
+        candidateLimit: layaTopK,
+        provider: {
+          decide(input) {
+            return laya.decide(
+              {
+                ...input,
+                candidates: input.candidates.slice(0, layaTopK),
+              },
+              includeBack
+                ? undefined
+                : { targetFreeActions: ["scroll", "wait", "done"] },
+            );
+          },
+        },
+      },
       ...(teacher
         ? [
             {
               name: "Codex ChatGPT subscription",
               version: teacher.model.version,
               provider: teacher.provider,
+              candidateLimit: 10,
             },
           ]
         : []),
@@ -159,7 +187,15 @@ try {
       const action =
         flow.kind === "type" ? ("type" as const) : ("click" as const);
       for (const policy of policies) {
-        const samples = [];
+        const samples: {
+          completed: boolean;
+          correct: boolean;
+          candidate_rank: number | null;
+          selected_choice: string;
+          decision_latency_ms: number | null;
+          failure: string | null;
+          observed_path: string;
+        }[] = [];
         for (let iteration = 0; iteration <= runs; iteration++) {
           const reset = await fetch(
             new URL(`/api/_test/reset?guild=${guildId}`, base),
@@ -199,6 +235,7 @@ try {
             let expectedId: string | null = null;
             let candidateRank = -1;
             let correct = false;
+            let selectedChoice = "failed";
             if (flow.kind === "type") {
               const state = (await extractBrowserState(page)).state;
               expectedId = await expectedTargetId(
@@ -221,6 +258,12 @@ try {
                 );
                 const decision = await policy.provider.decide(input);
                 correct = matchesDecisionLabel(decision, label, expectedId);
+                if (decision.status === "selected") {
+                  const rank = input.candidates.findIndex(
+                    ({ element }) => element.id === decision.targetId,
+                  );
+                  selectedChoice = `${decision.action}@${rank < 0 ? "none" : rank + 1}`;
+                }
                 return decision;
               },
             };
@@ -274,6 +317,7 @@ try {
                 completed: result.status === "completed",
                 correct,
                 candidate_rank: candidateRank < 0 ? null : candidateRank + 1,
+                selected_choice: selectedChoice,
                 decision_latency_ms:
                   result.steps[0]?.timing.decision_latency_ms ?? null,
                 failure:
@@ -290,11 +334,27 @@ try {
           flow: flow.id,
           action,
           policy: policy.name,
+          policy_candidate_top_k: policy.candidateLimit,
           successful_tasks: samples.filter(({ completed }) => completed).length,
           correct_decisions: samples.filter(({ correct }) => correct).length,
           candidate_recall_at_10: samples.filter(
             ({ candidate_rank }) => candidate_rank !== null,
           ).length,
+          candidate_recall_at_policy_k: samples.filter(
+            ({ candidate_rank }) =>
+              candidate_rank !== null &&
+              candidate_rank <= policy.candidateLimit,
+          ).length,
+          selected_choices: Object.fromEntries(
+            [
+              ...new Set(samples.map(({ selected_choice }) => selected_choice)),
+            ].map((choice) => [
+              choice,
+              samples.filter(
+                ({ selected_choice }) => selected_choice === choice,
+              ).length,
+            ]),
+          ),
           measured_runs: samples.length,
           decision_latency_ms: {
             p50: percentile(
@@ -326,6 +386,8 @@ try {
           cpu: cpus()[0]?.model ?? null,
           warmup_runs_per_flow_policy: 1,
           measured_runs_per_flow_policy: runs,
+          laya_top_k: layaTopK,
+          back_option_included: includeBack,
           model_revision: LAYA_REVISION,
           teacher_model: teacher?.model.version ?? null,
           results,

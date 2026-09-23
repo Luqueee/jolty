@@ -21,6 +21,11 @@ import { actionFor, type DecisionInput } from "../src/decision.ts";
 import { LAYA_REVISION, LayaDecisionModel } from "../src/laya-decision.ts";
 import { summarizeSteps } from "./step-summary.ts";
 
+const topK = Number(process.env.JOLTY_DECISION_TOP_K ?? 10);
+if (!Number.isInteger(topK) || topK < 1 || topK > 10)
+  throw new Error("JOLTY_DECISION_TOP_K must be an integer from 1 to 10");
+const includeBack = process.env.JOLTY_DECISION_INCLUDE_BACK !== "0";
+
 interface MeasuredCase {
   fixture: string;
   phase: string;
@@ -112,7 +117,11 @@ try {
       await prepareEvaluationCase(page, testCase);
       const state = (await extractBrowserState(page)).state;
       const filtered = filterCandidates(state);
-      const retrieved = retrieveCandidates(testCase.goal, filtered.candidates);
+      const retrieved = retrieveCandidates(
+        testCase.goal,
+        filtered.candidates,
+        topK,
+      );
       const expectedTargetId = targetIdFor(
         filtered.candidates,
         testCase,
@@ -146,7 +155,11 @@ try {
       await prepareTargetlessDecisionCase(page, testCase);
       const state = (await extractBrowserState(page)).state;
       const filtered = filterCandidates(state);
-      const retrieved = retrieveCandidates(testCase.goal, filtered.candidates);
+      const retrieved = retrieveCandidates(
+        testCase.goal,
+        filtered.candidates,
+        topK,
+      );
       addInput(
         testCase.fixture,
         testCase.phase,
@@ -172,6 +185,7 @@ try {
       const retrieved = retrieveCandidates(
         modalProbeCase.goal,
         filtered.candidates,
+        topK,
       );
       const expectedTargetId = targetIdFor(filtered.candidates, modalProbeCase);
       if (!expectedTargetId) throw new Error("Missing modal confirm target");
@@ -197,10 +211,13 @@ const loadStart = performance.now();
 const model = await LayaDecisionModel.load();
 const modelLoadMs = performance.now() - loadStart;
 try {
-  await model.decide(inputs[0].input);
+  const questionConfig = includeBack
+    ? undefined
+    : { targetFreeActions: ["scroll", "wait", "done"] as const };
+  await model.decide(inputs[0].input, questionConfig);
   const cases: MeasuredCase[] = [];
   for (const entry of inputs) {
-    const result = await model.decide(entry.input);
+    const result = await model.decide(entry.input, questionConfig);
     cases.push({
       fixture: entry.fixture,
       phase: entry.phase,
@@ -280,6 +297,8 @@ try {
     JSON.stringify(
       {
         benchmark: "laya-decision-baseline-v0",
+        candidate_top_k: topK,
+        back_option_included: includeBack,
         model: "convaiinnovations/laya (receptron/laya-onnx)",
         model_revision: LAYA_REVISION,
         wrapper: "@receptron/laya@0.1.2",

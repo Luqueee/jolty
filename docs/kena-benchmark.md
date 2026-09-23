@@ -21,6 +21,8 @@ An expanded run on 2026-09-23 added the settings-prefix `type` flow and the lang
 
 A follow-up run on the same date corrected action construction: only native `<select>` controls now receive `select`; custom comboboxes and options receive `click`. With three measured repetitions per flow, the heuristic completed **21/21**, including **3/3** language-menu openings; Laya remained at **12/21** and still did not select the expected click on that flow. The action-contract failure is resolved, while Laya's remaining errors concern candidate selection on these cases. The earlier measurements above are retained as the before state, not a current result.
 
+An option-set probe used one warmup and three measured repetitions per flow. `JOLTY_KENA_LAYA_TOP_K=10` reproduced **12/21** Laya completions; Top-5 also gave **12/21**, while Top-3 fell to **6/21**. The labeled target remained within every policy candidate set. At Top-10, Laya chose `back` on Staff and chose the candidates at ranks 10 and 8 for the prefix and language flows, respectively, while each labeled target was rank 1. At Top-3, the model also lost Configuration and Moderation. `JOLTY_KENA_INCLUDE_BACK=0` with Top-10 changed Staff to a wrong rank-2 click and left task completion at **12/21**. These repeated observations cover only seven cases on one application. The benchmark reports aggregate selected action/rank counts without exporting page state. Neither reduced Top-K nor omitting `back` is enabled in the normal runner.
+
 Further candidates from Kena's E2E suite:
 
 | Flow | Steps | Deterministic outcome | Status |

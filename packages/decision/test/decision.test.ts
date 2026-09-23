@@ -78,6 +78,23 @@ describe("decision question", () => {
     );
   });
 
+  it("can omit unavailable target-free actions", () => {
+    const question = buildModelQuestion(
+      {
+        goal: "Open settings",
+        state,
+        candidates: [ranked(element("e1", "link"))],
+      },
+      { targetFreeActions: ["scroll", "wait", "done"] },
+    );
+    expect(question.options.map(({ action }) => action)).toEqual([
+      "click",
+      "scroll",
+      "wait",
+      "done",
+    ]);
+  });
+
   it("rejects duplicate IDs and unknown model output", () => {
     expect(() =>
       buildModelQuestion({

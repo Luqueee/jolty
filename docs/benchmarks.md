@@ -2,7 +2,7 @@
 
 This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), [five-task Jolty loop](controlled-loop.md), and [hybrid fallback](fallback.md) benchmarks. General-site and post-action recovery comparisons remain unmeasured.
 
-The [Kena dashboard probe](kena-benchmark.md) measures five navigation flows on a separate application's local fake-adapter server. It is an early held-out application check, not a representative multi-site evaluation.
+The [Kena dashboard probe](kena-benchmark.md) measures seven one-step flows on a separate application's local fake-adapter server. It is an early held-out application check, not a representative multi-site evaluation.
 
 ## Controlled hybrid fallback
 
@@ -75,6 +75,8 @@ The recorded run used Node.js 25.9.0 and Chromium 153.0.8010.12, with one decisi
 The earlier later-phase controlled run found the target in retrieved Top-10 for **4/4 cases**. The heuristic and Laya each matched **4/4** action-and-target labels. Across those 21 initial and later-phase cases, retrieval Top-10 covered **21/21**, the heuristic matched **18/21**, and Laya matched **15/21**. `pnpm run benchmark:retrieval` still measures these 21 target-bearing cases; its 2,100 measured retrieval calls had p50/p95 **0.0028/0.0043 ms** in that run.
 
 In a subsequent 26-case isolated decision run on the same hardware, Node.js 25.9.0, and Chromium 153.0.8010.12, retrieval covered **22/22 targeted cases**. The heuristic matched **19/26** labels, and Laya matched **17/26**. Laya chose `wait` for the clock-frozen loading phase (confidence 0.8511) and correctly chose the modal Confirm button in the separate dialog-open probe (confidence 0.8121). In all three terminal states, Laya chose a `click` instead of `done`; the heuristic also missed those states because it always chooses a target. The current model question includes the goal, URL, title, and interactive candidates but omits visible status text such as “Signed in” or “Report opened,” so these results cannot isolate the model's ability to recognize completion from an adequate state representation. The run's ONNX inference p50/p95 was **84.8/98.3 ms**, and full decision p50/p95 was **85.3/98.8 ms**. These few curated decisions do not establish task success, generalization, or confidence calibration. Recovery remains unmeasured.
+
+A paired option-set probe on 2026-09-23 used `JOLTY_DECISION_TOP_K=5` and `3` with `pnpm run benchmark:decision` against the same 26 fixture states. Both variants retained all 22 targeted cases and left Laya at **17/26** exact decisions. Omitting `back` instead (`JOLTY_DECISION_INCLUDE_BACK=0`, Top-10 unchanged) produced **18/26**: one initial form action changed from wrong to correct. These are ablations, not a validated policy or a multi-site improvement. Default inference still offers Top-10 candidates and all four target-free actions.
 
 ## Comparison baselines
 

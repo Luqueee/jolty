@@ -12,6 +12,11 @@ export const ACTIONS = [
 ] as const;
 
 export type Action = (typeof ACTIONS)[number];
+export type TargetFreeAction = "scroll" | "wait" | "back" | "done";
+
+export interface DecisionQuestionOptions {
+  targetFreeActions?: readonly TargetFreeAction[];
+}
 
 export interface DecisionOption {
   key: string;
@@ -45,7 +50,10 @@ export function actionFor(element: InteractiveElement): Action {
   return "click";
 }
 
-export function buildModelQuestion(input: DecisionInput): ModelQuestion {
+export function buildModelQuestion(
+  input: DecisionInput,
+  config: DecisionQuestionOptions = {},
+): ModelQuestion {
   if (!input.goal.trim()) throw new Error("Decision goal must not be empty");
   const seenIds = new Set<string>();
   const options: DecisionOption[] = input.candidates.map(
@@ -64,7 +72,12 @@ export function buildModelQuestion(input: DecisionInput): ModelQuestion {
       };
     },
   );
-  for (const action of ["scroll", "wait", "back", "done"] as const) {
+  for (const action of config.targetFreeActions ?? [
+    "scroll",
+    "wait",
+    "back",
+    "done",
+  ]) {
     options.push({
       key: action,
       action,
