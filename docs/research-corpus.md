@@ -29,3 +29,17 @@ The 2026-09-23 v1 collection yielded 68/68 validated labels and digest `9a3226fb
 | Test | 2 | 11 | 7 | 1 | 3 |
 
 The origin and per-action admission gates pass. The collector waits up to 1.5 seconds for an expected text outcome before validating it; this handles asynchronous form results during offline labeling and does not change Jolty's browser hot path. Labels still require the exact action target, execution, validator result, and postcondition. The added button and selection cases improve action variety, but eleven test decisions across two practice sites remain too few for a generalization claim. The [revised experiment](frozen-encoder-experiment.md#revised-corpus-v1) reports the new held-out result. These test cases have now been inspected through the experiment and must not be reused as untouched evaluation for a further tuned candidate.
+
+## Corpus v2
+
+Run `pnpm run research:collect-v2` to create `artifacts/research-corpus-v2.json`. It retains the v1 training and calibration origins, adds a prepared invalid-login submission on QA Practice Hub and two modal-opening decisions on Practice Automation, and replaces all test cases with ten one-step decisions on [Test Track](https://www.testtrack.org/) and [WebDriverUniversity](https://webdriveruniversity.com/). The test cases and their deterministic outcomes were checked before model scoring. A proposed registration submission was excluded before scoring because its target was absent from the retrieved Top-10, despite successful execution and validation; it is not a training label.
+
+The 2026-09-23 collection produced 70/70 validated labels with digest `d23d9fb65aad9fef1e736e8f0c9b1bebfcf29cacfe466d95a0d1089b89aeee2b`:
+
+| Split | Origins | Distinct labels | Click | Select | Type |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Train | 3 | 36 | 14 | 3 | 19 |
+| Calibration | 2 | 24 | 12 | 3 | 9 |
+| Test | 2 | 10 | 4 | 0 | 6 |
+
+The engineering admission gate passes. The two test origins are disjoint from earlier evaluated origins and from v2 training and calibration. The cases are still authored on public practice pages; six test decisions are simple fields, so the set cannot establish broad generalization. Its test outcomes are now inspected and cannot be treated as untouched for future tuning.

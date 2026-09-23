@@ -14,6 +14,7 @@ import {
   probabilities,
 } from "./frozen-encoder.ts";
 import { freshTestFlows } from "./research-cases-v1.ts";
+import { freshTestFlowsV2 } from "./research-cases-v2.ts";
 import {
   type ResearchSample,
   readResearchCorpus,
@@ -23,9 +24,14 @@ const headPath = process.argv[2] ?? "artifacts/frozen-encoder-v0.json";
 const corpusPath = process.argv[3] ?? "artifacts/research-corpus-v0.json";
 const outputPath = process.argv[4] ?? "artifacts/frozen-encoder-live.json";
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-if (corpusVersion !== "0" && corpusVersion !== "1")
-  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0 or 1");
-const flows = corpusVersion === "1" ? freshTestFlows : legacyFlows;
+if (corpusVersion !== "0" && corpusVersion !== "1" && corpusVersion !== "2")
+  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, or 2");
+const flows =
+  corpusVersion === "2"
+    ? freshTestFlowsV2
+    : corpusVersion === "1"
+      ? freshTestFlows
+      : legacyFlows;
 const { digest } = await readResearchCorpus(corpusPath);
 const head = JSON.parse(await readFile(headPath, "utf8"));
 if (

@@ -4,6 +4,8 @@ Run `pnpm run benchmark:public` to compare the retrieved Top-1 heuristic with La
 
 `JOLTY_PUBLIC_CORPUS_VERSION=1` switches the flow list to the revised research corpus's eleven new test cases on QA Practice and the HTTPS UI Testing Playground installation. The default remains the original thirteen flows. The [frozen-encoder report](frozen-encoder-experiment.md#revised-corpus-v1) records a one-run Laya comparison on the revised list.
 
+`JOLTY_PUBLIC_CORPUS_VERSION=2` selects the ten cases on Test Track and WebDriverUniversity from the [third research corpus](research-corpus.md#corpus-v2). The [experiment report](frozen-encoder-experiment.md#corpus-v2-experiment) records the one-run comparison. The default flow list is unchanged.
+
 The thirteen one-step flows use four public demonstration sites:
 
 | Site | Prepared state and measured action | Deterministic check |

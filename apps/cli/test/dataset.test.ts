@@ -202,6 +202,8 @@ test("blocks encoder evaluation when labels, action coverage, and sites are miss
     "https://www.saucedemo.com",
     "https://www.qa-practice.com",
     "https://playground.go-bigger.de",
+    "https://www.testtrack.org",
+    "https://webdriveruniversity.com",
   ]) {
     const reservedTest = assessResearchReadiness([
       {

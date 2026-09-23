@@ -37,3 +37,17 @@ The 2026-09-23 v1 run used corpus digest `9a3226fbd80e73873a9aea6d3a29738e728b6c
 | Live decision latency p50 / p95 | 8.3 / 16.4 ms | 198.7 / 246.0 ms | — |
 
 The head matched 31/35 training and 22/22 calibration decisions. Calibration again selected temperature 0.25 and zero abstention threshold. Its test top-choice correctness Brier score was 0.275; among nine test choices above 0.9 confidence, seven were correct despite mean confidence 0.998. The live Node process reached 454 MiB RSS. The head missed the QA Practice simple and checkbox submissions, the prepared language submission, and the button-name update on UI Testing Playground. Laya completed one fewer task on this one-run comparison. These are eleven authored one-step tasks on two practice sites, with no repeated runs for the head, no multistep recovery, and no measured throughput. The one-case difference is inconclusive, and overconfidence prevents safe autonomous execution. Do not ship this head or treat the revised test origins as untouched for a later variant.
+
+## Corpus v2 experiment
+
+Run `pnpm run research:collect-v2`, `pnpm run research:train-frozen-v2`, and `pnpm run research:benchmark-frozen-v2`. The encoder, feature construction, head fitting, and calibration recipe are unchanged from v0 and v1. `JOLTY_RESEARCH_INCLUDE_CODEX=1 pnpm run research:baseline-laya-v2` measures Laya and the subscription-backed `gpt-6-sol` teacher on saved observations. `JOLTY_PUBLIC_CORPUS_VERSION=2 JOLTY_PUBLIC_RUNS=1 JOLTY_PUBLIC_POLICIES='Laya verbose/ranked' pnpm run benchmark:public` runs Laya on fresh pages. The teacher does not execute browser actions.
+
+The 2026-09-23 run used corpus digest `d23d9fb65aad9fef1e736e8f0c9b1bebfcf29cacfe466d95a0d1089b89aeee2b`:
+
+| Measure | Frozen head | Laya | ChatGPT subscription reference |
+| --- | ---: | ---: | ---: |
+| Exact next decisions on saved test observations | 7/10 | 6/10 | 10/10 |
+| Exact decisions and completed tasks on fresh pages | 7/10 | 6/10 | — |
+| Live decision latency p50 / p95 | 9.4 / 14.3 ms | 159.3 / 174.2 ms | — |
+
+The head matched 32/36 training and 24/24 calibration decisions. Calibration selected temperature 0.25 and a zero abstention threshold again. The test top-choice correctness Brier score was 0.068. All three head errors were Test Track text, email, or search fields, with confidence 0.297–0.580; all six choices above 0.9 confidence were correct. This is a useful failure pattern, but the six examples cannot validate a high-confidence execution policy. Laya also missed those three fields and one WebDriverUniversity field. The head's live Node process peaked at 450 MiB RSS. Each flow was measured once for the head, while Laya had one warmup per flow; model loading, page setup, and candidate extraction are outside the decision timer. No throughput or multistep recovery was measured. The one-task lead over Laya is inconclusive, so the head remains a research artifact outside the runtime. Further tuning requires new test origins.

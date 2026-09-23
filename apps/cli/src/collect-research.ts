@@ -12,11 +12,17 @@ import { safeText } from "./dataset.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
 import { type ResearchSplit, researchCases } from "./research-cases.ts";
 import { researchCasesV1 } from "./research-cases-v1.ts";
+import { researchCasesV2 } from "./research-cases-v2.ts";
 
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-if (corpusVersion !== "0" && corpusVersion !== "1")
-  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0 or 1");
-const cases = corpusVersion === "1" ? researchCasesV1 : researchCases;
+if (corpusVersion !== "0" && corpusVersion !== "1" && corpusVersion !== "2")
+  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, or 2");
+const cases =
+  corpusVersion === "2"
+    ? researchCasesV2
+    : corpusVersion === "1"
+      ? researchCasesV1
+      : researchCases;
 const output =
   process.argv[2] ?? `artifacts/research-corpus-v${corpusVersion}.json`;
 const splitByOrigin = new Map<string, ResearchSplit>([
@@ -31,6 +37,8 @@ const splitByOrigin = new Map<string, ResearchSplit>([
   ["https://practice-automation.com", "validation"],
   ["https://www.qa-practice.com", "test"],
   ["https://playground.go-bigger.de", "test"],
+  ["https://www.testtrack.org", "test"],
+  ["https://webdriveruniversity.com", "test"],
 ]);
 
 function projectState(state: BrowserState) {

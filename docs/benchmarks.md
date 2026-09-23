@@ -6,7 +6,7 @@ The [Kena dashboard probe](kena-benchmark.md) measures seven one-step flows on a
 
 The [public-site probe](public-site-benchmark.md) adds thirteen one-step flows across The Internet, TodoMVC React, SauceDemo, and Selenium's web form. It compares candidate retrieval, the Top-1 heuristic, and Laya presentation variants on live demonstration sites. These cases are still too few for a representative general-site claim.
 
-The [frozen-encoder experiments](frozen-encoder-experiment.md) train a small head on separate public practice sites and compare it with Laya and a ChatGPT subscription reference on two reserved public-flow collections. The first candidate underperformed Laya; the revised candidate completed one more of eleven tasks but retained high-confidence errors. Both remain outside the runtime.
+The [frozen-encoder experiments](frozen-encoder-experiment.md) train a small head on separate public practice sites and compare it with Laya and a ChatGPT subscription reference on three reserved public-flow collections. The first candidate underperformed Laya; the next two each completed one more task than Laya on their small one-run collections. No candidate has established a general benefit or a validated execution threshold, so the head remains outside the runtime.
 
 ## Controlled hybrid fallback
 

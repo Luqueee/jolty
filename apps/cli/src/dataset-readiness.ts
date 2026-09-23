@@ -7,6 +7,8 @@ const reservedTestOrigins = new Set([
   "https://www.selenium.dev",
   "https://www.qa-practice.com",
   "https://playground.go-bigger.de",
+  "https://www.testtrack.org",
+  "https://webdriveruniversity.com",
 ]);
 
 export interface ReadinessSample {
