@@ -19,6 +19,8 @@ The first attempt exposed a validator race: Kena's client-side navigation could 
 
 An expanded run on 2026-09-23 added the settings-prefix `type` flow and the language-menu `click` flow. With three measured runs each, candidate retrieval found the labeled target in the Top-10 for all 21 decisions per policy. The heuristic completed 18/21 (five navigation flows plus the prefix edit); Laya completed 12/21 (four navigation flows). Neither completed the language-menu flow. The heuristic chose `select` for Kena's Radix combobox, which Jolty's executor permits only on a native `<select>`; Laya did not select the expected `click` decision. A manual Playwright click on the combobox revealed the English option, so the intended action and check are feasible. These are repeated observations of seven cases on one site, not independent UI designs. The earlier five-flow ChatGPT subscription comparison remains the only measured reference result; it has not been rerun on the expanded set.
 
+A follow-up run on the same date corrected action construction: only native `<select>` controls now receive `select`; custom comboboxes and options receive `click`. With three measured repetitions per flow, the heuristic completed **21/21**, including **3/3** language-menu openings; Laya remained at **12/21** and still did not select the expected click on that flow. The action-contract failure is resolved, while Laya's remaining errors concern candidate selection on these cases. The earlier measurements above are retained as the before state, not a current result.
+
 Further candidates from Kena's E2E suite:
 
 | Flow | Steps | Deterministic outcome | Status |
@@ -27,6 +29,6 @@ Further candidates from Kena's E2E suite:
 | Search a member | Open settings access tab; open user picker; type a query | Seeded Test Member becomes visible | Specified by Kena E2E; needs a multistep Jolty task and local replay. |
 | Handle unsaved changes | Toggle music setting; navigate to Greeter; stay or discard | Dialog appears, then URL and dirty form match the selected branch | Specified by Kena E2E; needs multistep branching and local replay. |
 | Add a music prefix | Type in token editor; commit the token | Added prefix chip is visible | A direct `fill("!")` left the textbox empty in a manual probe; the one-step input-value check is unsuitable. |
-| Choose a dashboard language | Open Radix combobox; click an option | Selected language changes | Menu opening is benchmarked; option selection needs a multistep task and a suitable outcome check. |
+| Choose a dashboard language | Open Radix combobox; click an option | Selected language changes | Menu opening is benchmarked with a supported click; option selection needs a multistep task and a suitable outcome check. |
 
 Kena adds one genuinely different application for evaluation, including `click` and `type` labels, but the [dataset readiness gate](research-readiness.md) still fails: train, calibration, action coverage, and independent test-site breadth remain inadequate for a frozen-encoder experiment. Keep these Kena flows out of training if they serve as the held-out application.

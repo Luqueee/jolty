@@ -38,9 +38,10 @@ export interface ModelQuestion {
   options: DecisionOption[];
 }
 
-function actionFor(element: InteractiveElement): Action {
+export function actionFor(element: InteractiveElement): Action {
   if (element.editable) return "type";
-  if (["combobox", "listbox", "option"].includes(element.role)) return "select";
+  if (element.role === "combobox" && element.value !== undefined)
+    return "select";
   return "click";
 }
 

@@ -17,7 +17,7 @@ import {
 } from "../../retrieval/eval/cases.ts";
 import { filterCandidates } from "../../retrieval/src/candidate-filter.ts";
 import { retrieveCandidates } from "../../retrieval/src/candidate-retrieval.ts";
-import type { DecisionInput } from "../src/decision.ts";
+import { actionFor, type DecisionInput } from "../src/decision.ts";
 import { LAYA_REVISION, LayaDecisionModel } from "../src/laya-decision.ts";
 import { summarizeSteps } from "./step-summary.ts";
 
@@ -49,13 +49,6 @@ interface MeasuredCase {
   heuristic_action: string | null;
   heuristic_target_id: string | null;
 }
-
-const actionForRole = (role: string, editable: boolean) =>
-  editable
-    ? "type"
-    : ["combobox", "listbox", "option"].includes(role)
-      ? "select"
-      : "click";
 
 function percentile(samples: readonly number[], p: number): number | null {
   if (!samples.length) return null;
@@ -105,10 +98,7 @@ function addInput(
       : 0,
     retrievalTopK: retrieved.topCandidates.length,
     heuristicAction: retrieved.topCandidates[0]
-      ? actionForRole(
-          retrieved.topCandidates[0].element.role,
-          retrieved.topCandidates[0].element.editable,
-        )
+      ? actionFor(retrieved.topCandidates[0].element)
       : null,
     heuristicTargetId: retrieved.topCandidates[0]?.element.id ?? null,
   });

@@ -3,6 +3,7 @@ import type { RankedCandidate } from "@jolty/retrieval";
 import { describe, expect, it } from "vitest";
 import {
   ACTIONS,
+  actionFor,
   buildModelQuestion,
   selectedOption,
 } from "../src/decision.ts";
@@ -47,7 +48,7 @@ describe("decision question", () => {
       state,
       candidates: [
         ranked(element("e1", "textbox", true)),
-        ranked(element("e2", "combobox")),
+        ranked({ ...element("e2", "combobox"), value: "Spanish" }),
         ranked(element("e3", "button")),
       ],
     });
@@ -66,6 +67,15 @@ describe("decision question", () => {
       new Set(ACTIONS),
     );
     expect(selectedOption(question.options, "c2").targetId).toBe("e2");
+  });
+
+  it("clicks custom list controls and selects only native selects", () => {
+    expect(actionFor(element("e1", "combobox"))).toBe("click");
+    expect(actionFor(element("e2", "listbox"))).toBe("click");
+    expect(actionFor(element("e3", "option"))).toBe("click");
+    expect(actionFor({ ...element("e4", "combobox"), value: "" })).toBe(
+      "select",
+    );
   });
 
   it("rejects duplicate IDs and unknown model output", () => {

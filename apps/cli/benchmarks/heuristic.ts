@@ -1,4 +1,5 @@
 import type { DecisionProvider } from "@jolty/core";
+import { actionFor } from "@jolty/decision/contract";
 
 export const heuristicDecision: DecisionProvider = {
   async decide({ candidates }) {
@@ -15,11 +16,7 @@ export const heuristicDecision: DecisionProvider = {
       return { status: "failed", reason: "invalid_output", metrics: metrics() };
     return {
       status: "selected",
-      action: first.editable
-        ? "type"
-        : ["combobox", "listbox", "option"].includes(first.role)
-          ? "select"
-          : "click",
+      action: actionFor(first),
       targetId: first.id,
       confidence: null,
       metrics: metrics(),
