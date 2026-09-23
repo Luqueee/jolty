@@ -21,7 +21,7 @@ The design separates **System 1**, the repeated fast path, from **System 2**, th
 
 ## Status
 
-The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering and retrieval, a local Laya decision baseline, controlled benchmarks, and local E2E fixtures are implemented. The executor, fallback, and CLI are not implemented. The broader architecture and performance targets remain proposed.
+The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering and retrieval, a local Laya decision baseline, a Playwright executor, controlled benchmarks, and local E2E fixtures are implemented. The validator, fallback, and CLI are not implemented. The broader architecture and performance targets remain proposed.
 
 ## Development
 
@@ -50,6 +50,7 @@ The bootstrap `build` script currently checks TypeScript without emitting files.
 - [Candidate retrieval](docs/candidate-retrieval.md): lexical ranking, Top-K, and evaluation.
 - [Controlled fixtures](docs/fixtures.md): reproducible browser scenarios and their expected outcomes.
 - [Decision model](docs/decision-model.md): BDM inputs, outputs, baseline, and fallback.
+- [Executor](docs/executor.md): bounded Playwright actions and failure contract.
 - [Performance](docs/performance.md): fast-path design and engineering targets.
 - [Benchmarks](docs/benchmarks.md): comparison baselines and evaluation metrics.
 - [Roadmap](docs/roadmap.md): proposed development stages.

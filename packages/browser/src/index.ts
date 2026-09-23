@@ -2,6 +2,7 @@ import type { Page } from "playwright";
 
 export interface InteractiveElement {
   id: string;
+  domIndex?: number;
   role: string;
   name: string;
   text: string;
@@ -12,6 +13,9 @@ export interface InteractiveElement {
   hasValue?: boolean;
   selected?: boolean;
 }
+
+export const INTERACTIVE_SELECTOR =
+  "button, input:not([type=hidden]), select, textarea, a[href], summary, [role], [tabindex], [contenteditable]";
 
 export interface BrowserState {
   url: string;
@@ -35,7 +39,7 @@ export async function extractBrowserState(
   page: Page,
 ): Promise<StateObservation> {
   const start = performance.now();
-  const observation = await page.evaluate(() => {
+  const observation = await page.evaluate((selector) => {
     const interactiveRoles = new Set([
       "button",
       "checkbox",
@@ -100,10 +104,10 @@ export async function extractBrowserState(
       return "generic";
     };
 
-    const selector =
-      "button, input:not([type=hidden]), select, textarea, a[href], summary, [role], [tabindex], [contenteditable]";
     const elements: InteractiveElement[] = [];
+    let domIndex = 0;
     for (const element of document.querySelectorAll(selector)) {
+      const currentDomIndex = domIndex++;
       if (element instanceof HTMLInputElement && element.type === "hidden")
         continue;
       const role = roleFor(element);
@@ -175,6 +179,7 @@ export async function extractBrowserState(
           htmlElement.isContentEditable);
       const item: InteractiveElement = {
         id: `e${elements.length + 1}`,
+        domIndex: currentDomIndex,
         role,
         name,
         text,
@@ -209,7 +214,7 @@ export async function extractBrowserState(
       state: { url: location.href, title: document.title, elements },
       total_dom_nodes: document.getElementsByTagName("*").length,
     };
-  });
+  }, INTERACTIVE_SELECTOR);
 
   const serialized_state_bytes = Buffer.byteLength(
     JSON.stringify(observation.state),

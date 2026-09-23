@@ -43,6 +43,14 @@ test("extracts a compact, serializable browser state", async () => {
   expect(first.state.elements.map(({ id }) => id)).toEqual(
     first.state.elements.map((_, index) => `e${index + 1}`),
   );
+  expect(
+    first.state.elements.every(({ domIndex }) => Number.isInteger(domIndex)),
+  ).toBe(true);
+  expect(first.state.elements.map(({ domIndex }) => domIndex)).toEqual(
+    [...first.state.elements.map(({ domIndex }) => domIndex)].sort(
+      (a, b) => (a ?? 0) - (b ?? 0),
+    ),
+  );
   expect(first.state.elements).toHaveLength(8);
   expect(first.state.elements[0]).toMatchObject({
     role: "textbox",

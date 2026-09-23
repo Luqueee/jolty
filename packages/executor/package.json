@@ -1,0 +1,13 @@
+{
+  "name": "@jolty/executor",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/execute-action.ts"
+  },
+  "dependencies": {
+    "@jolty/browser": "workspace:*",
+    "playwright": "1.63.0"
+  }
+}

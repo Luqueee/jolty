@@ -291,19 +291,19 @@ Translate a selected Jolty action into a safe Playwright interaction.
 
 ### Checklist
 
-- [ ] Implement the supported action vocabulary.
-- [ ] Resolve candidate IDs to browser elements safely.
-- [ ] Reject unsupported actions.
-- [ ] Reject invalid targets.
-- [ ] Do not execute arbitrary model-generated JavaScript.
-- [ ] Add action-level tests.
-- [ ] Record action timing and failures.
+- [x] Implement the supported action vocabulary.
+- [x] Resolve candidate IDs to browser elements safely.
+- [x] Reject unsupported actions.
+- [x] Reject invalid targets.
+- [x] Do not execute arbitrary model-generated JavaScript.
+- [x] Add action-level tests.
+- [x] Record action timing and failures.
 
 ### Exit criteria
 
-- [ ] Model decisions can be executed against fixtures.
-- [ ] Invalid actions fail clearly.
-- [ ] Execution remains independent from model implementation details.
+- [x] Model decisions can be executed against fixtures.
+- [x] Invalid actions fail clearly.
+- [x] Execution remains independent from model implementation details.
 
 ---
 
