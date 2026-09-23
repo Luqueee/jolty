@@ -352,30 +352,30 @@ Make every Jolty decision inspectable.
 
 Record, at minimum:
 
-- [ ] run ID
-- [ ] step ID
-- [ ] current goal
-- [ ] browser-state summary
-- [ ] candidate list
-- [ ] retrieval scores
-- [ ] selected action
-- [ ] selected target
-- [ ] model name/version
-- [ ] model confidence
-- [ ] extraction latency
-- [ ] filtering latency
-- [ ] retrieval latency
-- [ ] tokenization latency
-- [ ] inference latency
-- [ ] action latency
-- [ ] validation latency
-- [ ] final step outcome
+- [x] run ID
+- [x] step ID
+- [x] current goal
+- [x] browser-state summary
+- [x] candidate list
+- [x] retrieval scores
+- [x] selected action
+- [x] selected target
+- [x] model name/version
+- [x] model confidence
+- [x] extraction latency
+- [x] filtering latency
+- [x] retrieval latency
+- [x] tokenization latency
+- [x] inference latency
+- [x] action latency
+- [x] validation latency
+- [x] final step outcome
 
 ### Exit criteria
 
-- [ ] A failed step can be debugged from its trace.
-- [ ] Hot-path latency can be broken down by stage.
-- [ ] No critical decision path is opaque.
+- [x] A failed step can be debugged from its trace.
+- [x] Hot-path latency can be broken down by stage.
+- [x] No critical decision path is opaque.
 
 ---
 

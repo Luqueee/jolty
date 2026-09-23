@@ -5,7 +5,8 @@ import {
 } from "../../browser/fixtures/routes.ts";
 import { extractBrowserState } from "../../browser/src/index.ts";
 import {
-  retrievalCases,
+  evaluationCases,
+  prepareEvaluationCase,
   targetDomIndexFor,
   targetIdFor,
 } from "../eval/cases.ts";
@@ -16,11 +17,12 @@ const browser = await chromium.launch();
 const chromiumVersion = browser.version();
 try {
   const cases = [];
-  for (const testCase of retrievalCases) {
+  for (const testCase of evaluationCases) {
     const page = await browser.newPage();
     try {
       await installFixtureRoutes(page);
       await page.goto(fixtureUrl(testCase.fixture));
+      await prepareEvaluationCase(page, testCase);
       const candidates = filterCandidates(
         (await extractBrowserState(page)).state,
       ).candidates;
@@ -42,7 +44,12 @@ try {
       retrieveCandidates(entry.testCase.goal, entry.candidates);
   }
   const samples: number[] = [];
-  const ranks: { fixture: string; goal: string; rank: number }[] = [];
+  const ranks: {
+    fixture: string;
+    phase: string;
+    goal: string;
+    rank: number;
+  }[] = [];
   for (let i = 0; i < 100; i++) {
     for (const entry of cases) {
       const result = retrieveCandidates(entry.testCase.goal, entry.candidates);
@@ -50,6 +57,7 @@ try {
       if (i === 0) {
         ranks.push({
           fixture: entry.testCase.fixture,
+          phase: entry.testCase.phase ?? "initial",
           goal: entry.testCase.goal,
           rank:
             result.ranked.findIndex(
@@ -71,6 +79,9 @@ try {
         chromium_version: chromiumVersion,
         concurrency: 1,
         fixture_cases: cases.length,
+        initial_cases: cases.filter(({ testCase }) => !testCase.phase).length,
+        later_phase_cases: cases.filter(({ testCase }) => testCase.phase)
+          .length,
         warmup_cycles: 10,
         measured_decisions: samples.length,
         recall_at_1: recallAt(1),

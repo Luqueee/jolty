@@ -4,11 +4,17 @@ import { scenarios } from "../../browser/fixtures/scenarios.ts";
 
 export interface RetrievalCase {
   fixture: string;
+  phase?: string;
   goal: string;
   targetRole: string;
   targetName: string;
   occurrence?: number;
   targetSelector?: string;
+}
+
+interface LabeledPhaseCase extends RetrievalCase {
+  phase: string;
+  targetSelector: string;
 }
 
 function initialTargetSelector(fixture: string): string {
@@ -126,6 +132,115 @@ export const retrievalCases: readonly RetrievalCase[] = [
     targetSelector: initialTargetSelector("ambiguous-row"),
   },
 ];
+
+const laterPhaseTargets = [
+  {
+    fixture: "login",
+    phase: "email-filled",
+    targetRole: "textbox",
+    targetName: "Password",
+  },
+  {
+    fixture: "login",
+    phase: "password-filled",
+    targetRole: "button",
+    targetName: "Sign in",
+  },
+  {
+    fixture: "cookie-overlay",
+    phase: "notice-dismissed",
+    targetRole: "button",
+    targetName: "Continue to checkout",
+  },
+  {
+    fixture: "dynamic-results",
+    phase: "report-ready",
+    targetRole: "button",
+    targetName: "Open report",
+  },
+] as const;
+
+export const laterPhaseCases: readonly LabeledPhaseCase[] =
+  laterPhaseTargets.map(({ fixture, phase, targetRole, targetName }) => {
+    const label = scenarios
+      .find(({ id }) => id === fixture)
+      ?.decisionLabels?.find((entry) => entry.phase === phase);
+    if (!label?.targetSelector || label.action === "wait")
+      throw new Error(
+        `Missing targeted decision label for ${fixture}/${phase}`,
+      );
+    return {
+      fixture,
+      phase,
+      goal: label.goal,
+      targetRole,
+      targetName,
+      targetSelector: label.targetSelector,
+    };
+  });
+
+export const evaluationCases: readonly RetrievalCase[] = [
+  ...retrievalCases,
+  ...laterPhaseCases,
+];
+
+export async function prepareEvaluationCase(
+  page: Page,
+  testCase: RetrievalCase,
+): Promise<void> {
+  if (!testCase.phase) return;
+  const labels = scenarios.find(
+    ({ id }) => id === testCase.fixture,
+  )?.decisionLabels;
+  const phaseIndex =
+    labels?.findIndex(({ phase }) => phase === testCase.phase) ?? -1;
+  if (!labels || phaseIndex < 1)
+    throw new Error(
+      `Missing prior labels for ${testCase.fixture}/${testCase.phase}`,
+    );
+
+  for (const label of labels.slice(0, phaseIndex)) {
+    if (label.action === "type") {
+      if (
+        !label.targetSelector ||
+        label.expectedAfterAction.kind !== "input_value"
+      )
+        throw new Error(
+          `Invalid type label for ${testCase.fixture}/${label.phase}`,
+        );
+      await page
+        .locator(label.targetSelector)
+        .fill(label.expectedAfterAction.value);
+    } else if (label.action === "click") {
+      if (!label.targetSelector)
+        throw new Error(
+          `Missing click target for ${testCase.fixture}/${label.phase}`,
+        );
+      await page.locator(label.targetSelector).click();
+    }
+    const condition = label.expectedAfterAction;
+    switch (condition.kind) {
+      case "input_value":
+        if (
+          (await page.locator(condition.selector).inputValue()) !==
+          condition.value
+        )
+          throw new Error("Fixture input did not reach labeled value");
+        break;
+      case "visible_text":
+        await page
+          .getByText(condition.text, { exact: true })
+          .waitFor({ state: "visible" });
+        break;
+      case "element_hidden":
+        await page.locator(condition.selector).waitFor({ state: "hidden" });
+        break;
+      case "element_visible":
+        await page.locator(condition.selector).waitFor({ state: "visible" });
+        break;
+    }
+  }
+}
 
 export function targetIdFor(
   candidates: readonly InteractiveElement[],

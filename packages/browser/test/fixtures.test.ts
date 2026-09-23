@@ -1,7 +1,10 @@
 import { type Browser, chromium, type Page } from "playwright";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import { fixtureUrl, installFixtureRoutes } from "../fixtures/routes.js";
-import { scenarios } from "../fixtures/scenarios.js";
+import {
+  type FixtureSuccessCondition,
+  scenarios,
+} from "../fixtures/scenarios.js";
 
 let browser: Browser;
 
@@ -15,13 +18,19 @@ afterAll(async () => {
 
 const exercise: Record<string, (page: Page) => Promise<void>> = {
   async login(page) {
+    await expectDecisionLabel(page, "login", "initial");
     await page
       .getByRole("textbox", { name: "Email" })
       .fill("person@example.test");
+    await expectDecisionOutcome(page, "login", "initial");
+    await expectDecisionLabel(page, "login", "email-filled");
     await page
       .getByRole("textbox", { name: "Password" })
       .fill("correct-password");
+    await expectDecisionOutcome(page, "login", "email-filled");
+    await expectDecisionLabel(page, "login", "password-filled");
     await page.getByRole("button", { name: "Sign in" }).click();
+    await expectDecisionOutcome(page, "login", "password-filled");
     expect(await page.getByRole("status").textContent()).toBe("Signed in");
   },
   async logout(page) {
@@ -120,23 +129,28 @@ const exercise: Record<string, (page: Page) => Promise<void>> = {
     expect(await notice.isVisible()).toBe(true);
     await expectDecisionLabel(page, "cookie-overlay", "initial");
     await notice.getByRole("button", { name: "Accept cookies" }).click();
+    await expectDecisionOutcome(page, "cookie-overlay", "initial");
     expect(await notice.isVisible()).toBe(false);
     await expectDecisionLabel(page, "cookie-overlay", "notice-dismissed");
     await page.getByRole("button", { name: "Continue to checkout" }).click();
+    await expectDecisionOutcome(page, "cookie-overlay", "notice-dismissed");
     expect(await page.getByRole("status").textContent()).toBe("Checkout ready");
   },
   async "dynamic-results"(page) {
     await page.clock.install();
     await expectDecisionLabel(page, "dynamic-results", "initial");
     await page.getByRole("button", { name: "Load report" }).click();
+    await expectDecisionOutcome(page, "dynamic-results", "initial");
     expect(await page.getByRole("status").textContent()).toBe("Loading report");
     expect(
       await page.getByRole("button", { name: "Open report" }).count(),
     ).toBe(0);
     await expectDecisionLabel(page, "dynamic-results", "loading");
     await page.clock.fastForward(80);
+    await expectDecisionOutcome(page, "dynamic-results", "loading");
     await expectDecisionLabel(page, "dynamic-results", "report-ready");
     await page.getByRole("button", { name: "Open report" }).click();
+    await expectDecisionOutcome(page, "dynamic-results", "report-ready");
     expect(await page.getByRole("status").textContent()).toBe("Report opened");
   },
   async "ambiguous-row"(page) {
@@ -147,6 +161,7 @@ const exercise: Record<string, (page: Page) => Promise<void>> = {
       .filter({ hasText: "Approved" })
       .getByRole("button", { name: "Open" })
       .click();
+    await expectDecisionOutcome(page, "ambiguous-row", "initial");
     expect(await page.getByRole("status").textContent()).toBe(
       "Approved request opened",
     );
@@ -162,6 +177,7 @@ async function expectDecisionLabel(
   const label = scenario?.decisionLabels?.find((item) => item.phase === phase);
   expect(label).toBeDefined();
   if (!label) return;
+  expect(label.goal.length).toBeGreaterThan(0);
   if (label.action === "wait") {
     expect(label.targetSelector).toBeUndefined();
     return;
@@ -172,6 +188,43 @@ async function expectDecisionLabel(
   expect(await target.count()).toBe(1);
   expect(await target.isVisible()).toBe(true);
   expect(await target.isEnabled()).toBe(true);
+}
+
+async function expectDecisionOutcome(
+  page: Page,
+  scenarioId: string,
+  phase: string,
+): Promise<void> {
+  const label = scenarios
+    .find(({ id }) => id === scenarioId)
+    ?.decisionLabels?.find((item) => item.phase === phase);
+  expect(label).toBeDefined();
+  if (!label) return;
+  await expectSuccessCondition(page, label.expectedAfterAction);
+}
+
+async function expectSuccessCondition(
+  page: Page,
+  condition: FixtureSuccessCondition,
+): Promise<void> {
+  switch (condition.kind) {
+    case "input_value":
+      expect(await page.locator(condition.selector).inputValue()).toBe(
+        condition.value,
+      );
+      break;
+    case "visible_text":
+      expect(
+        await page.getByText(condition.text, { exact: true }).isVisible(),
+      ).toBe(true);
+      break;
+    case "element_hidden":
+      expect(await page.locator(condition.selector).isVisible()).toBe(false);
+      break;
+    case "element_visible":
+      expect(await page.locator(condition.selector).isVisible()).toBe(true);
+      break;
+  }
 }
 
 test.each(scenarios)(

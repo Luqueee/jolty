@@ -1,5 +1,7 @@
-# Step trace draft
+# Step traces
 
-`createStepTraceDraft` in `@jolty/telemetry` creates an in-memory record of one step through execution. It records run and step IDs, a caller-supplied safe goal summary, a page origin and pathname, candidate IDs/roles/retrieval scores, the selected decision or failure, execution status, and stage timing. `validation_outcome` is `pending`; full traces and persistence belong to Milestone 8.
+`createStepTraceDraft` in `@jolty/telemetry` records the evidence available through execution. `completeStepTrace` adds deterministic validation evidence and the final step outcome. Both helpers are synchronous and return serializable, in-memory records. They observe data supplied by the caller; they do not perform an action, validation, logging, storage, or fallback.
 
-The draft deliberately omits form values, candidate names, URL query and fragment, and raw error messages. A caller must also keep secrets out of `goalSummary` and page path. The helper performs no logging, storage, validation, fallback, or control flow. Its purpose is to preserve the already available pre-validation evidence while the trace contract develops.
+The trace contains run and step IDs, a caller-supplied safe goal summary, page origin and pathname, interactive element count, candidate IDs/roles/retrieval scores, model name/version, selected action and target, confidence, execution status, per-stage timing, check kinds and pass/fail results, and a final outcome. The outcome distinguishes `decision_failed`, `action_failed`, `validation_failed`, and `passed`. A failed decision must skip execution and validation. An executed action requires a validation result.
+
+The trace omits form values, candidate names, URL query and fragment, validation messages, and raw error messages. Known decision and execution failure reason codes are retained; unknown reason strings become `unknown`. The caller must keep secrets out of `goalSummary`, model identifiers, and page path. No fallback is implemented yet, so `fallback_reason` is `null`.

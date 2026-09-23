@@ -6,7 +6,8 @@ import {
 } from "../../browser/fixtures/routes.ts";
 import { extractBrowserState } from "../../browser/src/index.ts";
 import {
-  retrievalCases,
+  evaluationCases,
+  prepareEvaluationCase,
   targetDomIndexFor,
   targetIdFor,
 } from "../../retrieval/eval/cases.ts";
@@ -18,6 +19,7 @@ import { summarizeSteps } from "./step-summary.ts";
 
 interface MeasuredCase {
   fixture: string;
+  phase: string;
   goal: string;
   expected_action: string;
   expected_target_id: string;
@@ -61,6 +63,7 @@ const browser = await chromium.launch();
 const chromiumVersion = browser.version();
 const inputs: {
   fixture: string;
+  phase: string;
   goal: string;
   expectedAction: "click" | "type" | "select";
   expectedTargetId: string;
@@ -73,11 +76,12 @@ const inputs: {
   heuristicTargetId: string | null;
 }[] = [];
 try {
-  for (const testCase of retrievalCases) {
+  for (const testCase of evaluationCases) {
     const page = await browser.newPage();
     try {
       await installFixtureRoutes(page);
       await page.goto(fixtureUrl(testCase.fixture));
+      await prepareEvaluationCase(page, testCase);
       const state = (await extractBrowserState(page)).state;
       const filtered = filterCandidates(state);
       const retrieved = retrieveCandidates(testCase.goal, filtered.candidates);
@@ -90,6 +94,7 @@ try {
         throw new Error(`Missing fixture target: ${testCase.fixture}`);
       inputs.push({
         fixture: testCase.fixture,
+        phase: testCase.phase ?? "initial",
         goal: testCase.goal,
         expectedAction:
           testCase.targetRole === "combobox"
@@ -136,6 +141,7 @@ try {
     const result = await model.decide(entry.input);
     cases.push({
       fixture: entry.fixture,
+      phase: entry.phase,
       goal: entry.goal,
       expected_action: entry.expectedAction,
       expected_target_id: entry.expectedTargetId,
@@ -199,6 +205,12 @@ try {
     ),
   });
   const stepSummary = summarizeSteps(cases);
+  const initialSummary = summarizeSteps(
+    cases.filter(({ phase }) => phase === "initial"),
+  );
+  const laterPhaseSummary = summarizeSteps(
+    cases.filter(({ phase }) => phase !== "initial"),
+  );
   console.log(
     JSON.stringify(
       {
@@ -216,7 +228,12 @@ try {
         },
         execution_provider: "cpu",
         warmup_decisions: 1,
+        initial_cases: cases.filter(({ phase }) => phase === "initial").length,
+        later_phase_cases: cases.filter(({ phase }) => phase !== "initial")
+          .length,
         ...stepSummary,
+        initial_summary: initialSummary,
+        later_phase_summary: laterPhaseSummary,
         step_accuracy: stepSummary.model_step_accuracy,
         correct_steps: stepSummary.model_correct_steps,
         model_failures: cases.filter(({ failure_reason }) => failure_reason)

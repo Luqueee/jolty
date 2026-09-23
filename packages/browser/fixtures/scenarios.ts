@@ -3,11 +3,20 @@ export interface FixtureScenario {
   goal: string;
   validActions: readonly string[];
   expectedOutcome: string;
-  decisionLabels?: readonly {
-    phase: string;
-    action: "click" | "wait";
-    targetSelector?: string;
-  }[];
+  decisionLabels?: readonly FixtureDecisionLabel[];
+}
+
+export type FixtureSuccessCondition =
+  | { kind: "input_value"; selector: string; value: string }
+  | { kind: "visible_text"; text: string }
+  | { kind: "element_hidden" | "element_visible"; selector: string };
+
+export interface FixtureDecisionLabel {
+  phase: string;
+  goal: string;
+  action: "click" | "type" | "wait";
+  targetSelector?: string;
+  expectedAfterAction: FixtureSuccessCondition;
 }
 
 export const scenarios: readonly FixtureScenario[] = [
@@ -16,6 +25,37 @@ export const scenarios: readonly FixtureScenario[] = [
     goal: "Sign in with valid credentials",
     validActions: ["Fill Email", "Fill Password", "Click Sign in"],
     expectedOutcome: "Signed in",
+    decisionLabels: [
+      {
+        phase: "initial",
+        goal: "Enter email address",
+        action: "type",
+        targetSelector: 'input[name="email"]',
+        expectedAfterAction: {
+          kind: "input_value",
+          selector: 'input[name="email"]',
+          value: "person@example.test",
+        },
+      },
+      {
+        phase: "email-filled",
+        goal: "Enter password",
+        action: "type",
+        targetSelector: 'input[name="password"]',
+        expectedAfterAction: {
+          kind: "input_value",
+          selector: 'input[name="password"]',
+          value: "correct-password",
+        },
+      },
+      {
+        phase: "password-filled",
+        goal: "Sign in",
+        action: "click",
+        targetSelector: 'button[type="submit"]',
+        expectedAfterAction: { kind: "visible_text", text: "Signed in" },
+      },
+    ],
   },
   {
     id: "logout",
@@ -89,11 +129,22 @@ export const scenarios: readonly FixtureScenario[] = [
     validActions: ["Click Accept cookies", "Click Continue to checkout"],
     expectedOutcome: "Checkout ready",
     decisionLabels: [
-      { phase: "initial", action: "click", targetSelector: "#accept-cookies" },
+      {
+        phase: "initial",
+        goal: "Dismiss the cookie notice before checkout",
+        action: "click",
+        targetSelector: "#accept-cookies",
+        expectedAfterAction: {
+          kind: "element_hidden",
+          selector: 'dialog[aria-label="Cookie notice"]',
+        },
+      },
       {
         phase: "notice-dismissed",
+        goal: "Continue to checkout",
         action: "click",
         targetSelector: "#checkout",
+        expectedAfterAction: { kind: "visible_text", text: "Checkout ready" },
       },
     ],
   },
@@ -107,12 +158,31 @@ export const scenarios: readonly FixtureScenario[] = [
     ],
     expectedOutcome: "Report opened",
     decisionLabels: [
-      { phase: "initial", action: "click", targetSelector: "#load-report" },
-      { phase: "loading", action: "wait" },
+      {
+        phase: "initial",
+        goal: "Load the report",
+        action: "click",
+        targetSelector: "#load-report",
+        expectedAfterAction: {
+          kind: "visible_text",
+          text: "Loading report",
+        },
+      },
+      {
+        phase: "loading",
+        goal: "Wait for the report to become available",
+        action: "wait",
+        expectedAfterAction: {
+          kind: "element_visible",
+          selector: "#open-report",
+        },
+      },
       {
         phase: "report-ready",
+        goal: "Open the report",
         action: "click",
         targetSelector: "#open-report",
+        expectedAfterAction: { kind: "visible_text", text: "Report opened" },
       },
     ],
   },
@@ -122,7 +192,16 @@ export const scenarios: readonly FixtureScenario[] = [
     validActions: ["Click Open in the Approved request row"],
     expectedOutcome: "Approved request opened",
     decisionLabels: [
-      { phase: "initial", action: "click", targetSelector: "#approved-open" },
+      {
+        phase: "initial",
+        goal: "Open the approved request",
+        action: "click",
+        targetSelector: "#approved-open",
+        expectedAfterAction: {
+          kind: "visible_text",
+          text: "Approved request opened",
+        },
+      },
     ],
   },
 ];
