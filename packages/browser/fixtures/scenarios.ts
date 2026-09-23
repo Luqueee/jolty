@@ -68,6 +68,29 @@ export const scenarios: readonly FixtureScenario[] = [
     goal: "Change the display name",
     validActions: ["Fill Display name", "Click Save profile"],
     expectedOutcome: "Updated: New name",
+    decisionLabels: [
+      {
+        phase: "initial",
+        goal: "Change display name",
+        action: "type",
+        targetSelector: 'input[name="displayName"]',
+        expectedAfterAction: {
+          kind: "input_value",
+          selector: 'input[name="displayName"]',
+          value: "New name",
+        },
+      },
+      {
+        phase: "name-changed",
+        goal: "Save profile",
+        action: "click",
+        targetSelector: 'button[type="submit"]',
+        expectedAfterAction: {
+          kind: "visible_text",
+          text: "Updated: New name",
+        },
+      },
+    ],
   },
   {
     id: "form",
@@ -86,6 +109,25 @@ export const scenarios: readonly FixtureScenario[] = [
     goal: "Confirm an action in a dialog",
     validActions: ["Click Open dialog", "Click Confirm in the dialog"],
     expectedOutcome: "Confirmed",
+    decisionLabels: [
+      {
+        phase: "initial",
+        goal: "Open confirmation dialog",
+        action: "click",
+        targetSelector: "#open",
+        expectedAfterAction: {
+          kind: "element_visible",
+          selector: 'dialog[aria-label="Confirmation"]',
+        },
+      },
+      {
+        phase: "dialog-open",
+        goal: "Confirm action",
+        action: "click",
+        targetSelector: "#confirm",
+        expectedAfterAction: { kind: "visible_text", text: "Confirmed" },
+      },
+    ],
   },
   {
     id: "select",

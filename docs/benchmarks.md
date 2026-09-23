@@ -4,19 +4,33 @@ This is an evaluation plan. The repository has controlled [browser-state extract
 
 ## Controlled task comparison
 
-Run `pnpm run benchmark:compare` for the deterministic Playwright reference, a retrieved Top-1 heuristic, and Laya on the same five task plans and fixture success texts. Each policy gets a fresh page and fixture state, one warmup, then 20 measured serial runs by default. `JOLTY_BENCH_RUNS` changes the measured repetitions. The timer starts before fixture navigation and ends after the final action, validation, and exact success-text check. Browser launch, model load, page creation, and route installation are excluded. Failed runs remain in duration and success summaries. The JSON report includes p50/p95/p99 for task duration and decision latency, validated-step rate, model calls, input/output tokens when available, and failure reasons. Playwright's hand-written reference has no model decisions, so its decision and step metrics are `null`.
+Run `pnpm run benchmark:compare` for the deterministic Playwright reference, a retrieved Top-1 heuristic, and Laya on the same five task plans and fixture success texts. Each policy gets a fresh page and fixture state, one warmup, then 20 measured serial runs by default. `JOLTY_BENCH_RUNS` changes the measured repetitions. The timer starts before fixture navigation and ends after the final action, validation, and exact success-text check. Browser launch, model load, page creation, route installation, and benchmark-only label resolution are excluded. Failed runs remain in duration and success summaries. The JSON report includes p50/p95/p99 for task duration and decision latency, exact labeled decision accuracy, validated-step rate, model calls, input/output tokens when available, and failure reasons. Playwright's hand-written reference has no model decisions, so its decision and step metrics are `null`.
+
+For each attempted model decision, the benchmark resolves the fixture's expected target selector to the current browser-state ID before asking the policy. A decision is correct only if both its action and target ID match the label; target-free `wait` requires no target. A failed decision counts as incorrect. The denominator includes attempted labeled steps, including those in failed tasks, and excludes later steps that were never reached. Label resolution is timed and subtracted from task duration so the oracle does not inflate policy latency. This metric is distinct from deterministic outcome validation: a step can pass its check after an incorrect action if the page changes independently. The five task plans have 10 labeled steps total; the fixtures remain curated local cases.
 
 On 2026-09-23, with Node 25.9.0, Chromium 153.0.8010.12, an AMD Ryzen 7 9700X, 31 GiB RAM, and the pinned Laya revision, the 20-run comparison measured:
 
 | Task | Playwright success; task p50 ms | Heuristic success; task p50 ms | Laya success; task p50 ms |
 | --- | ---: | ---: | ---: |
-| Modal | 20/20; 71.4 | 20/20; 86.7 | 20/20; 238.8 |
-| Settings | 20/20; 38.8 | 20/20; 55.6 | 20/20; 240.6 |
-| Cookie overlay | 20/20; 72.3 | 0/20; 3023.3 | 0/20; 115.3 |
-| Dynamic results | 20/20; 220.1 | 0/20; 86.8 | 20/20; 422.4 |
-| Ambiguous row | 20/20; 39.2 | 0/20; 55.6 | 0/20; 138.7 |
+| Modal | 20/20; 71.6 | 20/20; 68.9 | 20/20; 224.6 |
+| Settings | 20/20; 39.1 | 20/20; 41.8 | 20/20; 240.7 |
+| Cookie overlay | 20/20; 72.4 | 0/20; 3014.2 | 0/20; 107.9 |
+| Dynamic results | 20/20; 220.0 | 0/20; 70.3 | 20/20; 409.5 |
+| Ambiguous row | 20/20; 39.1 | 0/20; 42.9 | 0/20; 121.5 |
 
-Laya made two calls per successful modal/settings task, three per dynamic-results task, and one before failure on cookie-overlay and ambiguous-row. Its per-decision p50 ranged from 83.2 to 90.8 ms across these tasks; p95 ranged from 91.6 to 107.3 ms, and p99 from 98.5 to 132.2 ms. The heuristic made no model calls. Its cookie-overlay choice reached the Playwright action timeout, which explains the high failed-task duration. These are local fixtures with repeated identical states, so the 20 repetitions measure execution variability, not generalization or independent accuracy. The [offline decision benchmark](#laya-baseline-measurement) separately measured 22/22 targeted Top-10 retrieval recall; that figure is not a per-task retrieval result. Validated-step rate is an outcome proxy, not an independently labeled next-action accuracy metric.
+The exact labeled step counts in the rerun with the accuracy oracle were:
+
+| Task | Heuristic correct / attempted | Laya correct / attempted |
+| --- | ---: | ---: |
+| Modal | 40/40 | 40/40 |
+| Settings | 40/40 | 40/40 |
+| Cookie overlay | 0/20 | 0/20 |
+| Dynamic results | 20/40 | 60/60 |
+| Ambiguous row | 0/20 | 0/20 |
+
+Across attempted steps, the heuristic matched **100/160 (62.5%)** action-and-target labels and Laya matched **140/180 (77.8%)**. These pooled figures depend on which later steps each policy reached; task success remains the more meaningful full-flow result.
+
+Laya made two calls per successful modal/settings task, three per dynamic-results task, and one before failure on cookie-overlay and ambiguous-row. Its per-decision p50 ranged from 82.8 to 93.0 ms across these tasks; p95 ranged from 90.8 to 100.7 ms, and p99 from 96.1 to 115.4 ms. The heuristic made no model calls. Its cookie-overlay choice reached the Playwright action timeout, which explains the high failed-task duration. These are local fixtures with repeated identical states, so the 20 repetitions measure execution variability, not generalization. The [offline decision benchmark](#laya-baseline-measurement) separately measured 22/22 targeted Top-10 retrieval recall; that figure is not a per-task retrieval result. Validated-step rate remains an outcome proxy; labeled step accuracy is the direct next-action metric.
 
 For a subscription-backed large-model reference, run `JOLTY_INCLUDE_CODEX=1 JOLTY_BENCH_RUNS=1 pnpm run benchmark:compare` after signing in to Codex with ChatGPT. This runs `gpt-6-sol` through Codex CLI on the same tasks and checks. A new CLI turn starts for each decision, so CLI and agent overhead are part of its measured latency. The [adapter contract](large-model-baseline.md) explains usage and cost fields.
 
@@ -24,13 +38,13 @@ A one-warmup, three-measured-run comparison with Codex CLI 0.156.1 on the same m
 
 | Task | Codex success | Task p50 ms | Turns per task | Input tokens per task |
 | --- | ---: | ---: | ---: | ---: |
-| Modal | 2/3 | 13092.3 | 2 | 27,940 |
-| Settings | 3/3 | 9069.6 | 2 | 27,999 |
-| Cookie overlay | 3/3 | 11001.9 | 2 | 27,952 |
-| Dynamic results | 0/3 | 10036.4 | 2 | 27,907 |
-| Ambiguous row | 0/3 | 5339.7 | 1 | 13,996 |
+| Modal | 3/3 | 11801.7 | 2 | 27,936 |
+| Settings | 3/3 | 10716.6 | 2 | 27,998 |
+| Cookie overlay | 3/3 | 9534.1 | 2 | 27,955 |
+| Dynamic results | 0/3 | 10152.3 | 2 | 27,901 |
+| Ambiguous row | 0/3 | 5640.9 | 1 | 13,995 |
 
-The modal failure was an action failure; dynamic-results and ambiguous-row failed validation in every measured run. The large input counts include Codex agent overhead and cannot be interpreted as only the compact browser question. Subscription usage has no per-task API charge, so estimated USD cost is `null`. Three measured runs per task expose these failure modes but do not establish stable p95/p99 latency or general-site success. The fast policies have 20 repetitions per task in the separate run above; do not infer a reliable speed ratio from these different sample sizes.
+Codex matched **21/27 (77.8%)** action-and-target labels across attempted steps: 6/6 each on modal, settings, and cookie-overlay; 3/6 on dynamic-results; and 0/3 on ambiguous-row. Dynamic-results and ambiguous-row failed validation in every measured run. An earlier three-run comparison had one modal action failure, showing that even these controlled choices vary between runs. The large input counts include Codex agent overhead and cannot be interpreted as only the compact browser question. Subscription usage has no per-task API charge, so estimated USD cost is `null`. Three measured runs per task expose these failure modes but do not establish stable p95/p99 latency or general-site success. The fast policies have 20 repetitions per task in the separate run above; do not infer a reliable speed ratio from these different sample sizes.
 
 ## Laya baseline measurement
 

@@ -452,7 +452,7 @@ Establish measurable baselines before introducing fallback intelligence or train
 ### Measure
 
 - [x] task success rate on controlled fixtures
-- [ ] step accuracy
+- [x] step accuracy against action-and-target labels on controlled tasks
 - [x] candidate Recall@K in the separate offline decision benchmark
 - [x] decision latency p50
 - [x] decision latency p95

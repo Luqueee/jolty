@@ -24,6 +24,7 @@ import {
   summarizeBenchmarkSamples,
 } from "./compare-summary.ts";
 import { heuristicDecision } from "./heuristic.ts";
+import { expectedTargetId, matchesDecisionLabel } from "./step-accuracy.ts";
 
 const measuredRuns = Number(process.env.JOLTY_BENCH_RUNS ?? 20);
 if (!Number.isInteger(measuredRuns) || measuredRuns < 1)
@@ -53,6 +54,13 @@ try {
       const referenceFlow = referenceFlows[task.id];
       if (!scenario || !referenceFlow)
         throw new Error(`Missing reference scenario for ${task.id}`);
+      const labels = scenario.decisionLabels;
+      if (
+        !labels ||
+        labels.length !== task.steps.length ||
+        labels.some((label, index) => label.goal !== task.steps[index]?.goal)
+      )
+        throw new Error(`Missing step accuracy labels for ${task.id}`);
       const policies = ["playwright", "heuristic", "laya"] as const;
       for (const policy of [
         ...policies,
@@ -77,6 +85,8 @@ try {
                 duration_ms: performance.now() - start,
                 attempted_steps: null,
                 validated_steps: null,
+                labeled_steps: null,
+                correct_steps: null,
                 decision_latencies_ms: [],
                 model_calls: 0,
                 input_tokens: null,
@@ -88,12 +98,27 @@ try {
               let inputTokens: number | null =
                 policy === "heuristic" ? null : 0;
               let outputTokens: number | null = policy === "codex" ? 0 : null;
+              let oracleMs = 0;
+              const correctDecisions: boolean[] = [];
               const provider: DecisionProvider = {
                 async decide(input) {
-                  if (policy === "heuristic")
-                    return heuristicDecision.decide(input);
-                  modelCalls++;
-                  if (policy === "codex") {
+                  const label = labels[correctDecisions.length];
+                  if (!label || label.goal !== input.goal)
+                    throw new Error(
+                      "Decision does not match the labeled task step",
+                    );
+                  const oracleStart = performance.now();
+                  const expectedId = await expectedTargetId(
+                    page,
+                    input.state,
+                    label,
+                  );
+                  oracleMs += performance.now() - oracleStart;
+                  let selected: Awaited<ReturnType<DecisionProvider["decide"]>>;
+                  if (policy === "heuristic") {
+                    selected = await heuristicDecision.decide(input);
+                  } else if (policy === "codex") {
+                    modelCalls++;
                     const decision = await evaluateLargeModelDecision(
                       input,
                       codex as NonNullable<typeof codex>,
@@ -113,22 +138,32 @@ try {
                       inference_ms: null,
                       input_tokens: decision.metrics.input_tokens,
                     };
-                    return decision.status === "selected"
-                      ? {
-                          status: "selected",
-                          action: decision.action,
-                          targetId: decision.targetId,
-                          confidence: null,
-                          metrics,
-                        }
-                      : { status: "failed", reason: decision.reason, metrics };
+                    selected =
+                      decision.status === "selected"
+                        ? {
+                            status: "selected",
+                            action: decision.action,
+                            targetId: decision.targetId,
+                            confidence: null,
+                            metrics,
+                          }
+                        : {
+                            status: "failed",
+                            reason: decision.reason,
+                            metrics,
+                          };
+                  } else {
+                    modelCalls++;
+                    selected = await laya.decide(input);
+                    if (selected.metrics.input_tokens === null)
+                      inputTokens = null;
+                    else if (inputTokens !== null)
+                      inputTokens += selected.metrics.input_tokens;
                   }
-                  const decision = await laya.decide(input);
-                  if (decision.metrics.input_tokens === null)
-                    inputTokens = null;
-                  else if (inputTokens !== null)
-                    inputTokens += decision.metrics.input_tokens;
-                  return decision;
+                  correctDecisions.push(
+                    matchesDecisionLabel(selected, label, expectedId),
+                  );
+                  return selected;
                 },
               };
               const result = await runControlledTask(page, provider, task, {
@@ -151,11 +186,13 @@ try {
                   : result.status === "failed"
                     ? (result.steps.at(-1)?.final_outcome ?? "no_steps")
                     : "goal_not_visible",
-                duration_ms: performance.now() - start,
+                duration_ms: performance.now() - start - oracleMs,
                 attempted_steps: result.steps.length,
                 validated_steps: result.steps.filter(
                   ({ final_outcome }) => final_outcome === "passed",
                 ).length,
+                labeled_steps: correctDecisions.length,
+                correct_steps: correctDecisions.filter(Boolean).length,
                 decision_latencies_ms: result.steps.map(
                   ({ timing }) => timing.decision_latency_ms,
                 ),
@@ -179,6 +216,8 @@ try {
                 duration_ms: 0,
                 attempted_steps: null,
                 validated_steps: null,
+                labeled_steps: null,
+                correct_steps: null,
                 decision_latencies_ms: [],
                 model_calls: 0,
                 input_tokens: null,
@@ -216,7 +255,7 @@ try {
           warmup_runs_per_task_policy: 1,
           measured_runs_per_task_policy: measuredRuns,
           timing_scope:
-            "Fixture navigation through final outcome; browser/Laya startup, page creation, and route installation excluded; per-decision Codex CLI startup included",
+            "Fixture navigation through final outcome; browser/Laya startup, page creation, route installation, and accuracy-oracle reads excluded; per-decision Codex CLI startup included",
           candidate_recall_at_k: null,
           results,
         },

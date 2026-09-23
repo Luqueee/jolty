@@ -4,6 +4,8 @@ export interface BenchmarkSample {
   duration_ms: number;
   attempted_steps: number | null;
   validated_steps: number | null;
+  labeled_steps: number | null;
+  correct_steps: number | null;
   decision_latencies_ms: number[];
   model_calls: number;
   input_tokens: number | null;
@@ -30,6 +32,14 @@ export function summarizeBenchmarkSamples(samples: readonly BenchmarkSample[]) {
     (sum, { validated_steps }) => sum + (validated_steps ?? 0),
     0,
   );
+  const labeled = samples.reduce(
+    (sum, { labeled_steps }) => sum + (labeled_steps ?? 0),
+    0,
+  );
+  const correct = samples.reduce(
+    (sum, { correct_steps }) => sum + (correct_steps ?? 0),
+    0,
+  );
   const tokenSamples = samples.filter(
     ({ input_tokens }) => input_tokens !== null,
   );
@@ -47,6 +57,9 @@ export function summarizeBenchmarkSamples(samples: readonly BenchmarkSample[]) {
       ? completed.length / samples.length
       : null,
     validated_step_rate: attempted ? validated / attempted : null,
+    labeled_steps: labeled || null,
+    correct_steps: labeled ? correct : null,
+    step_accuracy: labeled ? correct / labeled : null,
     task_duration_ms: {
       p50: percentile(
         samples.map(({ duration_ms }) => duration_ms),

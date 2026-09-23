@@ -38,8 +38,12 @@ const exercise: Record<string, (page: Page) => Promise<void>> = {
     expect(await page.getByRole("status").textContent()).toBe("Signed out");
   },
   async settings(page) {
+    await expectDecisionLabel(page, "settings", "initial");
     await page.getByRole("textbox", { name: "Display name" }).fill("New name");
+    await expectDecisionOutcome(page, "settings", "initial");
+    await expectDecisionLabel(page, "settings", "name-changed");
     await page.getByRole("button", { name: "Save profile" }).click();
+    await expectDecisionOutcome(page, "settings", "name-changed");
     expect(await page.getByRole("status").textContent()).toBe(
       "Updated: New name",
     );
@@ -57,10 +61,14 @@ const exercise: Record<string, (page: Page) => Promise<void>> = {
     );
   },
   async modal(page) {
+    await expectDecisionLabel(page, "modal", "initial");
     await page.getByRole("button", { name: "Open dialog" }).click();
+    await expectDecisionOutcome(page, "modal", "initial");
+    await expectDecisionLabel(page, "modal", "dialog-open");
     const dialog = page.getByRole("dialog", { name: "Confirmation" });
     expect(await dialog.isVisible()).toBe(true);
     await dialog.getByRole("button", { name: "Confirm" }).click();
+    await expectDecisionOutcome(page, "modal", "dialog-open");
     expect(await page.getByRole("status").textContent()).toBe("Confirmed");
   },
   async select(page) {
