@@ -317,28 +317,28 @@ Determine whether an executed action succeeded without asking another model when
 
 Support deterministic checks such as:
 
-- [ ] URL changed
-- [ ] expected element appeared
-- [ ] expected element disappeared
-- [ ] input value changed
-- [ ] expected text became visible
-- [ ] request completed successfully
-- [ ] authentication state changed
-- [ ] unexpected console error occurred
-- [ ] HTTP failure occurred
+- [x] URL changed
+- [x] expected element appeared
+- [x] expected element disappeared
+- [x] input value changed
+- [x] expected text became visible
+- [x] request completed successfully
+- [x] authentication state changed
+- [x] unexpected console error occurred
+- [x] HTTP failure occurred
 
 ### Checklist
 
-- [ ] Define `ValidationResult`.
-- [ ] Add fixture-specific validations.
-- [ ] Keep validation logic observable.
-- [ ] Record validation timing.
-- [ ] Distinguish action failure from validation failure.
+- [x] Define `ValidationResult`.
+- [x] Add fixture-specific validations.
+- [x] Keep validation logic observable.
+- [x] Record validation timing.
+- [x] Distinguish action failure from validation failure.
 
 ### Exit criteria
 
-- [ ] Fixture actions can be validated deterministically.
-- [ ] Successful and failed steps are clearly distinguishable.
+- [x] Fixture actions can be validated deterministically.
+- [x] Successful and failed steps are clearly distinguishable.
 
 ---
 

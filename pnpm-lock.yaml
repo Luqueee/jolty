@@ -74,6 +74,18 @@ importers:
 
   packages/telemetry: {}
 
+  packages/validator:
+    dependencies:
+      '@jolty/browser':
+        specifier: workspace:*
+        version: link:../browser
+      '@jolty/executor':
+        specifier: workspace:*
+        version: link:../executor
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
+
 packages:
 
   '@biomejs/biome@2.5.14':

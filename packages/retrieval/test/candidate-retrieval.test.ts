@@ -6,7 +6,11 @@ import {
   fixtureUrl,
   installFixtureRoutes,
 } from "../../browser/fixtures/routes.js";
-import { retrievalCases, targetIdFor } from "../eval/cases.js";
+import {
+  retrievalCases,
+  targetDomIndexFor,
+  targetIdFor,
+} from "../eval/cases.js";
 import { filterCandidates } from "../src/candidate-filter.js";
 import { retrieveCandidates } from "../src/candidate-retrieval.js";
 
@@ -112,7 +116,11 @@ test("controlled fixture retrieval retains ground truth in Top-5", async () => {
       const candidates = filterCandidates(
         (await extractBrowserState(page)).state,
       ).candidates;
-      const targetId = targetIdFor(candidates, testCase);
+      const targetId = targetIdFor(
+        candidates,
+        testCase,
+        await targetDomIndexFor(page, testCase),
+      );
       expect(
         targetId,
         `${testCase.fixture}: ground truth target missing`,

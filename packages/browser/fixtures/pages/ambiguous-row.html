@@ -1,0 +1,19 @@
+<!doctype html>
+<title>Ambiguous rows fixture</title>
+<h1>Requests</h1>
+<table>
+  <thead><tr><th scope="col">Request</th><th scope="col">State</th><th scope="col">Action</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Access request</th><td>Draft</td><td><button id="draft-open" type="button">Open</button></td></tr>
+    <tr><th scope="row">Access request</th><td>Approved</td><td><button id="approved-open" type="button">Open</button></td></tr>
+  </tbody>
+</table>
+<p id="status" role="status"></p>
+<script>
+  document.querySelector("#draft-open").addEventListener("click", () => {
+    document.querySelector("#status").textContent = "Draft request opened";
+  });
+  document.querySelector("#approved-open").addEventListener("click", () => {
+    document.querySelector("#status").textContent = "Approved request opened";
+  });
+</script>

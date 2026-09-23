@@ -1,14 +1,14 @@
 {
-  "name": "@jolty/executor",
+  "name": "@jolty/validator",
   "private": true,
   "type": "module",
   "version": "0.0.0",
   "exports": {
-    ".": "./src/execute-action.ts",
-    "./bind-step-intent": "./src/bind-step-intent.ts"
+    ".": "./src/validate-action.ts"
   },
   "dependencies": {
     "@jolty/browser": "workspace:*",
+    "@jolty/executor": "workspace:*",
     "playwright": "1.63.0"
   }
 }

@@ -84,6 +84,9 @@ const initialTargets: Record<
   delayed: [["button", "Load result"]],
   duplicate: [["button", "Continue", 2]],
   scroll: [["button", "Reach target"]],
+  "cookie-overlay": [["button", "Accept cookies"]],
+  "dynamic-results": [["button", "Load report"]],
+  "ambiguous-row": [["button", "Open", 2]],
 };
 
 let browser: Browser;

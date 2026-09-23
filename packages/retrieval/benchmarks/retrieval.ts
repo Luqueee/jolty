@@ -4,11 +4,16 @@ import {
   installFixtureRoutes,
 } from "../../browser/fixtures/routes.ts";
 import { extractBrowserState } from "../../browser/src/index.ts";
-import { retrievalCases, targetIdFor } from "../eval/cases.ts";
+import {
+  retrievalCases,
+  targetDomIndexFor,
+  targetIdFor,
+} from "../eval/cases.ts";
 import { filterCandidates } from "../src/candidate-filter.ts";
 import { retrieveCandidates } from "../src/candidate-retrieval.ts";
 
 const browser = await chromium.launch();
+const chromiumVersion = browser.version();
 try {
   const cases = [];
   for (const testCase of retrievalCases) {
@@ -19,7 +24,11 @@ try {
       const candidates = filterCandidates(
         (await extractBrowserState(page)).state,
       ).candidates;
-      const targetId = targetIdFor(candidates, testCase);
+      const targetId = targetIdFor(
+        candidates,
+        testCase,
+        await targetDomIndexFor(page, testCase),
+      );
       if (!targetId)
         throw new Error(`Missing ground truth target for ${testCase.fixture}`);
       cases.push({ testCase, candidates, targetId });
@@ -58,6 +67,9 @@ try {
     JSON.stringify(
       {
         benchmark: "candidate-retrieval-v0",
+        node_version: process.version,
+        chromium_version: chromiumVersion,
+        concurrency: 1,
         fixture_cases: cases.length,
         warmup_cycles: 10,
         measured_decisions: samples.length,

@@ -115,7 +115,64 @@ const exercise: Record<string, (page: Page) => Promise<void>> = {
     await target.click();
     expect(await page.getByRole("status").textContent()).toBe("Target reached");
   },
+  async "cookie-overlay"(page) {
+    const notice = page.getByRole("dialog", { name: "Cookie notice" });
+    expect(await notice.isVisible()).toBe(true);
+    await expectDecisionLabel(page, "cookie-overlay", "initial");
+    await notice.getByRole("button", { name: "Accept cookies" }).click();
+    expect(await notice.isVisible()).toBe(false);
+    await expectDecisionLabel(page, "cookie-overlay", "notice-dismissed");
+    await page.getByRole("button", { name: "Continue to checkout" }).click();
+    expect(await page.getByRole("status").textContent()).toBe("Checkout ready");
+  },
+  async "dynamic-results"(page) {
+    await page.clock.install();
+    await expectDecisionLabel(page, "dynamic-results", "initial");
+    await page.getByRole("button", { name: "Load report" }).click();
+    expect(await page.getByRole("status").textContent()).toBe("Loading report");
+    expect(
+      await page.getByRole("button", { name: "Open report" }).count(),
+    ).toBe(0);
+    await expectDecisionLabel(page, "dynamic-results", "loading");
+    await page.clock.fastForward(80);
+    await expectDecisionLabel(page, "dynamic-results", "report-ready");
+    await page.getByRole("button", { name: "Open report" }).click();
+    expect(await page.getByRole("status").textContent()).toBe("Report opened");
+  },
+  async "ambiguous-row"(page) {
+    expect(await page.getByRole("button", { name: "Open" }).count()).toBe(2);
+    await expectDecisionLabel(page, "ambiguous-row", "initial");
+    await page
+      .getByRole("row")
+      .filter({ hasText: "Approved" })
+      .getByRole("button", { name: "Open" })
+      .click();
+    expect(await page.getByRole("status").textContent()).toBe(
+      "Approved request opened",
+    );
+  },
 };
+
+async function expectDecisionLabel(
+  page: Page,
+  scenarioId: string,
+  phase: string,
+): Promise<void> {
+  const scenario = scenarios.find(({ id }) => id === scenarioId);
+  const label = scenario?.decisionLabels?.find((item) => item.phase === phase);
+  expect(label).toBeDefined();
+  if (!label) return;
+  if (label.action === "wait") {
+    expect(label.targetSelector).toBeUndefined();
+    return;
+  }
+  expect(label.targetSelector).toBeDefined();
+  if (!label.targetSelector) return;
+  const target = page.locator(label.targetSelector);
+  expect(await target.count()).toBe(1);
+  expect(await target.isVisible()).toBe(true);
+  expect(await target.isEnabled()).toBe(true);
+}
 
 test.each(scenarios)(
   "$id fixture reaches its expected outcome",

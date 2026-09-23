@@ -1,6 +1,6 @@
 # Architecture
 
-This is the proposed architecture. Browser-state extraction, candidate filtering and retrieval, an isolated Laya decision baseline, and the Playwright executor are implemented. The full decision loop, validator, and fallback are not yet implemented. Jolty separates test planning from repeated browser decisions.
+This is the proposed architecture. Browser-state extraction, candidate filtering and retrieval, an isolated Laya decision baseline, the Playwright executor, and a deterministic validator are implemented. The full decision loop and fallback are not yet implemented. Jolty separates test planning from repeated browser decisions.
 
 ```text
 Test intent -> Planner (System 2) -> Structured goals / test graph
@@ -43,9 +43,9 @@ Test intent -> Planner (System 2) -> Structured goals / test graph
 - **Browser and state extractor:** Playwright controls the browser. The extractor produces a compact, model-facing [browser state](browser-state.md), including navigation context and relevant elements.
 - **Candidate filtering and retrieval:** The implemented [candidate filter](candidate-filter.md) removes hidden, disabled, and clearly non-actionable elements. [Candidate retrieval v0](candidate-retrieval.md) ranks the remainder against the current goal and selects a small Top-K set for a future BDM.
 - **Browser Decision Model (BDM):** The isolated Laya baseline selects one constrained action and optional candidate target through a local ONNX session. Its [decision contract](decision-model.md) includes model scores and explicit errors; accuracy and latency are measured on controlled fixtures.
-- **Executor and validator:** The implemented [executor](executor.md) applies a constrained action through Playwright and reports action timing or failure. The planned validator will check observable outcomes such as URL changes, changed input values, or expected elements.
+- **Executor and validator:** The [executor](executor.md) applies a constrained action through Playwright and reports action timing or failure. The [validator](validator.md) checks explicit observable outcomes and keeps action failure separate from validation failure.
 - **Large-model fallback:** System 2 resolves ambiguous or failed fast-path decisions from the structured state. A validated fallback decision can become a training example.
-- **Traces:** Each step should record the goal, observed state, candidate set, decision source, confidence, timing, fallback, and outcome. Traces support debugging, evaluation, and later dataset creation.
+- **Traces:** The [in-memory draft](trace-draft.md) records sanitized evidence through execution. The complete planned trace should also record validation, fallback, and final outcome. Traces support debugging, evaluation, and later dataset creation.
 
 System 1 is the repeated fast path: state extraction, candidate retrieval, BDM selection, execution, and validation. System 2 handles initial planning, ambiguity, and recovery. Uncertainty should route to fallback rather than force an unsupported action.
 

@@ -1,9 +1,21 @@
+import { INTERACTIVE_SELECTOR, type InteractiveElement } from "@jolty/browser";
+import type { Page } from "playwright";
+import { scenarios } from "../../browser/fixtures/scenarios.ts";
+
 export interface RetrievalCase {
   fixture: string;
   goal: string;
   targetRole: string;
   targetName: string;
   occurrence?: number;
+  targetSelector?: string;
+}
+
+function initialTargetSelector(fixture: string): string {
+  const label = scenarios.find(({ id }) => id === fixture)?.decisionLabels?.[0];
+  if (label?.action !== "click" || !label.targetSelector)
+    throw new Error(`Missing initial click label for ${fixture}`);
+  return label.targetSelector;
 }
 
 export const retrievalCases: readonly RetrievalCase[] = [
@@ -92,16 +104,59 @@ export const retrievalCases: readonly RetrievalCase[] = [
     targetRole: "button",
     targetName: "Reach target",
   },
+  {
+    fixture: "cookie-overlay",
+    goal: "Dismiss the cookie notice before checkout",
+    targetRole: "button",
+    targetName: "Accept cookies",
+    targetSelector: initialTargetSelector("cookie-overlay"),
+  },
+  {
+    fixture: "dynamic-results",
+    goal: "Load the report",
+    targetRole: "button",
+    targetName: "Load report",
+    targetSelector: initialTargetSelector("dynamic-results"),
+  },
+  {
+    fixture: "ambiguous-row",
+    goal: "Open the approved request",
+    targetRole: "button",
+    targetName: "Open",
+    targetSelector: initialTargetSelector("ambiguous-row"),
+  },
 ];
 
 export function targetIdFor(
   candidates: readonly InteractiveElement[],
   testCase: RetrievalCase,
+  targetDomIndex?: number,
 ): string | undefined {
+  if (testCase.targetSelector)
+    return candidates.find(
+      ({ domIndex, role, name }) =>
+        domIndex === targetDomIndex &&
+        role === testCase.targetRole &&
+        name === testCase.targetName,
+    )?.id;
   return candidates.filter(
     ({ role, name }) =>
       role === testCase.targetRole && name === testCase.targetName,
   )[testCase.occurrence ? testCase.occurrence - 1 : 0]?.id;
 }
 
-import type { InteractiveElement } from "@jolty/browser";
+export async function targetDomIndexFor(
+  page: Page,
+  testCase: RetrievalCase,
+): Promise<number | undefined> {
+  if (!testCase.targetSelector) return undefined;
+  const index = await page
+    .locator(testCase.targetSelector)
+    .evaluate(
+      (element, selector) =>
+        Array.from(document.querySelectorAll(selector)).indexOf(element),
+      INTERACTIVE_SELECTOR,
+    );
+  if (index < 0) throw new Error(`Unindexed target for ${testCase.fixture}`);
+  return index;
+}

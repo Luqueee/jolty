@@ -1,6 +1,29 @@
 # Executor v0
 
-`executeAction(page, observedState, command)` in `@jolty/executor` translates a selected action into a bounded Playwright operation. It accepts the plain `{ action, targetId?, value? }` contract, without importing or invoking a model. `type` and `select` require an explicit string value from the caller; the current decision baseline chooses only action and target. The executor returns `status`, `action_ms`, and either the executed action or a failure reason and message. It does not validate the goal outcome; that is the next milestone.
+`executeAction(page, observedState, command)` in `@jolty/executor` translates a selected action into a bounded Playwright operation. It accepts the plain `{ action, targetId?, value? }` contract, without importing or invoking a model. `type` and `select` require an explicit string value from the caller; the current decision baseline chooses only action and target. The executor returns `status`, `action_ms`, and either the executed action or a failure reason and message. The separate [validator](validator.md) checks explicit outcomes after execution.
+
+## Binding planned values
+
+`bindStepIntent(state, selection, intent)` from `@jolty/executor/bind-step-intent` is a pure, optional boundary between action selection and `executeAction`. A structured `StepIntent` holds the goal and explicit `type` or `select` values. The caller passes only `intent.goal` into retrieval and the decision model, then binds the selected action and target against the *same* observed state before execution:
+
+```ts
+const intent = {
+  goal: "Enter the email address",
+  values: [{
+    action: "type",
+    target: { role: "textbox", name: "Email" },
+    value: "person@example.test",
+  }],
+};
+const binding = bindStepIntent(state, selectedDecision, intent);
+if (binding.status === "ready") {
+  await executeAction(page, state, binding.command);
+}
+```
+
+The binder matches the selected action, target role, and accessible name. It fails if no planned value matches, two values match, or the role and name identify multiple observed elements. For duplicate labels, the caller may add the selected observation's `id` to `target` after disambiguating the current state; IDs are valid only for that observation. These failures do not include values in their messages. Non-value actions pass through without a value. The binder does not choose a target or infer a value from page text, and `executeAction` still validates target actionability and freshness. Keep planned values out of goal strings, model questions, and persistent traces, especially credentials and other sensitive data.
+
+## Supported actions
 
 | Action | Playwright operation | Target | Value |
 | --- | --- | --- | --- |

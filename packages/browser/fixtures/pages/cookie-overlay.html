@@ -1,0 +1,17 @@
+<!doctype html>
+<title>Cookie overlay fixture</title>
+<h1>Checkout</h1>
+<button id="checkout" type="button">Continue to checkout</button>
+<dialog aria-label="Cookie notice">
+  <p>Cookies are required before continuing.</p>
+  <button id="accept-cookies" type="button">Accept cookies</button>
+</dialog>
+<p id="status" role="status"></p>
+<script>
+  const notice = document.querySelector("dialog");
+  notice.showModal();
+  document.querySelector("#accept-cookies").addEventListener("click", () => notice.close());
+  document.querySelector("#checkout").addEventListener("click", () => {
+    document.querySelector("#status").textContent = "Checkout ready";
+  });
+</script>

@@ -5,11 +5,16 @@ import {
   installFixtureRoutes,
 } from "../../browser/fixtures/routes.ts";
 import { extractBrowserState } from "../../browser/src/index.ts";
-import { retrievalCases, targetIdFor } from "../../retrieval/eval/cases.ts";
+import {
+  retrievalCases,
+  targetDomIndexFor,
+  targetIdFor,
+} from "../../retrieval/eval/cases.ts";
 import { filterCandidates } from "../../retrieval/src/candidate-filter.ts";
 import { retrieveCandidates } from "../../retrieval/src/candidate-retrieval.ts";
 import type { DecisionInput } from "../src/decision.ts";
 import { LAYA_REVISION, LayaDecisionModel } from "../src/laya-decision.ts";
+import { summarizeSteps } from "./step-summary.ts";
 
 interface MeasuredCase {
   fixture: string;
@@ -33,7 +38,18 @@ interface MeasuredCase {
   inference_ms: number | null;
   decision_latency_ms: number;
   input_tokens: number | null;
+  retrieval_rank: number;
+  retrieval_top_k: number;
+  heuristic_action: string | null;
+  heuristic_target_id: string | null;
 }
+
+const actionForRole = (role: string, editable: boolean) =>
+  editable
+    ? "type"
+    : ["combobox", "listbox", "option"].includes(role)
+      ? "select"
+      : "click";
 
 function percentile(samples: readonly number[], p: number): number | null {
   if (!samples.length) return null;
@@ -42,6 +58,7 @@ function percentile(samples: readonly number[], p: number): number | null {
 }
 
 const browser = await chromium.launch();
+const chromiumVersion = browser.version();
 const inputs: {
   fixture: string;
   goal: string;
@@ -50,6 +67,10 @@ const inputs: {
   input: DecisionInput;
   candidateFilterMs: number;
   candidateRetrievalMs: number;
+  retrievalRank: number;
+  retrievalTopK: number;
+  heuristicAction: string | null;
+  heuristicTargetId: string | null;
 }[] = [];
 try {
   for (const testCase of retrievalCases) {
@@ -60,7 +81,11 @@ try {
       const state = (await extractBrowserState(page)).state;
       const filtered = filterCandidates(state);
       const retrieved = retrieveCandidates(testCase.goal, filtered.candidates);
-      const expectedTargetId = targetIdFor(filtered.candidates, testCase);
+      const expectedTargetId = targetIdFor(
+        filtered.candidates,
+        testCase,
+        await targetDomIndexFor(page, testCase),
+      );
       if (!expectedTargetId)
         throw new Error(`Missing fixture target: ${testCase.fixture}`);
       inputs.push({
@@ -80,6 +105,18 @@ try {
         },
         candidateFilterMs: filtered.metrics.candidate_filter_ms,
         candidateRetrievalMs: retrieved.metrics.candidate_retrieval_ms,
+        retrievalRank:
+          retrieved.ranked.findIndex(
+            ({ element }) => element.id === expectedTargetId,
+          ) + 1,
+        retrievalTopK: retrieved.topCandidates.length,
+        heuristicAction: retrieved.topCandidates[0]
+          ? actionForRole(
+              retrieved.topCandidates[0].element.role,
+              retrieved.topCandidates[0].element.editable,
+            )
+          : null,
+        heuristicTargetId: retrieved.topCandidates[0]?.element.id ?? null,
       });
     } finally {
       await page.close();
@@ -127,6 +164,10 @@ try {
       inference_ms: result.metrics.inference_ms,
       decision_latency_ms: result.metrics.decision_latency_ms,
       input_tokens: result.metrics.input_tokens,
+      retrieval_rank: entry.retrievalRank,
+      retrieval_top_k: entry.retrievalTopK,
+      heuristic_action: entry.heuristicAction,
+      heuristic_target_id: entry.heuristicTargetId,
     });
   }
   const percentileReport = (
@@ -157,15 +198,7 @@ try {
       0.99,
     ),
   });
-  const confidenceBuckets = [0, 0.25, 0.5, 0.75].map((lower) => ({
-    range: `[${lower}, ${lower + 0.25}${lower === 0.75 ? "]" : ")"}`,
-    count: cases.filter(
-      ({ confidence }) =>
-        confidence !== null &&
-        confidence >= lower &&
-        (lower === 0.75 ? confidence <= 1 : confidence < lower + 0.25),
-    ).length,
-  }));
+  const stepSummary = summarizeSteps(cases);
   console.log(
     JSON.stringify(
       {
@@ -173,6 +206,9 @@ try {
         model: "convaiinnovations/laya (receptron/laya-onnx)",
         model_revision: LAYA_REVISION,
         wrapper: "@receptron/laya@0.1.2",
+        node_version: process.version,
+        chromium_version: chromiumVersion,
+        concurrency: 1,
         hardware: {
           cpu: cpus()[0]?.model,
           logical_cpus: cpus().length,
@@ -180,10 +216,9 @@ try {
         },
         execution_provider: "cpu",
         warmup_decisions: 1,
-        fixture_cases: cases.length,
-        step_accuracy:
-          cases.filter(({ correct }) => correct).length / cases.length,
-        correct_steps: cases.filter(({ correct }) => correct).length,
+        ...stepSummary,
+        step_accuracy: stepSummary.model_step_accuracy,
+        correct_steps: stepSummary.model_correct_steps,
         model_failures: cases.filter(({ failure_reason }) => failure_reason)
           .length,
         model_load_ms: modelLoadMs,
@@ -193,7 +228,6 @@ try {
         decision_latency_ms: percentileReport("decision_latency_ms"),
         tokenization_ms: percentileReport("tokenization_ms"),
         inference_ms: percentileReport("inference_ms"),
-        confidence_distribution: confidenceBuckets,
         cases,
       },
       null,

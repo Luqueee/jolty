@@ -1,6 +1,6 @@
 # Controlled browser fixtures
 
-Milestone 2 provides 12 local browser scenarios under `packages/browser/fixtures/pages/`. The [scenario manifest](../packages/browser/fixtures/scenarios.ts) declares each goal, valid action sequence, and exact visible success text. The [Playwright tests](../packages/browser/test/fixtures.test.ts) exercise each scenario and check its declared outcome.
+The repository provides 15 local browser scenarios under `packages/browser/fixtures/pages/`. The [scenario manifest](../packages/browser/fixtures/scenarios.ts) declares each goal, valid action sequence, and exact visible success text. The [Playwright tests](../packages/browser/test/fixtures.test.ts) exercise each scenario and check its declared outcome.
 
 | Scenario | Behavior covered |
 | --- | --- |
@@ -16,6 +16,11 @@ Milestone 2 provides 12 local browser scenarios under `packages/browser/fixtures
 | `delayed` | Loading state followed by a timed result. |
 | `duplicate` | Two identically named buttons in distinct regions. |
 | `scroll` | A target below the initial viewport. |
+| `cookie-overlay` | A modal cookie notice covers the checkout action until dismissed. |
+| `dynamic-results` | A report action appears after a timed loading state. |
+| `ambiguous-row` | Two `Open` buttons require row context to choose the approved request. |
+
+The three added scenarios also carry `decisionLabels` for offline step evaluation. Each label names a page `phase`, an expected action, and a unique CSS `targetSelector` for targeted actions. The selector is a fixture ground-truth locator, not a runtime browser-state ID; evaluators must resolve it against the page observation because IDs can change after DOM updates. `initial` identifies the state immediately after navigation. Later phases require the preceding fixture actions, and `dynamic-results` has a target-free `wait` label while the report is loading. The fixture tests check that labeled click targets are unique, visible, and enabled at their declared phases. The labels are controlled test expectations, not evidence of real-site decision accuracy.
 
 Use `installFixtureRoutes(page)` from `packages/browser/fixtures/routes.ts` before navigating to `fixtureUrl(id)`. Playwright fulfills requests from the local HTML files and aborts all other requests; no external service or network access is required. A new Playwright page gives each run isolated browser state. Tests and future benchmarks can use the same route helper and manifest.
 

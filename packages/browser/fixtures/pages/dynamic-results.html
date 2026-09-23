@@ -1,0 +1,22 @@
+<!doctype html>
+<title>Dynamic results fixture</title>
+<h1>Reports</h1>
+<button id="load-report" type="button">Load report</button>
+<div id="result"></div>
+<p id="status" role="status">Ready</p>
+<script>
+  document.querySelector("#load-report").addEventListener("click", () => {
+    document.querySelector("#status").textContent = "Loading report";
+    window.setTimeout(() => {
+      const button = document.createElement("button");
+      button.id = "open-report";
+      button.type = "button";
+      button.textContent = "Open report";
+      button.addEventListener("click", () => {
+        document.querySelector("#status").textContent = "Report opened";
+      });
+      document.querySelector("#result").append(button);
+      document.querySelector("#status").textContent = "Report ready";
+    }, 80);
+  });
+</script>
