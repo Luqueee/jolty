@@ -12,6 +12,7 @@
     "test": "vitest run",
     "benchmark:state": "node --experimental-strip-types packages/browser/benchmarks/state.ts",
     "benchmark:filter": "node --experimental-strip-types packages/retrieval/benchmarks/filter.ts",
+    "benchmark:retrieval": "node --experimental-strip-types packages/retrieval/benchmarks/retrieval.ts",
     "lint": "biome check .",
     "format": "biome format --write ."
   },

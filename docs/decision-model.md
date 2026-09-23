@@ -6,7 +6,7 @@ The **Browser Decision Model (BDM)** is the proposed small, local, non-generativ
 
 The expected inputs are the current goal, compact [browser state](browser-state.md), retrieved candidate actions or elements, and relevant interaction history. The expected output is a ranked decision with an action, a candidate ID when the action needs a target, and confidence. The initial proposed action vocabulary is `click`, `type`, `select`, `scroll`, `wait`, `back`, and `done`. New actions should be added only when needed.
 
-Candidate scoring is attractive because pages have a changing number of elements: the model can score each goal/state/candidate combination and select the highest-ranked valid action. An alternative separates action choice from target choice. These are research options to compare, not settled model architecture.
+The current [candidate retrieval](candidate-retrieval.md) uses heuristic scores to shorten the input list. A later model may score each goal/state/candidate combination and select the highest-ranked valid action. An alternative separates action choice from target choice. These are research options to compare, not settled model architecture.
 
 ## Confidence and fallback
 

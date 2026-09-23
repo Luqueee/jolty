@@ -21,7 +21,7 @@ The design separates **System 1**, the repeated fast path, from **System 2**, th
 
 ## Status
 
-The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering, controlled benchmarks, and local E2E fixtures are implemented. Goal-based retrieval, decision models, and the CLI are not implemented. The broader architecture and performance targets remain proposed.
+The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering and retrieval, controlled benchmarks, and local E2E fixtures are implemented. Decision models and the CLI are not implemented. The broader architecture and performance targets remain proposed.
 
 ## Development
 
@@ -36,6 +36,7 @@ pnpm run lint
 pnpm run test
 pnpm run benchmark:state
 pnpm run benchmark:filter
+pnpm run benchmark:retrieval
 ```
 
 The bootstrap `build` script currently checks TypeScript without emitting files. Only `packages/browser` has runtime code; the other workspace packages remain scaffolds for later milestones.
@@ -45,6 +46,7 @@ The bootstrap `build` script currently checks TypeScript without emitting files.
 - [Architecture](docs/architecture.md): components, data flow, and runtime direction.
 - [Browser state](docs/browser-state.md): the implemented BrowserState v0 contract.
 - [Candidate filter](docs/candidate-filter.md): implemented filtering rules and metrics.
+- [Candidate retrieval](docs/candidate-retrieval.md): lexical ranking, Top-K, and evaluation.
 - [Controlled fixtures](docs/fixtures.md): reproducible browser scenarios and their expected outcomes.
 - [Decision model](docs/decision-model.md): BDM inputs, outputs, baseline, and fallback.
 - [Performance](docs/performance.md): fast-path design and engineering targets.

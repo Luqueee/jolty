@@ -171,7 +171,7 @@ Reduce the page to elements that could plausibly participate in the next action.
 
 - [x] Filtering reduces the search space significantly in controlled noisy cases.
 - [x] Correct fixture targets are not accidentally removed.
-- [ ] Filtering remains cheap relative to model inference. This comparison requires the Milestone 5 model baseline.
+- [x] Filtering has a reproducible latency benchmark. Comparison with model inference is deferred to Milestone 5.
 
 ---
 
@@ -185,34 +185,34 @@ Rank filtered candidates against the current goal without using a model.
 
 Use inexpensive signals first:
 
-- [ ] exact text match
-- [ ] normalized text match
-- [ ] label match
-- [ ] role compatibility
-- [ ] keyword overlap with the goal
-- [ ] element state
-- [ ] interaction history when available
+- [x] exact text match
+- [x] normalized text match
+- [x] label match
+- [x] role compatibility
+- [x] keyword overlap with the goal
+- [x] element state
+- [ ] interaction history when available (no execution history exists yet)
 
 ### Checklist
 
-- [ ] Implement deterministic scoring.
-- [ ] Return ranked candidates.
-- [ ] Support configurable Top-K.
-- [ ] Add retrieval tests.
-- [ ] Add fixture-based evaluation.
+- [x] Implement deterministic scoring.
+- [x] Return ranked candidates.
+- [x] Support configurable Top-K.
+- [x] Add retrieval tests.
+- [x] Add fixture-based evaluation.
 
 ### Measure
 
-- [ ] `Recall@1`
-- [ ] `Recall@5`
-- [ ] `Recall@10`
-- [ ] `candidate_retrieval_ms`
+- [x] `Recall@1`
+- [x] `Recall@5`
+- [x] `Recall@10`
+- [x] `candidate_retrieval_ms`
 
 ### Exit criteria
 
-- [ ] Retrieval has a reproducible benchmark.
-- [ ] Correct targets appear in Top-K at a useful rate.
-- [ ] The retrieval step is fast enough for the hot path.
+- [x] Retrieval has a reproducible benchmark.
+- [x] Correct targets appear in Top-K at a useful rate on controlled fixtures.
+- [x] The retrieval step is fast enough for the hot path on controlled fixtures.
 
 ### Important
 
@@ -265,6 +265,7 @@ The first model is a baseline, not a permanent dependency.
 - [ ] step accuracy
 - [ ] `tokenization_ms`
 - [ ] `inference_ms`
+- [ ] Compare `candidate_filter_ms` with measured `inference_ms`.
 - [ ] decision latency
 - [ ] confidence distribution
 

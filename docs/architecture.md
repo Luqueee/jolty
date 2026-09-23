@@ -41,7 +41,7 @@ Test intent -> Planner (System 2) -> Structured goals / test graph
 
 - **Test intent and planner:** A user describes a test in natural language. The large-model planner turns that intent into structured goals or a test graph; it does not choose every browser action.
 - **Browser and state extractor:** Playwright controls the browser. The extractor produces a compact, model-facing [browser state](browser-state.md), including navigation context and relevant elements.
-- **Candidate filtering and retrieval:** The implemented [candidate filter](candidate-filter.md) removes hidden, disabled, and clearly non-actionable elements. Future retrieval will rank the remainder against the current goal and send a small candidate set to the BDM.
+- **Candidate filtering and retrieval:** The implemented [candidate filter](candidate-filter.md) removes hidden, disabled, and clearly non-actionable elements. [Candidate retrieval v0](candidate-retrieval.md) ranks the remainder against the current goal and selects a small Top-K set for a future BDM.
 - **Browser Decision Model (BDM):** A small, local, non-generative model selects or scores the next action and target. Its [decision contract](decision-model.md) includes confidence.
 - **Executor and validator:** The executor applies a valid action through Playwright. The validator checks observable outcomes such as URL changes, changed input values, or expected elements where possible.
 - **Large-model fallback:** System 2 resolves ambiguous or failed fast-path decisions from the structured state. A validated fallback decision can become a training example.

@@ -1,6 +1,6 @@
 # Benchmarks
 
-This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md) and [candidate filtering](candidate-filter.md) microbenchmarks, but no end-to-end benchmark results.
+This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), and [candidate retrieval](candidate-retrieval.md) benchmarks, but no end-to-end benchmark results.
 
 ## Comparison baselines
 
