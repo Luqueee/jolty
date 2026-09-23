@@ -1,0 +1,144 @@
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import type { TaskRunResult } from "@jolty/core";
+import type { DecisionInput } from "@jolty/decision/contract";
+import { asyncBufferFromFile, parquetReadObjects } from "hyparquet";
+import { afterEach, expect, test } from "vitest";
+import {
+  makeDatasetRow,
+  validateDataset,
+  writeDataset,
+} from "../src/dataset.ts";
+
+const directories: string[] = [];
+afterEach(async () => {
+  for (const directory of directories)
+    await rm(directory, { recursive: true, force: true });
+  directories.length = 0;
+});
+
+function sample(overrides?: {
+  goal?: string;
+  name?: string;
+  value?: string;
+  action?: string;
+  outcome?: string;
+}) {
+  const input = {
+    goal: overrides?.goal ?? "Open confirmation dialog",
+    state: {
+      url: "http://fixtures.jolty.test/modal",
+      title: "Modal",
+      elements: [
+        {
+          id: "e1",
+          role: "button",
+          name: overrides?.name ?? "Open",
+          text: "Open",
+          visible: true,
+          enabled: true,
+          editable: false,
+          value: overrides?.value,
+        },
+      ],
+    },
+    candidates: [
+      {
+        element: {
+          id: "e1",
+          role: "button",
+          name: "Open",
+          text: "Open",
+          visible: true,
+          enabled: true,
+          editable: false,
+        },
+        score: 1,
+        signals: {
+          exactMatch: 1,
+          normalizedMatch: 0,
+          labelMatch: 0,
+          textMatch: 0,
+          keywordOverlap: 0,
+          roleCompatibility: 1,
+          elementState: 1,
+        },
+        sourceIndex: 0,
+      },
+    ],
+  } satisfies DecisionInput;
+  const trace = {
+    goal_summary: input.goal,
+    model: { name: "Laya", version: "test-revision" },
+    decision: {
+      status: "selected",
+      action: overrides?.action ?? "click",
+      target_id: "e1",
+      confidence: 0.8,
+    },
+    fast_decision: null,
+    fallback: null,
+    fallback_reason: null,
+    final_outcome: overrides?.outcome ?? "passed",
+    validation_outcome: "passed",
+  } as TaskRunResult["steps"][number];
+  return makeDatasetRow({
+    fixtureId: "modal",
+    stepIndex: 1,
+    input,
+    trace,
+    label: {
+      phase: "initial",
+      goal: input.goal,
+      action: "click",
+      targetSelector: "#open",
+      expectedAfterAction: { kind: "element_visible", selector: "dialog" },
+    },
+    expectedTargetId: "e1",
+  });
+}
+
+test("exports Parquet with validated provenance and no form values", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "jolty-dataset-"));
+  directories.push(directory);
+  const row = sample({ value: "private field contents" });
+  const manifest = await writeDataset([row], directory);
+  expect(manifest.validated_labels).toBe(1);
+  const parquet = await parquetReadObjects({
+    file: await asyncBufferFromFile(join(directory, "traces.parquet")),
+  });
+  expect(parquet).toHaveLength(1);
+  expect(parquet[0]?.label_status).toBe("validated");
+  expect(parquet[0]?.schema_version).toBe(1);
+  expect(parquet[0]?.teacher_decision).toBe("");
+  expect(JSON.parse(String(parquet[0]?.browser_state)).elements[0].name).toBe(
+    "Open",
+  );
+  expect(
+    (await readFile(join(directory, "traces.parquet"))).includes(
+      Buffer.from("private field contents"),
+    ),
+  ).toBe(false);
+});
+
+test("does not train on a passing but incorrectly selected action", () => {
+  const row = sample({ action: "wait" });
+  expect(row.label_status).toBe("unvalidated");
+  expect(row.training_action).toBeNull();
+  validateDataset([row]);
+});
+
+test("rejects sensitive text, duplicates, and invalid candidates", () => {
+  expect(() => sample({ name: "person@example.test" })).toThrow(/sensitive/);
+  const row = sample();
+  expect(() => validateDataset([row, row])).toThrow(/Duplicate/);
+  const invalid = {
+    ...row,
+    candidates: row.candidates.map((candidate) => ({
+      ...candidate,
+      id: "missing",
+    })),
+  };
+  expect(() => validateDataset([invalid])).toThrow(/candidate/);
+});

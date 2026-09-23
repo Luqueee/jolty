@@ -515,28 +515,28 @@ Turn validated execution traces into research-quality training data.
 
 ### Checklist
 
-- [ ] Define a versioned dataset schema.
+- [x] Define a versioned dataset schema.
 - [ ] Store:
-  - [ ] goal
-  - [ ] browser state
-  - [ ] candidates
-  - [ ] retrieval scores
-  - [ ] fast-model decision
-  - [ ] confidence
-  - [ ] fallback/teacher decision
-  - [ ] validation outcome
-- [ ] Exclude secrets and sensitive values.
-- [ ] Distinguish validated labels from unvalidated teacher outputs.
-- [ ] Export training data to Parquet.
-- [ ] Add dataset integrity checks.
-- [ ] Define train/validation/test split rules.
-- [ ] Prevent fixture/template leakage where possible.
+  - [x] goal
+  - [x] browser state
+  - [x] candidates
+  - [x] retrieval scores
+  - [x] fast-model decision
+  - [x] confidence
+  - [x] fallback/teacher decision
+  - [x] validation outcome
+- [x] Exclude secrets and sensitive values.
+- [x] Distinguish validated labels from unvalidated teacher outputs.
+- [x] Export training data to Parquet.
+- [x] Add dataset integrity checks.
+- [x] Define train/validation/test split rules.
+- [x] Prevent fixture/template leakage where possible.
 
 ### Exit criteria
 
-- [ ] Jolty can generate a clean dataset from its own runs.
-- [ ] Labels have provenance.
-- [ ] Dataset versions are reproducible.
+- [x] Jolty can generate a clean dataset from its own runs.
+- [x] Labels have provenance.
+- [x] Dataset versions are reproducible.
 
 ---
 
