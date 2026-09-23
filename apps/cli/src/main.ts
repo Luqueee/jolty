@@ -15,7 +15,9 @@ if (
   (args[2] !== undefined && args[2] !== "--trace") ||
   args.length > 3
 ) {
-  console.error("Usage: pnpm run jolty -- run <modal|settings> [--trace]");
+  console.error(
+    `Usage: pnpm run jolty -- run <${Object.keys(controlledTasks).join("|")}> [--trace]`,
+  );
   process.exitCode = 2;
 } else {
   const browser = await chromium.launch();

@@ -21,7 +21,7 @@ The design separates **System 1**, the repeated fast path, from **System 2**, th
 
 ## Status
 
-The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering and retrieval, a local Laya decision baseline, a Playwright executor and validator, in-memory step traces, local E2E fixtures, and a controlled two-task fast-path loop are implemented. The CLI currently runs only the modal and settings fixtures; general planning and fallback remain proposed.
+The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering and retrieval, a local Laya decision baseline, a Playwright executor and validator, in-memory step traces, local E2E fixtures, and a controlled five-task fast-path loop are implemented. The CLI runs these controlled fixtures; general planning and fallback remain proposed.
 
 ## Development
 
@@ -39,6 +39,7 @@ pnpm run benchmark:filter
 pnpm run benchmark:retrieval
 pnpm run benchmark:decision
 pnpm run benchmark:loop
+pnpm run benchmark:compare
 pnpm run jolty -- run modal --trace
 ```
 
@@ -55,7 +56,8 @@ The bootstrap `build` script currently checks TypeScript without emitting files.
 - [Executor](docs/executor.md): bounded Playwright actions and failure contract.
 - [Validator](docs/validator.md): deterministic checks and step outcomes.
 - [Step traces](docs/trace-draft.md): in-memory evidence through validation and final outcome.
-- [Controlled loop](docs/controlled-loop.md): two complete fast-path fixture tasks and their CLI.
+- [Controlled loop](docs/controlled-loop.md): five controlled fixture tasks and their CLI.
+- [Large-model baseline](docs/large-model-baseline.md): the optional ChatGPT subscription comparison setup.
 - [Performance](docs/performance.md): fast-path design and engineering targets.
 - [Benchmarks](docs/benchmarks.md): comparison baselines and evaluation metrics.
 - [Roadmap](docs/roadmap.md): proposed development stages.

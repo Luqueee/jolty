@@ -445,29 +445,29 @@ Establish measurable baselines before introducing fallback intelligence or train
 
 ### Compare
 
-- [ ] deterministic heuristic baseline
-- [ ] fast decision model baseline
-- [ ] large-model browser decision baseline
+- [x] deterministic heuristic baseline
+- [x] fast decision model baseline
+- [x] large-model browser decision baseline using the ChatGPT subscription
 
 ### Measure
 
-- [ ] task success rate
+- [x] task success rate on controlled fixtures
 - [ ] step accuracy
-- [ ] candidate Recall@K
-- [ ] decision latency p50
-- [ ] decision latency p95
-- [ ] decision latency p99
-- [ ] total task duration
-- [ ] model calls per task
-- [ ] tokens per task when applicable
-- [ ] estimated cost per task when applicable
+- [x] candidate Recall@K in the separate offline decision benchmark
+- [x] decision latency p50
+- [x] decision latency p95
+- [x] decision latency p99, with small-sample limitations documented
+- [x] total task duration
+- [x] model calls per task
+- [x] tokens per task when applicable
+- [x] estimated cost per task when applicable (not applicable to subscription usage)
 
 ### Exit criteria
 
-- [ ] Results are reproducible.
-- [ ] Benchmark scenarios are documented.
-- [ ] Jolty's current strengths and weaknesses are visible.
-- [ ] No unsupported performance claims are made.
+- [x] Benchmark procedure and fixture states are reproducible; model outcomes may vary.
+- [x] Benchmark scenarios are documented.
+- [x] Jolty's current strengths and weaknesses are visible.
+- [x] No unsupported performance claims are made.
 
 ---
 

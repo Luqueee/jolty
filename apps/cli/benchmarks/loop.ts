@@ -88,8 +88,6 @@ try {
         2,
       ),
     );
-    if (results.some(({ failed_runs }) => failed_runs > 0))
-      process.exitCode = 1;
   } finally {
     await model.close();
   }

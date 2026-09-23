@@ -1,6 +1,6 @@
 # Architecture
 
-This is the proposed architecture. Browser-state extraction, candidate filtering and retrieval, Laya decision baseline, Playwright executor, deterministic validator, and a [controlled two-task loop](controlled-loop.md) are implemented. General planning and fallback are not yet implemented. Jolty separates test planning from repeated browser decisions.
+This is the proposed architecture. Browser-state extraction, candidate filtering and retrieval, Laya decision baseline, Playwright executor, deterministic validator, and a [controlled five-task loop](controlled-loop.md) are implemented. General planning and fallback are not yet implemented. Jolty separates test planning from repeated browser decisions.
 
 ```text
 Test intent -> Planner (System 2) -> Structured goals / test graph

@@ -1,6 +1,36 @@
 # Benchmarks
 
-This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), and [two-task Jolty loop](controlled-loop.md) benchmarks. General-site and fallback comparisons remain unmeasured.
+This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), and [five-task Jolty loop](controlled-loop.md) benchmarks. General-site and fallback comparisons remain unmeasured.
+
+## Controlled task comparison
+
+Run `pnpm run benchmark:compare` for the deterministic Playwright reference, a retrieved Top-1 heuristic, and Laya on the same five task plans and fixture success texts. Each policy gets a fresh page and fixture state, one warmup, then 20 measured serial runs by default. `JOLTY_BENCH_RUNS` changes the measured repetitions. The timer starts before fixture navigation and ends after the final action, validation, and exact success-text check. Browser launch, model load, page creation, and route installation are excluded. Failed runs remain in duration and success summaries. The JSON report includes p50/p95/p99 for task duration and decision latency, validated-step rate, model calls, input/output tokens when available, and failure reasons. Playwright's hand-written reference has no model decisions, so its decision and step metrics are `null`.
+
+On 2026-09-23, with Node 25.9.0, Chromium 153.0.8010.12, an AMD Ryzen 7 9700X, 31 GiB RAM, and the pinned Laya revision, the 20-run comparison measured:
+
+| Task | Playwright success; task p50 ms | Heuristic success; task p50 ms | Laya success; task p50 ms |
+| --- | ---: | ---: | ---: |
+| Modal | 20/20; 71.4 | 20/20; 86.7 | 20/20; 238.8 |
+| Settings | 20/20; 38.8 | 20/20; 55.6 | 20/20; 240.6 |
+| Cookie overlay | 20/20; 72.3 | 0/20; 3023.3 | 0/20; 115.3 |
+| Dynamic results | 20/20; 220.1 | 0/20; 86.8 | 20/20; 422.4 |
+| Ambiguous row | 20/20; 39.2 | 0/20; 55.6 | 0/20; 138.7 |
+
+Laya made two calls per successful modal/settings task, three per dynamic-results task, and one before failure on cookie-overlay and ambiguous-row. Its per-decision p50 ranged from 83.2 to 90.8 ms across these tasks; p95 ranged from 91.6 to 107.3 ms, and p99 from 98.5 to 132.2 ms. The heuristic made no model calls. Its cookie-overlay choice reached the Playwright action timeout, which explains the high failed-task duration. These are local fixtures with repeated identical states, so the 20 repetitions measure execution variability, not generalization or independent accuracy. The [offline decision benchmark](#laya-baseline-measurement) separately measured 22/22 targeted Top-10 retrieval recall; that figure is not a per-task retrieval result. Validated-step rate is an outcome proxy, not an independently labeled next-action accuracy metric.
+
+For a subscription-backed large-model reference, run `JOLTY_INCLUDE_CODEX=1 JOLTY_BENCH_RUNS=1 pnpm run benchmark:compare` after signing in to Codex with ChatGPT. This runs `gpt-6-sol` through Codex CLI on the same tasks and checks. A new CLI turn starts for each decision, so CLI and agent overhead are part of its measured latency. The [adapter contract](large-model-baseline.md) explains usage and cost fields.
+
+A one-warmup, three-measured-run comparison with Codex CLI 0.156.1 on the same machine found:
+
+| Task | Codex success | Task p50 ms | Turns per task | Input tokens per task |
+| --- | ---: | ---: | ---: | ---: |
+| Modal | 2/3 | 13092.3 | 2 | 27,940 |
+| Settings | 3/3 | 9069.6 | 2 | 27,999 |
+| Cookie overlay | 3/3 | 11001.9 | 2 | 27,952 |
+| Dynamic results | 0/3 | 10036.4 | 2 | 27,907 |
+| Ambiguous row | 0/3 | 5339.7 | 1 | 13,996 |
+
+The modal failure was an action failure; dynamic-results and ambiguous-row failed validation in every measured run. The large input counts include Codex agent overhead and cannot be interpreted as only the compact browser question. Subscription usage has no per-task API charge, so estimated USD cost is `null`. Three measured runs per task expose these failure modes but do not establish stable p95/p99 latency or general-site success. The fast policies have 20 repetitions per task in the separate run above; do not infer a reliable speed ratio from these different sample sizes.
 
 ## Laya baseline measurement
 

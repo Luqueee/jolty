@@ -2,6 +2,7 @@ import type { ValidationResult } from "@jolty/validator";
 
 const safeReasons = new Set([
   "model_error",
+  "provider_error",
   "invalid_output",
   "unsupported_action",
   "invalid_target",
@@ -29,7 +30,7 @@ export interface StepTraceDraftInput {
         status: "selected";
         action: string;
         targetId?: string;
-        confidence: number;
+        confidence: number | null;
       }
     | { status: "failed"; reason: string };
   execution:

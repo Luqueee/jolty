@@ -17,6 +17,7 @@
     "benchmark:retrieval": "node --experimental-strip-types packages/retrieval/benchmarks/retrieval.ts",
     "benchmark:decision": "node --experimental-strip-types packages/decision/benchmarks/laya.ts",
     "benchmark:loop": "node --experimental-strip-types apps/cli/benchmarks/loop.ts",
+    "benchmark:compare": "node --experimental-strip-types apps/cli/benchmarks/compare.ts",
     "lint": "biome check .",
     "format": "biome format --write ."
   },

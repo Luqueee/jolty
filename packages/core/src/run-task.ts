@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { extractBrowserState } from "@jolty/browser";
-import type { DecisionResult } from "@jolty/decision";
-import type { DecisionInput } from "@jolty/decision/contract";
+import type { DecisionMetrics } from "@jolty/decision";
+import type { Action, DecisionInput } from "@jolty/decision/contract";
 import { executeAction } from "@jolty/executor";
 import {
   bindStepIntent,
@@ -29,7 +29,16 @@ export interface ControlledTask {
 }
 
 export interface DecisionProvider {
-  decide(input: DecisionInput): Promise<DecisionResult>;
+  decide(input: DecisionInput): Promise<
+    | {
+        status: "selected";
+        action: Action;
+        targetId?: string;
+        confidence: number | null;
+        metrics: DecisionMetrics;
+      }
+    | { status: "failed"; reason: string; metrics: DecisionMetrics }
+  >;
 }
 
 export interface TaskRunResult {
