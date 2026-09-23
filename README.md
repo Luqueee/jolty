@@ -21,7 +21,22 @@ The design separates **System 1**, the repeated fast path, from **System 2**, th
 
 ## Status
 
-This repository currently contains the project specification and design documentation. The architecture, model, performance targets, and evaluation plan describe intended work; they are not implemented or measured results.
+The repository has a pnpm and TypeScript workspace with Playwright and Vitest, plus a Chromium smoke test. Browser-state extraction, retrieval, decision models, and the CLI are not implemented. The architecture, model, performance targets, and evaluation plan describe intended work; they are not measured results.
+
+## Development
+
+Use Node.js 24 or newer and pnpm 11.5.1.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm exec playwright install chromium
+pnpm run build
+pnpm run typecheck
+pnpm run lint
+pnpm run test
+```
+
+The bootstrap `build` script currently checks TypeScript without emitting files. The six workspace packages are empty scaffolds for later milestones.
 
 ## Read more
 
