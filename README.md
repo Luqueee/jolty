@@ -21,7 +21,7 @@ The design separates **System 1**, the repeated fast path, from **System 2**, th
 
 ## Status
 
-The repository has a pnpm and TypeScript workspace with Playwright and Vitest, plus a Chromium smoke test. Browser-state extraction, retrieval, decision models, and the CLI are not implemented. The architecture, model, performance targets, and evaluation plan describe intended work; they are not measured results.
+The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, tests, and a controlled extraction benchmark are implemented. Retrieval, decision models, and the CLI are not implemented. The broader architecture and performance targets remain proposed.
 
 ## Development
 
@@ -34,9 +34,10 @@ pnpm run build
 pnpm run typecheck
 pnpm run lint
 pnpm run test
+pnpm run benchmark:state
 ```
 
-The bootstrap `build` script currently checks TypeScript without emitting files. The six workspace packages are empty scaffolds for later milestones.
+The bootstrap `build` script currently checks TypeScript without emitting files. Only `packages/browser` has runtime code; the other workspace packages remain scaffolds for later milestones.
 
 ## Read more
 

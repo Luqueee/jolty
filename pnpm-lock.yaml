@@ -14,9 +14,6 @@ importers:
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
-      playwright:
-        specifier: 1.63.0
-        version: 1.63.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -26,7 +23,11 @@ importers:
 
   apps/cli: {}
 
-  packages/browser: {}
+  packages/browser:
+    dependencies:
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
 
   packages/core: {}
 

@@ -61,38 +61,38 @@ This contract will be used by retrieval, decision models, traces, datasets, and 
 
 ### Checklist
 
-- [ ] Define `BrowserState`.
-- [ ] Define the representation of an interactive element.
-- [ ] Include only relevant fields such as:
-  - [ ] element ID
-  - [ ] role
-  - [ ] accessible name / label
-  - [ ] visible text
-  - [ ] value when relevant
-  - [ ] visible state
-  - [ ] enabled state
-  - [ ] editable state
-  - [ ] selected state when relevant
-  - [ ] URL
-  - [ ] page title when useful
-- [ ] Ensure element IDs are stable during a single decision step.
-- [ ] Ensure the state is serializable.
-- [ ] Keep the representation compact.
-- [ ] Document the contract in `docs/browser-state.md`.
+- [x] Define `BrowserState`.
+- [x] Define the representation of an interactive element.
+- [x] Include only relevant fields such as:
+  - [x] element ID
+  - [x] role
+  - [x] accessible name / label
+  - [x] visible text
+  - [x] value when relevant
+  - [x] visible state
+  - [x] enabled state
+  - [x] editable state
+  - [x] selected state when relevant
+  - [x] URL
+  - [x] page title when useful
+- [x] Ensure element IDs are stable during a single decision step.
+- [x] Ensure the state is serializable.
+- [x] Keep the representation compact.
+- [x] Document the contract in `docs/browser-state.md`.
 
 ### Measure
 
-- [ ] `state_extraction_ms`
-- [ ] total DOM node count
-- [ ] extracted interactive element count
-- [ ] serialized state size
+- [x] `state_extraction_ms`
+- [x] total DOM node count
+- [x] extracted interactive element count
+- [x] serialized state size
 
 ### Exit criteria
 
-- [ ] Jolty can transform a real page into `BrowserState`.
-- [ ] The representation is deterministic enough for tests.
-- [ ] The representation does not require the full raw DOM.
-- [ ] State extraction has benchmark coverage.
+- [x] Jolty can transform a real page into `BrowserState`.
+- [x] The representation is deterministic enough for tests.
+- [x] The representation does not require the full raw DOM.
+- [x] State extraction has benchmark coverage.
 
 ### Do not add yet
 

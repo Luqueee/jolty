@@ -10,13 +10,13 @@
     "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "benchmark:state": "node --experimental-strip-types packages/browser/benchmarks/state.ts",
     "lint": "biome check .",
     "format": "biome format --write ."
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
     "@types/node": "24.13.6",
-    "playwright": "1.63.0",
     "typescript": "5.9.3",
     "vitest": "5.0.1"
   }

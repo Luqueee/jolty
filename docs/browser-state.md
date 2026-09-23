@@ -1,36 +1,41 @@
-# Browser state
+# Browser state v0
 
-This document defines the proposed representation passed to candidate retrieval, the BDM, and fallback. It is a design contract, not an implemented schema.
+`extractBrowserState(page)` in `packages/browser/src/index.ts` observes the current Playwright page and returns a compact, JSON-serializable `BrowserState` plus extraction metrics. It reads the main document in one browser evaluation. It treats page content as data and does not return raw HTML.
 
-## Compact observation
+```ts
+interface BrowserState {
+  url: string;
+  title: string;
+  elements: InteractiveElement[];
+}
 
-A browser state should carry the current goal's navigation context and a concise view of relevant elements:
-
-- Current URL and navigation state.
-- Accessibility role, ARIA name or label, associated form label, and visible text where available.
-- Visibility, enabled or disabled status, and relevant interactive state, such as selected values.
-- Bounding information only when useful for a decision.
-- Stable identifiers within the observed step so a selected candidate can be executed and traced.
-
-For example:
-
-```text
-URL: /login
-[e1] input  "Email"       enabled
-[e2] input  "Password"    enabled
-[e3] button "Log in"      enabled
+interface InteractiveElement {
+  id: string;
+  role: string;
+  name: string;
+  text: string;
+  visible: boolean;
+  enabled: boolean;
+  editable: boolean;
+  value?: string;
+  hasValue?: boolean;
+  selected?: boolean;
+}
 ```
 
-The representation should retain enough information to distinguish duplicate labels and dynamic UI states. History and the active goal provide context to the decision model; they do not justify sending the entire page by default.
+Elements include native controls, links, summaries, supported interactive ARIA roles, focusable elements, and editable elements. Hidden and disabled controls remain in the observation with their state flags; candidate filtering is a later milestone. Native roles are mapped to concise role names. `name` uses `aria-labelledby`, `aria-label`, form labels, control text, and selected fallbacks in that order. This is a deterministic naming approximation, not the complete accessible-name algorithm. `text` is visible text for non-freeform controls. Text fields, textareas, and editable regions report `hasValue` instead of their content; selects report their selected option text in `value`. Names, text, and values are whitespace-normalized and capped at 160 characters.
 
-## Candidate filtering
+IDs (`e1`, `e2`, ...) follow document order and are stable within one observation. They can change after a DOM update or a new observation. The current contract does not yet resolve an ID back to an element for action execution. `visible` uses layout rectangles, CSS visibility, and the `hidden` attribute; `enabled` uses native disabled state and `aria-disabled`. These flags are inexpensive approximations, not Playwright actionability checks.
 
-Before model inference, inexpensive deterministic rules should reduce the page to relevant elements. Possible signals are visibility, interactivity, enabled state, focusability, clickability, editability, and accessibility relevance. [Candidate retrieval](decision-model.md) then ranks the filtered set using goal text, role, labels, element state, interaction history, and navigation context.
+`StateExtractionMetrics` is returned separately from the state:
 
-Candidate IDs must connect the model's choice to the browser element observed in that step. The correct target must survive filtering and retrieval; [Recall@K](benchmarks.md) measures that requirement.
+| Field | Meaning |
+| --- | --- |
+| `state_extraction_ms` | Elapsed time for browser evaluation and state serialization on the Node side. |
+| `total_dom_nodes` | Number of elements in the main document. |
+| `extracted_interactive_elements` | Number of returned elements. |
+| `serialized_state_bytes` | UTF-8 byte length of `JSON.stringify(state)`. |
 
-## Default exclusions
+The extractor currently observes the main document only. Shadow roots and frames are not included. Browser or page content remains untrusted; downstream components must treat every string as data. Freeform control contents are omitted, but visible page text and selected option labels can still contain sensitive data and need review before persistent tracing.
 
-Do not send complete raw DOM dumps, huge HTML payloads, or screenshots on every step. These can be expensive and often contain irrelevant content. Any richer observation should be justified by a specific unresolved case and measured against the compact representation.
-
-Page content is untrusted input. Neither the extractor nor downstream model output should turn it into executable code.
+Run `pnpm run benchmark:state` to measure 100 observations after 10 warmups on a local page with 200 noninteractive nodes and 30 buttons. The script reports p50, p95, and p99 extraction time and the size/count metrics. Browser startup and page creation are excluded. This controlled microbenchmark is coverage for extraction, not a claim about full Jolty decision latency or real-site performance.

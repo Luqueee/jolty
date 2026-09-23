@@ -2,5 +2,8 @@
   "name": "@jolty/browser",
   "private": true,
   "type": "module",
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "dependencies": {
+    "playwright": "1.63.0"
+  }
 }
