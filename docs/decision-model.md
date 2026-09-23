@@ -14,6 +14,8 @@ Confidence must be calibrated against observed correctness. A score of 0.90 is m
 
 Fallback receives structured state and candidates. Its decision should be validated where possible before it is used as a training label. A wrong action, retrieval omission, or confidently wrong BDM output remains a risk even with fallback.
 
+The controlled runner now supports [optional pre-execution fallback](fallback.md) after a fast-model error or below a configured confidence threshold. The default threshold of 0.2 was chosen for a fixture experiment and is not calibrated for general use. The fallback cannot repair an action already executed and failed validation.
+
 ## Baseline and future direction
 
 The implemented baseline uses the English `convaiinnovations/laya` checkpoint through the pinned `receptron/laya-onnx` export. One ONNX session and tokenizer are loaded per `LayaDecisionModel` instance and reused until `close()`. The `@receptron/laya` package supplies the revision-pinned bundle download and configuration contract; Jolty owns the small choice-only inference adapter so tokenization and ONNX time can be measured separately. This is an evaluation baseline, not a permanent dependency. See the [baseline decision record](decisions/0001-laya-baseline.md).

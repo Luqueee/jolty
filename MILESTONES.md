@@ -479,31 +479,31 @@ Add System 2 only after the fast-path baseline is understood.
 
 ### Checklist
 
-- [ ] Define explicit fallback reasons.
-- [ ] Add confidence-based escalation.
-- [ ] Keep fallback optional/configurable.
-- [ ] Send structured browser state rather than unnecessary raw HTML.
-- [ ] Record provider/model.
-- [ ] Record fallback latency.
-- [ ] Record fallback action.
-- [ ] Validate fallback outcomes.
-- [ ] Preserve failed fast-model prediction for analysis.
+- [x] Define explicit fallback reasons.
+- [x] Add confidence-based escalation with an experimental threshold.
+- [x] Keep fallback optional/configurable.
+- [x] Send structured browser state rather than unnecessary raw HTML.
+- [x] Record provider/model.
+- [x] Record fallback latency.
+- [x] Record fallback action.
+- [x] Validate fallback outcomes.
+- [x] Preserve failed fast-model prediction for analysis.
 
 ### Measure
 
-- [ ] fast-path coverage
-- [ ] fallback rate
-- [ ] task success improvement
-- [ ] added latency
-- [ ] LLM calls per test
-- [ ] tokens per test
-- [ ] cost per test
+- [x] fast-path coverage on controlled tasks
+- [x] fallback rate on controlled tasks
+- [x] task success improvement on the cookie fixture
+- [x] added latency
+- [x] LLM calls per test
+- [x] tokens per test
+- [x] cost per test (not applicable to ChatGPT subscription usage)
 
 ### Exit criteria
 
-- [ ] Fallback measurably improves task success.
-- [ ] Fast-path performance remains independently measurable.
-- [ ] Fallbacks are fully observable.
+- [x] Fallback measurably improves controlled-task success; generalization remains untested.
+- [x] Fast-path performance remains independently measurable.
+- [x] Fallbacks are fully observable.
 
 ---
 

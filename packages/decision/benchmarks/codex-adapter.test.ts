@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { parseCodexEvents } from "./codex-adapter.ts";
+import { parseCodexEvents } from "../src/codex-subscription.ts";
 
 test("parses constrained Codex choice and usage", () => {
   expect(

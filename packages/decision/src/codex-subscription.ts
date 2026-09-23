@@ -1,11 +1,23 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { ModelQuestion } from "../src/decision.ts";
-import type { LargeModelAdapter, LargeModelResponse } from "./llm-baseline.ts";
+import type { ModelQuestion } from "./decision.ts";
+import type {
+  LargeModelAdapter,
+  LargeModelResponse,
+} from "./large-model-decision.ts";
 
 export const CODEX_MODEL = "gpt-6-sol";
+
+export function assertChatGptLogin(): void {
+  const login = spawnSync("codex", ["login", "status"], { encoding: "utf8" });
+  if (
+    login.status !== 0 ||
+    !`${login.stdout}${login.stderr}`.includes("Logged in using ChatGPT")
+  )
+    throw new Error("Codex must be logged in using ChatGPT");
+}
 
 export function parseCodexEvents(output: string): LargeModelResponse {
   let choice: unknown;

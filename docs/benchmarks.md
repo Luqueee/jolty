@@ -1,6 +1,22 @@
 # Benchmarks
 
-This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), and [five-task Jolty loop](controlled-loop.md) benchmarks. General-site and fallback comparisons remain unmeasured.
+This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), [five-task Jolty loop](controlled-loop.md), and [hybrid fallback](fallback.md) benchmarks. General-site and post-action recovery comparisons remain unmeasured.
+
+## Controlled hybrid fallback
+
+Run `pnpm run benchmark:hybrid` for one warmup and five measured serial runs per task and mode. It compares Laya-only with Laya plus optional Codex fallback on the same fresh fixtures and exact success texts. The experimental confidence threshold is `0.2` by default and can be set with `JOLTY_FALLBACK_THRESHOLD`. This value was selected after inspecting controlled Laya confidence and must not be interpreted as calibrated or validated on held-out sites. Each Codex choice is constrained to the same retrieved candidates and target-free actions. The report includes success, fast-path coverage, fallback rate, LLM calls and tokens per task, fallback latency, fast decision latency, and task duration. The fallback policy does not retry after a failed executed action.
+
+On 2026-09-23, using Node 25.9.0, Chromium 153.0.8010.12, the pinned Laya revision, Codex CLI with `gpt-6-sol` signed in through ChatGPT, and one task at a time, the five-run comparison found:
+
+| Task | Laya success | Hybrid success | Hybrid fallback calls/task | Hybrid task p50 |
+| --- | ---: | ---: | ---: | ---: |
+| Modal | 5/5 | 5/5 | 0 | 232.7 ms |
+| Settings | 5/5 | 5/5 | 0 | 238.5 ms |
+| Cookie overlay | 0/5 | 5/5 | 1 | 5821.7 ms |
+| Dynamic results | 5/5 | 5/5 | 0 | 439.9 ms |
+| Ambiguous row | 0/5 | 0/5 | 0 | 138.8 ms |
+
+The cookie fallback was invoked on its first step, so that task's fast-path coverage and fallback rate were each **50%**; its fallback latency p50 was **5590.9 ms** and it used about **14,000 input tokens per task**, including Codex agent overhead. Across all 25 hybrid tasks, **5 of 50** attempted decisions escalated, for **90% fast-path coverage** and **0.2 large-model calls per task**. Hybrid success was **20/25**, versus **15/25** for Laya-only. The improvement is limited to the cookie fixture and the measured experimental policy. The ambiguous-row error still passed its confidence gate, so no fallback was attempted. Fast Laya latency remains separately recorded even when fallback runs. Subscription usage has no per-task API price; estimated cost is `null`. These fixtures and five repetitions do not establish a general success gain or a calibrated threshold.
 
 ## Controlled task comparison
 

@@ -5,7 +5,9 @@
   "version": "0.0.0",
   "exports": {
     ".": "./src/laya-decision.ts",
-    "./contract": "./src/decision.ts"
+    "./contract": "./src/decision.ts",
+    "./large-model": "./src/large-model-decision.ts",
+    "./codex-subscription": "./src/codex-subscription.ts"
   },
   "dependencies": {
     "@huggingface/tokenizers": "0.2.0",

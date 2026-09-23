@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { cpus, totalmem } from "node:os";
 import {
   type DecisionProvider,
@@ -6,6 +6,12 @@ import {
   runControlledTask,
 } from "@jolty/core";
 import { LAYA_REVISION, LayaDecisionModel } from "@jolty/decision";
+import {
+  assertChatGptLogin,
+  CODEX_MODEL,
+  codexSubscriptionAdapter,
+} from "@jolty/decision/codex-subscription";
+import { evaluateLargeModelDecision } from "@jolty/decision/large-model";
 import { chromium } from "playwright";
 import { referenceFlows } from "../../../packages/browser/benchmarks/reference-flows.ts";
 import {
@@ -13,11 +19,6 @@ import {
   installFixtureRoutes,
 } from "../../../packages/browser/fixtures/routes.ts";
 import { scenarios } from "../../../packages/browser/fixtures/scenarios.ts";
-import {
-  CODEX_MODEL,
-  codexSubscriptionAdapter,
-} from "../../../packages/decision/benchmarks/codex-adapter.ts";
-import { evaluateLargeModelDecision } from "../../../packages/decision/benchmarks/llm-baseline.ts";
 import { controlledTasks } from "../src/controlled-tasks.ts";
 import {
   type BenchmarkSample,
@@ -33,14 +34,7 @@ const includeCodex = process.env.JOLTY_INCLUDE_CODEX === "1";
 const codexVersion = includeCodex
   ? execFileSync("codex", ["--version"], { encoding: "utf8" }).trim()
   : null;
-if (includeCodex) {
-  const login = spawnSync("codex", ["login", "status"], { encoding: "utf8" });
-  if (
-    login.status !== 0 ||
-    !`${login.stdout}${login.stderr}`.includes("Logged in using ChatGPT")
-  )
-    throw new Error("Codex must be logged in using ChatGPT");
-}
+if (includeCodex) assertChatGptLogin();
 const codex = includeCodex ? codexSubscriptionAdapter() : null;
 
 const browser = await chromium.launch();

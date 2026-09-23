@@ -13,9 +13,11 @@ import {
   completeStepTrace,
   createStepTraceDraft,
   type StepTrace,
+  type StepTraceDraftInput,
 } from "@jolty/telemetry";
 import { type ValidationCheck, ValidationSession } from "@jolty/validator";
 import type { Page } from "playwright";
+import { type FallbackPolicy, fallbackReason } from "./fallback-policy.ts";
 
 export interface ControlledStep {
   goal: string;
@@ -35,10 +37,26 @@ export interface DecisionProvider {
         action: Action;
         targetId?: string;
         confidence: number | null;
-        metrics: DecisionMetrics;
+        metrics: DecisionMetrics & {
+          output_tokens?: number | null;
+          estimated_cost_usd?: number | null;
+        };
       }
-    | { status: "failed"; reason: string; metrics: DecisionMetrics }
+    | {
+        status: "failed";
+        reason: string;
+        metrics: DecisionMetrics & {
+          output_tokens?: number | null;
+          estimated_cost_usd?: number | null;
+        };
+      }
   >;
+}
+
+export interface FallbackConfig {
+  provider: DecisionProvider;
+  model: { name: string; version: string };
+  policy: FallbackPolicy;
 }
 
 export interface TaskRunResult {
@@ -55,6 +73,7 @@ export async function runControlledTask(
   task: ControlledTask,
   modelIdentity: { name: string; version: string },
   runId: string = randomUUID(),
+  fallback?: FallbackConfig,
 ): Promise<TaskRunResult> {
   if (!task.id || task.steps.length === 0)
     throw new Error("A controlled task needs an ID and at least one step");
@@ -68,11 +87,44 @@ export async function runControlledTask(
     const observation = await extractBrowserState(page);
     const filtered = filterCandidates(observation.state);
     const retrieved = retrieveCandidates(step.goal, filtered.candidates);
-    const decision = await model.decide({
+    const input = {
       goal: step.goal,
       state: observation.state,
       candidates: retrieved.topCandidates,
-    });
+    };
+    const fastDecision = await model.decide(input);
+    const reason = fallback
+      ? fallbackReason(fastDecision, fallback.policy)
+      : null;
+    let decision = fastDecision;
+    let fallbackEvidence: StepTraceDraftInput["fallback"];
+    if (reason && fallback) {
+      const fallbackStart = performance.now();
+      try {
+        decision = await fallback.provider.decide(input);
+      } catch {
+        decision = {
+          status: "failed",
+          reason: "provider_error",
+          metrics: {
+            decision_latency_ms: performance.now() - fallbackStart,
+            model_call_ms: performance.now() - fallbackStart,
+            tokenization_ms: null,
+            inference_ms: null,
+            input_tokens: null,
+          },
+        };
+      }
+      fallbackEvidence = {
+        reason,
+        model: fallback.model,
+        decision,
+        latency_ms: performance.now() - fallbackStart,
+        input_tokens: decision.metrics.input_tokens,
+        output_tokens: decision.metrics.output_tokens ?? null,
+        estimated_cost_usd: decision.metrics.estimated_cost_usd ?? null,
+      };
+    }
     const evidence = {
       runId,
       stepId: String(index + 1),
@@ -87,13 +139,15 @@ export async function runControlledTask(
         role: element.role,
         score,
       })),
+      fastDecision: reason ? fastDecision : undefined,
+      fallback: fallbackEvidence,
       timing: {
         state_extraction_ms: observation.metrics.state_extraction_ms,
         candidate_filter_ms: filtered.metrics.candidate_filter_ms,
         candidate_retrieval_ms: retrieved.metrics.candidate_retrieval_ms,
-        tokenization_ms: decision.metrics.tokenization_ms,
-        inference_ms: decision.metrics.inference_ms,
-        decision_latency_ms: decision.metrics.decision_latency_ms,
+        tokenization_ms: fastDecision.metrics.tokenization_ms,
+        inference_ms: fastDecision.metrics.inference_ms,
+        decision_latency_ms: fastDecision.metrics.decision_latency_ms,
       },
     };
     if (decision.status === "failed") {

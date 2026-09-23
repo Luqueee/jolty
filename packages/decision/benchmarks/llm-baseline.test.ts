@@ -5,7 +5,7 @@ import type { ModelQuestion } from "../src/decision.ts";
 import {
   evaluateLargeModelDecision,
   type LargeModelAdapter,
-} from "./llm-baseline.ts";
+} from "../src/large-model-decision.ts";
 
 const state: BrowserState = {
   url: "https://example.test/form?token=secret#private",

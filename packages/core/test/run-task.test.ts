@@ -290,3 +290,139 @@ test("stops with a trace when a selected input lacks a planned value", async () 
     await page.close();
   }
 });
+
+test("escalates a low-confidence cookie decision and preserves both choices", async () => {
+  const page = await browser.newPage();
+  try {
+    await installFixtureRoutes(page);
+    await page.goto(fixtureUrl("cookie-overlay"));
+    let fallbackCalls = 0;
+    const result = await runControlledTask(
+      page,
+      {
+        async decide({ goal, candidates }) {
+          if (goal.startsWith("Dismiss"))
+            return {
+              status: "selected",
+              action: "done",
+              confidence: 0.14,
+              metrics,
+            };
+          return {
+            status: "selected",
+            action: "click",
+            targetId: candidates.find(
+              ({ element }) => element.name === "Continue to checkout",
+            )?.element.id,
+            confidence: 0.8,
+            metrics,
+          };
+        },
+      },
+      {
+        id: "cookie-overlay",
+        steps: [
+          {
+            goal: "Dismiss the cookie notice before checkout",
+            checks: [
+              {
+                kind: "element_disappeared",
+                role: "dialog",
+                name: "Cookie notice",
+              },
+            ],
+          },
+          {
+            goal: "Continue to checkout",
+            checks: [{ kind: "text_visible", text: "Checkout ready" }],
+          },
+        ],
+      },
+      { name: "Laya", version: "test" },
+      "cookie-run",
+      {
+        provider: {
+          async decide({ candidates }) {
+            fallbackCalls++;
+            return {
+              status: "selected",
+              action: "click",
+              targetId: candidates.find(
+                ({ element }) => element.name === "Accept cookies",
+              )?.element.id,
+              confidence: null,
+              metrics: {
+                ...metrics,
+                input_tokens: 140,
+                output_tokens: 12,
+                estimated_cost_usd: null,
+              },
+            };
+          },
+        },
+        model: { name: "mock-large", version: "1" },
+        policy: { minConfidence: 0.2, onModelFailure: true },
+      },
+    );
+    expect(result.status).toBe("completed");
+    expect(fallbackCalls).toBe(1);
+    expect(result.steps[0]).toMatchObject({
+      fast_decision: { status: "selected", action: "done", confidence: 0.14 },
+      fallback_reason: "low_confidence",
+      fallback: {
+        model: { name: "mock-large", version: "1" },
+        decision: { status: "selected", action: "click" },
+        input_tokens: 140,
+        output_tokens: 12,
+      },
+      decision: { status: "selected", action: "click" },
+      final_outcome: "passed",
+    });
+    expect(result.steps[1]?.fallback).toBeNull();
+  } finally {
+    await page.close();
+  }
+});
+
+test("records a failed fallback after a fast model error", async () => {
+  const page = await modalPage();
+  try {
+    const result = await runControlledTask(
+      page,
+      {
+        async decide() {
+          return { status: "failed", reason: "model_error", metrics };
+        },
+      },
+      modalTask,
+      { name: "fast", version: "1" },
+      "failed-fallback",
+      {
+        provider: {
+          async decide() {
+            throw new Error("private provider detail");
+          },
+        },
+        model: { name: "mock-large", version: "1" },
+        policy: { minConfidence: 0.2, onModelFailure: true },
+      },
+    );
+    expect(result).toMatchObject({
+      status: "failed",
+      steps: [
+        {
+          fast_decision: { status: "failed", reason: "model_error" },
+          fallback_reason: "model_failure",
+          fallback: {
+            decision: { status: "failed", reason: "provider_error" },
+          },
+          execution: { status: "skipped" },
+          final_outcome: "decision_failed",
+        },
+      ],
+    });
+    expect(JSON.stringify(result)).not.toContain("private provider detail");
+  } finally {
+    await page.close();
+  }
+});

@@ -1,6 +1,6 @@
 # Roadmap
 
-These are proposed stages from [SPECS.md](../SPECS.md), not completed milestones. The repository includes the pnpm workspace, BrowserState v0 extraction, deterministic candidate filtering and retrieval, a measured Laya baseline, the Playwright executor and validator, in-memory step traces, controlled browser fixtures, and a five-task fast-path loop; the broader roadmap stages below remain unimplemented. See [MILESTONES.md](../MILESTONES.md) for the sequential implementation checklist.
+These are proposed stages from [SPECS.md](../SPECS.md), not completed milestones. The repository includes the pnpm workspace, BrowserState v0 extraction, deterministic candidate filtering and retrieval, a measured Laya baseline, the Playwright executor and validator, in-memory step traces, controlled browser fixtures, a five-task fast-path loop, and optional controlled fallback; the broader roadmap stages below remain unimplemented. See [MILESTONES.md](../MILESTONES.md) for the sequential implementation checklist.
 
 1. **Research and fast-path prototype:** Define representative tasks and success checks. Build Playwright state extraction, deterministic candidate filtering, simple retrieval, a Laya baseline, confidence-based fallback, and step telemetry. Test whether System 1 is viable.
 2. **Trace collection and dataset:** Record goals, browser states, candidates, decisions, fallback or teacher actions, outcomes, confidence, and latency. Validate labels and include difficult UI cases. Export training data for analysis.

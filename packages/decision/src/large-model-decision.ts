@@ -4,7 +4,7 @@ import {
   type DecisionOption,
   type ModelQuestion,
   selectedOption,
-} from "../src/decision.ts";
+} from "./decision.ts";
 
 export interface LargeModelUsage {
   input_tokens: number;

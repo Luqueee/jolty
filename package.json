@@ -18,6 +18,7 @@
     "benchmark:decision": "node --experimental-strip-types packages/decision/benchmarks/laya.ts",
     "benchmark:loop": "node --experimental-strip-types apps/cli/benchmarks/loop.ts",
     "benchmark:compare": "node --experimental-strip-types apps/cli/benchmarks/compare.ts",
+    "benchmark:hybrid": "node --experimental-strip-types apps/cli/benchmarks/hybrid.ts",
     "lint": "biome check .",
     "format": "biome format --write ."
   },

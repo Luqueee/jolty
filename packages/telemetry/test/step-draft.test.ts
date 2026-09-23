@@ -130,3 +130,38 @@ test("records decision failures without fabricated action or validation", () => 
     }),
   ).toThrow("Failed decisions must skip validation");
 });
+
+test("records fallback evidence without provider error text", () => {
+  const input: StepTraceDraftInput = {
+    ...traceInput(),
+    decision: { status: "failed", reason: "provider_error: private detail" },
+    execution: { status: "skipped" },
+    fastDecision: { status: "failed", reason: "model_error" },
+    fallback: {
+      reason: "model_failure",
+      model: { name: "Codex", version: "test" },
+      decision: { status: "failed", reason: "provider_error: private detail" },
+      latency_ms: 42,
+      input_tokens: null,
+      output_tokens: null,
+      estimated_cost_usd: null,
+    },
+  };
+  const trace = completeStepTrace(createStepTraceDraft(input), {
+    status: "skipped",
+  });
+  expect(trace).toMatchObject({
+    fast_decision: { status: "failed", reason: "model_error" },
+    fallback_reason: "model_failure",
+    fallback: {
+      decision: { status: "failed", reason: "unknown" },
+      latency_ms: 42,
+    },
+    timing: {
+      decision_latency_ms: 81,
+      fallback_ms: 42,
+      total_decision_ms: 123,
+    },
+  });
+  expect(JSON.stringify(trace)).not.toContain("private detail");
+});

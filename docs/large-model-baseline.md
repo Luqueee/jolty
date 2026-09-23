@@ -1,6 +1,6 @@
 # Large-model decision baseline contract
 
-Milestone 10 compares a large-model browser decision baseline with the heuristic and Laya on the same controlled tasks. `packages/decision/benchmarks/llm-baseline.ts` provides the per-step contract. It does not issue network requests by itself or execute browser actions.
+Milestone 10 compares a large-model browser decision baseline with the heuristic and Laya on the same controlled tasks. `packages/decision/src/large-model-decision.ts` provides the per-step contract. It does not issue network requests by itself or execute browser actions. Milestone 11 reuses this contract for [optional controlled fallback](fallback.md).
 
 `evaluateLargeModelDecision(input, adapter, prices?)` receives the existing `DecisionInput` with a goal, compact `BrowserState`, and retrieved Top-K candidates. It sends a constrained `ModelQuestion` to the injected adapter. The question contains goal, page URL without query or fragment, title, and candidate options keyed by ID. It omits raw HTML, screenshots, the full element list, and form values. Candidate names and the goal are still page or user data: review them before connecting a remote provider, and use only controlled fixture data for this baseline.
 

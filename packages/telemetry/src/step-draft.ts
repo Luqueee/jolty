@@ -33,6 +33,16 @@ export interface StepTraceDraftInput {
         confidence: number | null;
       }
     | { status: "failed"; reason: string };
+  fastDecision?: StepTraceDraftInput["decision"];
+  fallback?: {
+    reason: "low_confidence" | "model_failure";
+    model: { name: string; version: string };
+    decision: StepTraceDraftInput["decision"];
+    latency_ms: number;
+    input_tokens: number | null;
+    output_tokens: number | null;
+    estimated_cost_usd: number | null;
+  };
   execution:
     | { status: "executed"; action_ms: number }
     | { status: "failed"; action_ms: number; reason: string }
@@ -45,6 +55,17 @@ export interface StepTraceDraftInput {
     inference_ms: number | null;
     decision_latency_ms: number;
   };
+}
+
+function traceDecision(decision: StepTraceDraftInput["decision"]) {
+  return decision.status === "selected"
+    ? {
+        status: "selected" as const,
+        action: decision.action,
+        target_id: decision.targetId ?? null,
+        confidence: decision.confidence,
+      }
+    : { status: "failed" as const, reason: safeReason(decision.reason) };
 }
 
 export function createStepTraceDraft(input: StepTraceDraftInput) {
@@ -73,18 +94,21 @@ export function createStepTraceDraft(input: StepTraceDraftInput) {
       role,
       score,
     })),
-    decision:
-      input.decision.status === "selected"
-        ? {
-            status: "selected" as const,
-            action: input.decision.action,
-            target_id: input.decision.targetId ?? null,
-            confidence: input.decision.confidence,
-          }
-        : {
-            status: "failed" as const,
-            reason: safeReason(input.decision.reason),
-          },
+    decision: traceDecision(input.decision),
+    fast_decision: input.fastDecision
+      ? traceDecision(input.fastDecision)
+      : null,
+    fallback: input.fallback
+      ? {
+          reason: input.fallback.reason,
+          model: { ...input.fallback.model },
+          decision: traceDecision(input.fallback.decision),
+          latency_ms: input.fallback.latency_ms,
+          input_tokens: input.fallback.input_tokens,
+          output_tokens: input.fallback.output_tokens,
+          estimated_cost_usd: input.fallback.estimated_cost_usd,
+        }
+      : null,
     execution:
       input.execution.status === "skipped"
         ? { status: "skipped" as const }
@@ -100,10 +124,13 @@ export function createStepTraceDraft(input: StepTraceDraftInput) {
             },
     timing: {
       ...input.timing,
+      fallback_ms: input.fallback?.latency_ms ?? null,
+      total_decision_ms:
+        input.timing.decision_latency_ms + (input.fallback?.latency_ms ?? 0),
       action_ms:
         input.execution.status === "skipped" ? null : input.execution.action_ms,
     },
-    fallback_reason: null,
+    fallback_reason: input.fallback?.reason ?? null,
     validation_outcome: "pending" as const,
   };
 }

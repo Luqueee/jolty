@@ -1,6 +1,6 @@
 # Architecture
 
-This is the proposed architecture. Browser-state extraction, candidate filtering and retrieval, Laya decision baseline, Playwright executor, deterministic validator, and a [controlled five-task loop](controlled-loop.md) are implemented. General planning and fallback are not yet implemented. Jolty separates test planning from repeated browser decisions.
+This is the proposed architecture. Browser-state extraction, candidate filtering and retrieval, Laya decision baseline, Playwright executor, deterministic validator, a [controlled five-task loop](controlled-loop.md), and [optional controlled fallback](fallback.md) are implemented. General planning and arbitrary-site fallback remain proposed. Jolty separates test planning from repeated browser decisions.
 
 ```text
 Test intent -> Planner (System 2) -> Structured goals / test graph
@@ -45,7 +45,7 @@ Test intent -> Planner (System 2) -> Structured goals / test graph
 - **Browser Decision Model (BDM):** The isolated Laya baseline selects one constrained action and optional candidate target through a local ONNX session. Its [decision contract](decision-model.md) includes model scores and explicit errors; accuracy and latency are measured on controlled fixtures.
 - **Executor and validator:** The [executor](executor.md) applies a constrained action through Playwright and reports action timing or failure. The [validator](validator.md) checks explicit observable outcomes and keeps action failure separate from validation failure.
 - **Large-model fallback:** System 2 resolves ambiguous or failed fast-path decisions from the structured state. A validated fallback decision can become a training example.
-- **Traces:** The [in-memory step trace](trace-draft.md) records sanitized evidence from observation through validation and a final step outcome. The controlled loop records one for each attempted step. Fallback evidence belongs to the later fallback milestone. Traces support debugging, evaluation, and later dataset creation.
+- **Traces:** The [in-memory step trace](trace-draft.md) records sanitized evidence from observation through validation and a final step outcome. The controlled loop records one for each attempted step, including both decisions and the reason when fallback runs. Traces support debugging, evaluation, and later dataset creation.
 
 System 1 is the repeated fast path: state extraction, candidate retrieval, BDM selection, execution, and validation. System 2 handles initial planning, ambiguity, and recovery. Uncertainty should route to fallback rather than force an unsupported action.
 
