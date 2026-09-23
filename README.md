@@ -41,6 +41,7 @@ pnpm run benchmark:decision
 pnpm run benchmark:loop
 pnpm run benchmark:compare
 pnpm run benchmark:hybrid
+pnpm run benchmark:kena
 pnpm run dataset:export
 pnpm run research:readiness
 pnpm run jolty -- run modal --trace
@@ -64,6 +65,7 @@ The bootstrap `build` script currently checks TypeScript without emitting files.
 - [Controlled fallback](docs/fallback.md): optional escalation, trace fields, and hybrid benchmark.
 - [Trace dataset](docs/dataset.md): versioned Parquet schema, label provenance, privacy limits, and split rules.
 - [Research readiness](docs/research-readiness.md): Milestone 13 dataset audit and experiment admission gates.
+- [Kena benchmark](docs/kena-benchmark.md): held-out dashboard navigation through local fake adapters.
 - [Performance](docs/performance.md): fast-path design and engineering targets.
 - [Benchmarks](docs/benchmarks.md): comparison baselines and evaluation metrics.
 - [Roadmap](docs/roadmap.md): proposed development stages.

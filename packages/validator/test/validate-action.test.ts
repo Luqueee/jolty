@@ -147,6 +147,31 @@ test("validates URL navigation", async () => {
   }
 });
 
+test("waits for a client-side URL change after the click returns", async () => {
+  const page = await fixture("modal");
+  try {
+    await page.setContent(`
+      <button id="open">Open route</button>
+      <script>
+        document.querySelector('#open').onclick = () => {
+          setTimeout(() => history.pushState({}, '', '/next-route'), 80);
+        };
+      </script>
+    `);
+    const before = (await extractBrowserState(page)).state;
+    const session = await ValidationSession.start(page, before, [
+      { kind: "url_changed", to: "http://fixtures.jolty.test/next-route" },
+    ]);
+    const action = await executeAction(page, before, {
+      action: "click",
+      targetId: before.elements.find(({ name }) => name === "Open route")?.id,
+    });
+    expect((await session.validate(action)).status).toBe("passed");
+  } finally {
+    await page.close();
+  }
+});
+
 test("validates a delayed fixture across click and wait steps", async () => {
   const page = await fixture("dynamic-results");
   try {

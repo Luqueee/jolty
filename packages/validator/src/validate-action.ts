@@ -170,9 +170,19 @@ export class ValidationSession {
       message,
     });
     if (check.kind === "url_changed") {
-      const changed = this.page.url() !== this.before.url;
-      const passed =
-        changed && (check.to === undefined || this.page.url() === check.to);
+      const matches = (url: string) =>
+        url !== this.before.url && (check.to === undefined || url === check.to);
+      if (!matches(this.page.url())) {
+        try {
+          await this.page.waitForURL((url) => matches(url.href), {
+            timeout: 1_500,
+            waitUntil: "commit",
+          });
+        } catch {
+          // A missing or wrong navigation is reported as a failed check.
+        }
+      }
+      const passed = matches(this.page.url());
       return outcome(
         passed,
         passed ? "URL changed as expected" : "URL did not change as expected",

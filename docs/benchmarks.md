@@ -2,6 +2,8 @@
 
 This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), [Laya decision baseline](decision-model.md), [deterministic Playwright reference](playwright-reference.md), [five-task Jolty loop](controlled-loop.md), and [hybrid fallback](fallback.md) benchmarks. General-site and post-action recovery comparisons remain unmeasured.
 
+The [Kena dashboard probe](kena-benchmark.md) measures five navigation flows on a separate application's local fake-adapter server. It is an early held-out application check, not a representative multi-site evaluation.
+
 ## Controlled hybrid fallback
 
 Run `pnpm run benchmark:hybrid` for one warmup and five measured serial runs per task and mode. It compares Laya-only with Laya plus optional Codex fallback on the same fresh fixtures and exact success texts. The experimental confidence threshold is `0.2` by default and can be set with `JOLTY_FALLBACK_THRESHOLD`. This value was selected after inspecting controlled Laya confidence and must not be interpreted as calibrated or validated on held-out sites. Each Codex choice is constrained to the same retrieved candidates and target-free actions. The report includes success, fast-path coverage, fallback rate, LLM calls and tokens per task, fallback latency, fast decision latency, and task duration. The fallback policy does not retry after a failed executed action.
