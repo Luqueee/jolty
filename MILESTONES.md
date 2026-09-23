@@ -238,42 +238,42 @@ The first model is a baseline, not a permanent dependency.
 
 ### Checklist
 
-- [ ] Integrate the selected fast decision model.
-- [ ] Keep the model resident in memory.
-- [ ] Define the model input format.
-- [ ] Define the action vocabulary.
-- [ ] Include candidate identifiers.
-- [ ] Return:
-  - [ ] selected action
-  - [ ] selected target
-  - [ ] confidence / score
-- [ ] Record inference telemetry.
-- [ ] Add controlled evaluation against fixtures.
+- [x] Integrate the selected fast decision model.
+- [x] Keep the model resident in memory.
+- [x] Define the model input format.
+- [x] Define the action vocabulary.
+- [x] Include candidate identifiers.
+- [x] Return:
+  - [x] selected action
+  - [x] selected target
+  - [x] confidence / score
+- [x] Record inference telemetry.
+- [x] Add controlled evaluation against fixtures.
 
 ### Initial action vocabulary
 
-- [ ] `click`
-- [ ] `type`
-- [ ] `select`
-- [ ] `scroll`
-- [ ] `wait`
-- [ ] `back`
-- [ ] `done`
+- [x] `click`
+- [x] `type`
+- [x] `select`
+- [x] `scroll`
+- [x] `wait`
+- [x] `back`
+- [x] `done`
 
 ### Measure
 
-- [ ] step accuracy
-- [ ] `tokenization_ms`
-- [ ] `inference_ms`
-- [ ] Compare `candidate_filter_ms` with measured `inference_ms`.
-- [ ] decision latency
-- [ ] confidence distribution
+- [x] step accuracy
+- [x] `tokenization_ms`
+- [x] `inference_ms`
+- [x] Compare `candidate_filter_ms` with measured `inference_ms`.
+- [x] decision latency
+- [x] confidence distribution
 
 ### Exit criteria
 
-- [ ] The baseline can make decisions on controlled fixtures.
-- [ ] Accuracy and latency are measurable.
-- [ ] Failures are visible instead of silently repaired.
+- [x] The baseline can make decisions on controlled fixtures.
+- [x] Accuracy and latency are measurable.
+- [x] Failures are visible instead of silently repaired.
 
 ### Important
 

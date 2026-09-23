@@ -21,7 +21,7 @@ The design separates **System 1**, the repeated fast path, from **System 2**, th
 
 ## Status
 
-The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering and retrieval, controlled benchmarks, and local E2E fixtures are implemented. Decision models and the CLI are not implemented. The broader architecture and performance targets remain proposed.
+The repository has a pnpm and TypeScript workspace with Playwright and Vitest. BrowserState v0 extraction, deterministic candidate filtering and retrieval, a local Laya decision baseline, controlled benchmarks, and local E2E fixtures are implemented. The executor, fallback, and CLI are not implemented. The broader architecture and performance targets remain proposed.
 
 ## Development
 
@@ -37,9 +37,10 @@ pnpm run test
 pnpm run benchmark:state
 pnpm run benchmark:filter
 pnpm run benchmark:retrieval
+pnpm run benchmark:decision
 ```
 
-The bootstrap `build` script currently checks TypeScript without emitting files. Only `packages/browser` has runtime code; the other workspace packages remain scaffolds for later milestones.
+The bootstrap `build` script currently checks TypeScript without emitting files. The Laya benchmark downloads a roughly 1.7 GB ONNX bundle on first use and keeps its session resident for the measured decisions.
 
 ## Read more
 

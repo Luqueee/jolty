@@ -1,6 +1,12 @@
 # Benchmarks
 
-This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), and [candidate retrieval](candidate-retrieval.md) benchmarks, but no end-to-end benchmark results.
+This is an evaluation plan. The repository has controlled [browser-state extraction](browser-state.md), [candidate filtering](candidate-filter.md), [candidate retrieval](candidate-retrieval.md), and [Laya decision baseline](decision-model.md) benchmarks, but no end-to-end benchmark results.
+
+## Laya baseline measurement
+
+Run `pnpm run benchmark:decision` after `pnpm install --frozen-lockfile` and installing Playwright Chromium. The first run downloads a roughly 1.7 GB ONNX bundle into the user's cache. The script loads the model once, warms it once, then evaluates one decision for each of 14 local browser fixtures. It reports the expected and selected action and target, considered candidates, confidence, explicit failure reason, per-stage timings, and summary percentiles. It does not execute selected actions, validate outcomes, or call a fallback.
+
+On an AMD Ryzen 7 9700X CPU with 31 GiB of RAM, Node.js 25.9.0, `@receptron/laya@0.1.2`, ONNX Runtime Node 1.30.0, and the pinned `receptron/laya-onnx` revision `68f27dfe5a27a54fb2b1fefc432f43f972e90868`, the controlled run selected the expected action and target in **10/14 cases (71.4%)**. There were no model errors. Cached model load was 2.1 s. Tokenization p50/p95 was **0.47/0.99 ms**; ONNX inference **83.6/103.5 ms**; full decision **84.1/104.2 ms**. Candidate filtering on those fixtures was **0.0033/0.0102 ms** p50/p95. The wrong decisions were the email and message inputs, the duplicate-label Pro plan button, and the below-fold target. These are small, curated fixtures, and one decision per case is insufficient for a stable accuracy or latency estimate. Laya confidence has not been calibrated for browser decisions.
 
 ## Comparison baselines
 
