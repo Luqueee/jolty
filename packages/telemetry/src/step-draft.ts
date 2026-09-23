@@ -7,6 +7,8 @@ const safeReasons = new Set([
   "invalid_target",
   "stale_state",
   "missing_value",
+  "ambiguous_target",
+  "ambiguous_value",
   "no_history",
   "playwright_error",
 ]);

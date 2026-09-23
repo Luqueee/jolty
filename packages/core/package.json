@@ -2,5 +2,17 @@
   "name": "@jolty/core",
   "private": true,
   "type": "module",
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "exports": {
+    ".": "./src/run-task.ts"
+  },
+  "dependencies": {
+    "@jolty/browser": "workspace:*",
+    "@jolty/decision": "workspace:*",
+    "@jolty/executor": "workspace:*",
+    "@jolty/retrieval": "workspace:*",
+    "@jolty/telemetry": "workspace:*",
+    "@jolty/validator": "workspace:*",
+    "playwright": "1.63.0"
+  }
 }

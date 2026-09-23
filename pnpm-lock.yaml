@@ -21,7 +21,20 @@ importers:
         specifier: 5.0.1
         version: 5.0.1(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6))
 
-  apps/cli: {}
+  apps/cli:
+    dependencies:
+      '@jolty/browser':
+        specifier: workspace:*
+        version: link:../../packages/browser
+      '@jolty/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@jolty/decision':
+        specifier: workspace:*
+        version: link:../../packages/decision
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
 
   packages/browser:
     dependencies:
@@ -29,7 +42,29 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
 
-  packages/core: {}
+  packages/core:
+    dependencies:
+      '@jolty/browser':
+        specifier: workspace:*
+        version: link:../browser
+      '@jolty/decision':
+        specifier: workspace:*
+        version: link:../decision
+      '@jolty/executor':
+        specifier: workspace:*
+        version: link:../executor
+      '@jolty/retrieval':
+        specifier: workspace:*
+        version: link:../retrieval
+      '@jolty/telemetry':
+        specifier: workspace:*
+        version: link:../telemetry
+      '@jolty/validator':
+        specifier: workspace:*
+        version: link:../validator
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
 
   packages/decision:
     dependencies:

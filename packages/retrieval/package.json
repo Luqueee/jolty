@@ -4,7 +4,8 @@
   "type": "module",
   "version": "0.0.0",
   "exports": {
-    ".": "./src/candidate-retrieval.ts"
+    ".": "./src/candidate-retrieval.ts",
+    "./candidate-filter": "./src/candidate-filter.ts"
   },
   "dependencies": {
     "@jolty/browser": "workspace:*"

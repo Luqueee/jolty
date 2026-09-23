@@ -407,11 +407,11 @@ Next State
 
 ### Checklist
 
-- [ ] Run multi-step fixture tasks.
-- [ ] Stop correctly when the goal is complete.
-- [ ] Fail clearly when the model makes a wrong decision.
-- [ ] Record a complete trace.
-- [ ] Produce a human-readable result summary.
+- [x] Run multi-step fixture tasks.
+- [x] Stop correctly when the goal is complete.
+- [x] Fail clearly when the model makes a wrong decision.
+- [x] Record a complete trace.
+- [x] Produce a human-readable result summary.
 
 ### Target CLI experience
 
@@ -431,9 +431,9 @@ The exact CLI is not yet a stable contract.
 
 ### Exit criteria
 
-- [ ] At least one multi-step fixture completes entirely through the fast path.
-- [ ] Performance is measurable end to end.
-- [ ] Failure behavior is understood.
+- [x] At least one multi-step fixture completes entirely through the fast path.
+- [x] Performance is measurable end to end.
+- [x] Failure behavior is understood.
 
 ---
 

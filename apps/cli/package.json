@@ -2,5 +2,11 @@
   "name": "@jolty/cli",
   "private": true,
   "type": "module",
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "dependencies": {
+    "@jolty/browser": "workspace:*",
+    "@jolty/core": "workspace:*",
+    "@jolty/decision": "workspace:*",
+    "playwright": "1.63.0"
+  }
 }

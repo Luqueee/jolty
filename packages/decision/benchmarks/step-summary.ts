@@ -2,7 +2,7 @@ export interface StepEvaluation {
   fixture: string;
   goal: string;
   expected_action: string;
-  expected_target_id: string;
+  expected_target_id: string | null;
   selected_action: string | null;
   selected_target_id: string | null;
   confidence: number | null;
@@ -21,7 +21,10 @@ const matches = (
 
 export function summarizeSteps(cases: readonly StepEvaluation[]) {
   const count = cases.length;
-  const retrieved = cases.filter(
+  const targeted = cases.filter(
+    ({ expected_target_id }) => expected_target_id !== null,
+  );
+  const retrieved = targeted.filter(
     ({ retrieval_rank, retrieval_top_k }) =>
       retrieval_rank > 0 && retrieval_rank <= retrieval_top_k,
   );
@@ -58,8 +61,12 @@ export function summarizeSteps(cases: readonly StepEvaluation[]) {
 
   return {
     fixture_cases: count,
-    retrieval_top_k_coverage: count ? retrieved.length / count : null,
-    retrieval_top_k_misses: cases
+    targeted_cases: targeted.length,
+    targetless_cases: count - targeted.length,
+    retrieval_top_k_coverage: targeted.length
+      ? retrieved.length / targeted.length
+      : null,
+    retrieval_top_k_misses: targeted
       .filter(
         ({ retrieval_rank, retrieval_top_k }) =>
           retrieval_rank < 1 || retrieval_rank > retrieval_top_k,

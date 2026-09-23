@@ -12,6 +12,53 @@ export interface RetrievalCase {
   targetSelector?: string;
 }
 
+export interface TargetlessDecisionCase {
+  fixture: string;
+  phase: string;
+  goal: string;
+  expectedAction: "wait" | "done";
+}
+
+export const targetlessDecisionCases: readonly TargetlessDecisionCase[] = [
+  {
+    fixture: "dynamic-results",
+    phase: "loading",
+    goal: "Wait for the report to become available",
+    expectedAction: "wait",
+  },
+  {
+    fixture: "login",
+    phase: "complete",
+    goal: "Sign in with valid credentials",
+    expectedAction: "done",
+  },
+  {
+    fixture: "cookie-overlay",
+    phase: "complete",
+    goal: "Continue to checkout after dismissing the cookie notice",
+    expectedAction: "done",
+  },
+  {
+    fixture: "dynamic-results",
+    phase: "complete",
+    goal: "Open the report after it loads",
+    expectedAction: "done",
+  },
+];
+
+export const modalProbeCase: RetrievalCase = {
+  fixture: "modal",
+  phase: "dialog-open",
+  goal: "Confirm the action in the dialog",
+  targetRole: "button",
+  targetName: "Confirm",
+};
+
+export async function prepareModalProbeCase(page: Page): Promise<void> {
+  await page.getByRole("button", { name: "Open dialog" }).click();
+  await page.getByRole("dialog").waitFor({ state: "visible" });
+}
+
 interface LabeledPhaseCase extends RetrievalCase {
   phase: string;
   targetSelector: string;
@@ -189,15 +236,33 @@ export async function prepareEvaluationCase(
   testCase: RetrievalCase,
 ): Promise<void> {
   if (!testCase.phase) return;
-  const labels = scenarios.find(
-    ({ id }) => id === testCase.fixture,
-  )?.decisionLabels;
+  await prepareLabeledPhase(page, testCase.fixture, testCase.phase);
+}
+
+export async function prepareTargetlessDecisionCase(
+  page: Page,
+  testCase: TargetlessDecisionCase,
+): Promise<void> {
+  await prepareLabeledPhase(page, testCase.fixture, testCase.phase);
+}
+
+async function prepareLabeledPhase(
+  page: Page,
+  fixture: string,
+  phase: string,
+): Promise<void> {
+  const labels = scenarios.find(({ id }) => id === fixture)?.decisionLabels;
   const phaseIndex =
-    labels?.findIndex(({ phase }) => phase === testCase.phase) ?? -1;
+    phase === "complete"
+      ? (labels?.length ?? -1)
+      : (labels?.findIndex((label) => label.phase === phase) ?? -1);
   if (!labels || phaseIndex < 1)
-    throw new Error(
-      `Missing prior labels for ${testCase.fixture}/${testCase.phase}`,
-    );
+    throw new Error(`Missing prior labels for ${fixture}/${phase}`);
+
+  if (fixture === "dynamic-results") {
+    await page.clock.install();
+    await page.clock.pauseAt(new Date(Date.now() + 1_000));
+  }
 
   for (const label of labels.slice(0, phaseIndex)) {
     if (label.action === "type") {
@@ -205,18 +270,16 @@ export async function prepareEvaluationCase(
         !label.targetSelector ||
         label.expectedAfterAction.kind !== "input_value"
       )
-        throw new Error(
-          `Invalid type label for ${testCase.fixture}/${label.phase}`,
-        );
+        throw new Error(`Invalid type label for ${fixture}/${label.phase}`);
       await page
         .locator(label.targetSelector)
         .fill(label.expectedAfterAction.value);
     } else if (label.action === "click") {
       if (!label.targetSelector)
-        throw new Error(
-          `Missing click target for ${testCase.fixture}/${label.phase}`,
-        );
+        throw new Error(`Missing click target for ${fixture}/${label.phase}`);
       await page.locator(label.targetSelector).click();
+    } else if (label.action === "wait") {
+      await page.clock.runFor(80);
     }
     const condition = label.expectedAfterAction;
     switch (condition.kind) {

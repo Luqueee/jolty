@@ -7,9 +7,13 @@ import {
 import { extractBrowserState } from "../../browser/src/index.ts";
 import {
   evaluationCases,
+  modalProbeCase,
   prepareEvaluationCase,
+  prepareModalProbeCase,
+  prepareTargetlessDecisionCase,
   targetDomIndexFor,
   targetIdFor,
+  targetlessDecisionCases,
 } from "../../retrieval/eval/cases.ts";
 import { filterCandidates } from "../../retrieval/src/candidate-filter.ts";
 import { retrieveCandidates } from "../../retrieval/src/candidate-retrieval.ts";
@@ -22,7 +26,7 @@ interface MeasuredCase {
   phase: string;
   goal: string;
   expected_action: string;
-  expected_target_id: string;
+  expected_target_id: string | null;
   selected_action: string | null;
   selected_target_id: string | null;
   correct: boolean;
@@ -65,8 +69,8 @@ const inputs: {
   fixture: string;
   phase: string;
   goal: string;
-  expectedAction: "click" | "type" | "select";
-  expectedTargetId: string;
+  expectedAction: "click" | "type" | "select" | "wait" | "done";
+  expectedTargetId: string | null;
   input: DecisionInput;
   candidateFilterMs: number;
   candidateRetrievalMs: number;
@@ -75,6 +79,40 @@ const inputs: {
   heuristicAction: string | null;
   heuristicTargetId: string | null;
 }[] = [];
+function addInput(
+  fixture: string,
+  phase: string,
+  goal: string,
+  expectedAction: "click" | "type" | "select" | "wait" | "done",
+  expectedTargetId: string | null,
+  state: DecisionInput["state"],
+  filtered: ReturnType<typeof filterCandidates>,
+  retrieved: ReturnType<typeof retrieveCandidates>,
+) {
+  inputs.push({
+    fixture,
+    phase,
+    goal,
+    expectedAction,
+    expectedTargetId,
+    input: { goal, state, candidates: retrieved.topCandidates },
+    candidateFilterMs: filtered.metrics.candidate_filter_ms,
+    candidateRetrievalMs: retrieved.metrics.candidate_retrieval_ms,
+    retrievalRank: expectedTargetId
+      ? retrieved.ranked.findIndex(
+          ({ element }) => element.id === expectedTargetId,
+        ) + 1
+      : 0,
+    retrievalTopK: retrieved.topCandidates.length,
+    heuristicAction: retrieved.topCandidates[0]
+      ? actionForRole(
+          retrieved.topCandidates[0].element.role,
+          retrieved.topCandidates[0].element.editable,
+        )
+      : null,
+    heuristicTargetId: retrieved.topCandidates[0]?.element.id ?? null,
+  });
+}
 try {
   for (const testCase of evaluationCases) {
     const page = await browser.newPage();
@@ -92,37 +130,71 @@ try {
       );
       if (!expectedTargetId)
         throw new Error(`Missing fixture target: ${testCase.fixture}`);
-      inputs.push({
-        fixture: testCase.fixture,
-        phase: testCase.phase ?? "initial",
-        goal: testCase.goal,
-        expectedAction:
-          testCase.targetRole === "combobox"
-            ? "select"
-            : testCase.targetRole === "textbox"
-              ? "type"
-              : "click",
+      addInput(
+        testCase.fixture,
+        testCase.phase ?? "initial",
+        testCase.goal,
+        testCase.targetRole === "combobox"
+          ? "select"
+          : testCase.targetRole === "textbox"
+            ? "type"
+            : "click",
         expectedTargetId,
-        input: {
-          goal: testCase.goal,
-          state,
-          candidates: retrieved.topCandidates,
-        },
-        candidateFilterMs: filtered.metrics.candidate_filter_ms,
-        candidateRetrievalMs: retrieved.metrics.candidate_retrieval_ms,
-        retrievalRank:
-          retrieved.ranked.findIndex(
-            ({ element }) => element.id === expectedTargetId,
-          ) + 1,
-        retrievalTopK: retrieved.topCandidates.length,
-        heuristicAction: retrieved.topCandidates[0]
-          ? actionForRole(
-              retrieved.topCandidates[0].element.role,
-              retrieved.topCandidates[0].element.editable,
-            )
-          : null,
-        heuristicTargetId: retrieved.topCandidates[0]?.element.id ?? null,
-      });
+        state,
+        filtered,
+        retrieved,
+      );
+    } finally {
+      await page.close();
+    }
+  }
+  for (const testCase of targetlessDecisionCases) {
+    const page = await browser.newPage();
+    try {
+      await installFixtureRoutes(page);
+      await page.goto(fixtureUrl(testCase.fixture));
+      await prepareTargetlessDecisionCase(page, testCase);
+      const state = (await extractBrowserState(page)).state;
+      const filtered = filterCandidates(state);
+      const retrieved = retrieveCandidates(testCase.goal, filtered.candidates);
+      addInput(
+        testCase.fixture,
+        testCase.phase,
+        testCase.goal,
+        testCase.expectedAction,
+        null,
+        state,
+        filtered,
+        retrieved,
+      );
+    } finally {
+      await page.close();
+    }
+  }
+  {
+    const page = await browser.newPage();
+    try {
+      await installFixtureRoutes(page);
+      await page.goto(fixtureUrl(modalProbeCase.fixture));
+      await prepareModalProbeCase(page);
+      const state = (await extractBrowserState(page)).state;
+      const filtered = filterCandidates(state);
+      const retrieved = retrieveCandidates(
+        modalProbeCase.goal,
+        filtered.candidates,
+      );
+      const expectedTargetId = targetIdFor(filtered.candidates, modalProbeCase);
+      if (!expectedTargetId) throw new Error("Missing modal confirm target");
+      addInput(
+        modalProbeCase.fixture,
+        modalProbeCase.phase ?? "initial",
+        modalProbeCase.goal,
+        "click",
+        expectedTargetId,
+        state,
+        filtered,
+        retrieved,
+      );
     } finally {
       await page.close();
     }
@@ -151,7 +223,7 @@ try {
       correct:
         result.status === "selected" &&
         result.action === entry.expectedAction &&
-        result.targetId === entry.expectedTargetId,
+        (result.targetId ?? null) === entry.expectedTargetId,
       confidence: result.status === "selected" ? result.confidence : null,
       selected_probability:
         result.status === "selected" ? result.selected_probability : null,
@@ -211,6 +283,9 @@ try {
   const laterPhaseSummary = summarizeSteps(
     cases.filter(({ phase }) => phase !== "initial"),
   );
+  const targetlessSummary = summarizeSteps(
+    cases.filter(({ expected_target_id }) => expected_target_id === null),
+  );
   console.log(
     JSON.stringify(
       {
@@ -234,6 +309,11 @@ try {
         ...stepSummary,
         initial_summary: initialSummary,
         later_phase_summary: laterPhaseSummary,
+        targetless_summary: targetlessSummary,
+        modal_probe: cases.find(
+          ({ fixture, phase }) =>
+            fixture === "modal" && phase === "dialog-open",
+        ),
         step_accuracy: stepSummary.model_step_accuracy,
         correct_steps: stepSummary.model_correct_steps,
         model_failures: cases.filter(({ failure_reason }) => failure_reason)
