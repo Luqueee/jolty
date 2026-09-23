@@ -1,0 +1,14 @@
+<!doctype html>
+<title>Form fixture</title>
+<h1>Contact form</h1>
+<form id="contact">
+  <label>Message <textarea name="message" required></textarea></label>
+  <button type="submit">Send</button>
+</form>
+<p id="status" role="status"></p>
+<script>
+  document.querySelector("#contact").addEventListener("submit", (event) => {
+    event.preventDefault();
+    document.querySelector("#status").textContent = "Message sent";
+  });
+</script>

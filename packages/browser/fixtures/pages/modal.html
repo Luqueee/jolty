@@ -1,0 +1,17 @@
+<!doctype html>
+<title>Modal fixture</title>
+<h1>Delete item</h1>
+<button id="open" type="button">Open dialog</button>
+<dialog aria-label="Confirmation">
+  <p>Confirm this action?</p>
+  <button id="confirm" type="button">Confirm</button>
+</dialog>
+<p id="status" role="status"></p>
+<script>
+  const dialog = document.querySelector("dialog");
+  document.querySelector("#open").addEventListener("click", () => dialog.showModal());
+  document.querySelector("#confirm").addEventListener("click", () => {
+    dialog.close();
+    document.querySelector("#status").textContent = "Confirmed";
+  });
+</script>

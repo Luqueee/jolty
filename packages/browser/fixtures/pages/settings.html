@@ -1,0 +1,15 @@
+<!doctype html>
+<title>Profile settings fixture</title>
+<h1>Profile settings</h1>
+<form id="profile">
+  <label>Display name <input name="displayName" value="Original name" required></label>
+  <button type="submit">Save profile</button>
+</form>
+<p id="status" role="status"></p>
+<script>
+  document.querySelector("#profile").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const name = document.querySelector('[name="displayName"]').value;
+    document.querySelector("#status").textContent = `Updated: ${name}`;
+  });
+</script>

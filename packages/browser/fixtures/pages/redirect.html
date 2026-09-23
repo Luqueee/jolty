@@ -1,0 +1,9 @@
+<!doctype html>
+<title>Redirect fixture</title>
+<h1>Continue to destination</h1>
+<button id="continue" type="button">Continue</button>
+<script>
+  document.querySelector("#continue").addEventListener("click", () => {
+    window.location.assign("/redirected");
+  });
+</script>

@@ -1,0 +1,13 @@
+<!doctype html>
+<title>Duplicate labels fixture</title>
+<h1>Choose a plan</h1>
+<section aria-label="Free plan"><h2>Free plan</h2><button type="button" data-plan="Free">Continue</button></section>
+<section aria-label="Pro plan"><h2>Pro plan</h2><button type="button" data-plan="Pro">Continue</button></section>
+<p id="status" role="status"></p>
+<script>
+  for (const button of document.querySelectorAll("[data-plan]")) {
+    button.addEventListener("click", () => {
+      document.querySelector("#status").textContent = `${button.dataset.plan} plan chosen`;
+    });
+  }
+</script>

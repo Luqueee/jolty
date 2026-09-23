@@ -115,32 +115,32 @@ Do not start by testing arbitrary production websites.
 
 Create fixtures covering at least:
 
-- [ ] login form
-- [ ] logout flow
-- [ ] profile/settings page
-- [ ] generic form submission
-- [ ] validation error
-- [ ] modal
-- [ ] dropdown/select
-- [ ] tabs
-- [ ] redirect
-- [ ] delayed/loading state
-- [ ] duplicate or ambiguous labels
-- [ ] scroll-to-element scenario
+- [x] login form
+- [x] logout flow
+- [x] profile/settings page
+- [x] generic form submission
+- [x] validation error
+- [x] modal
+- [x] dropdown/select
+- [x] tabs
+- [x] redirect
+- [x] delayed/loading state
+- [x] duplicate or ambiguous labels
+- [x] scroll-to-element scenario
 
 For each fixture:
 
-- [ ] define the expected goal
-- [ ] define valid actions
-- [ ] define the expected successful outcome
-- [ ] make the fixture reproducible
-- [ ] avoid external network dependencies where practical
+- [x] define the expected goal
+- [x] define valid actions
+- [x] define the expected successful outcome
+- [x] make the fixture reproducible
+- [x] avoid external network dependencies where practical
 
 ### Exit criteria
 
-- [ ] Fixtures run locally.
-- [ ] Their expected outcomes are deterministic.
-- [ ] They can be used by Playwright tests and benchmarks.
+- [x] Fixtures run locally.
+- [x] Their expected outcomes are deterministic.
+- [x] They can be used by Playwright tests and benchmarks.
 
 ---
 

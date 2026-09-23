@@ -1,0 +1,16 @@
+<!doctype html>
+<title>Select fixture</title>
+<h1>Language settings</h1>
+<label>Language
+  <select id="language">
+    <option value="en">English</option>
+    <option value="es">Spanish</option>
+  </select>
+</label>
+<p id="status" role="status">Language: English</p>
+<script>
+  document.querySelector("#language").addEventListener("change", (event) => {
+    const selected = event.target.selectedOptions[0].textContent;
+    document.querySelector("#status").textContent = `Language: ${selected}`;
+  });
+</script>

@@ -1,0 +1,11 @@
+<!doctype html>
+<title>Scroll fixture</title>
+<h1>Find the target</h1>
+<div style="height: 1800px">Scroll down to reach the target.</div>
+<button id="target" type="button">Reach target</button>
+<p id="status" role="status"></p>
+<script>
+  document.querySelector("#target").addEventListener("click", () => {
+    document.querySelector("#status").textContent = "Target reached";
+  });
+</script>

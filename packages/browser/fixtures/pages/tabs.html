@@ -1,0 +1,17 @@
+<!doctype html>
+<title>Tabs fixture</title>
+<h1>Account tabs</h1>
+<div role="tablist" aria-label="Account sections">
+  <button id="profile-tab" type="button" role="tab" aria-selected="true" aria-controls="profile">Profile</button>
+  <button id="security-tab" type="button" role="tab" aria-selected="false" aria-controls="security">Security</button>
+</div>
+<section id="profile" role="tabpanel">Profile panel</section>
+<section id="security" role="tabpanel" hidden>Security panel</section>
+<script>
+  document.querySelector("#security-tab").addEventListener("click", () => {
+    document.querySelector("#profile").hidden = true;
+    document.querySelector("#security").hidden = false;
+    document.querySelector("#profile-tab").setAttribute("aria-selected", "false");
+    document.querySelector("#security-tab").setAttribute("aria-selected", "true");
+  });
+</script>
