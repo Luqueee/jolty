@@ -19,6 +19,7 @@ import { filterCandidates } from "../../retrieval/src/candidate-filter.ts";
 import { retrieveCandidates } from "../../retrieval/src/candidate-retrieval.ts";
 import { actionFor, type DecisionInput } from "../src/decision.ts";
 import { LAYA_REVISION, LayaDecisionModel } from "../src/laya-decision.ts";
+import { uniqueLabelDecision } from "../src/unique-label-gate.ts";
 import { summarizeSteps } from "./step-summary.ts";
 
 const topK = Number(process.env.JOLTY_DECISION_TOP_K ?? 10);
@@ -53,6 +54,9 @@ interface MeasuredCase {
   retrieval_top_k: number;
   heuristic_action: string | null;
   heuristic_target_id: string | null;
+  unique_label_gate_selected: boolean;
+  unique_label_gate_correct: boolean;
+  gated_correct: boolean;
 }
 
 function percentile(samples: readonly number[], p: number): number | null {
@@ -217,7 +221,16 @@ try {
   await model.decide(inputs[0].input, questionConfig);
   const cases: MeasuredCase[] = [];
   for (const entry of inputs) {
+    const gate = uniqueLabelDecision(entry.input);
     const result = await model.decide(entry.input, questionConfig);
+    const modelCorrect =
+      result.status === "selected" &&
+      result.action === entry.expectedAction &&
+      (result.targetId ?? null) === entry.expectedTargetId;
+    const gateCorrect =
+      gate !== null &&
+      gate.action === entry.expectedAction &&
+      gate.targetId === entry.expectedTargetId;
     cases.push({
       fixture: entry.fixture,
       phase: entry.phase,
@@ -227,10 +240,10 @@ try {
       selected_action: result.status === "selected" ? result.action : null,
       selected_target_id:
         result.status === "selected" ? (result.targetId ?? null) : null,
-      correct:
-        result.status === "selected" &&
-        result.action === entry.expectedAction &&
-        (result.targetId ?? null) === entry.expectedTargetId,
+      correct: modelCorrect,
+      unique_label_gate_selected: gate !== null,
+      unique_label_gate_correct: gateCorrect,
+      gated_correct: gate ? gateCorrect : modelCorrect,
       confidence: result.status === "selected" ? result.confidence : null,
       selected_probability:
         result.status === "selected" ? result.selected_probability : null,
@@ -299,6 +312,18 @@ try {
         benchmark: "laya-decision-baseline-v0",
         candidate_top_k: topK,
         back_option_included: includeBack,
+        unique_label_gate: {
+          selected_cases: cases.filter(
+            ({ unique_label_gate_selected }) => unique_label_gate_selected,
+          ).length,
+          incorrect_selections: cases.filter(
+            ({ unique_label_gate_selected, unique_label_gate_correct }) =>
+              unique_label_gate_selected && !unique_label_gate_correct,
+          ).length,
+          gated_correct_steps: cases.filter(
+            ({ gated_correct }) => gated_correct,
+          ).length,
+        },
         model: "convaiinnovations/laya (receptron/laya-onnx)",
         model_revision: LAYA_REVISION,
         wrapper: "@receptron/laya@0.1.2",

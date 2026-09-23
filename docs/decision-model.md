@@ -10,6 +10,8 @@ The current [candidate retrieval](candidate-retrieval.md) uses heuristic scores 
 
 The question builder accepts an optional list of target-free actions so a caller can omit an action it knows is unavailable. The default remains all four actions. A caller must establish availability from task or browser context; model confidence alone does not establish it. The benchmark-only candidate-count and `back` ablations in [Benchmarks](benchmarks.md#laya-baseline-measurement) do not change the normal runner.
 
+An experimental unique-label gate is available for benchmark comparisons. It selects `type` only when the top candidate is editable, its name is a phrase in a goal containing one of the English verbs `enter`, `change`, `write`, `type`, or `fill`, its label is unique among visible enabled elements, and its retrieval score exceeds the runner-up by at least 16. All other decisions go to Laya. This narrow scope follows a fixture probe where a broader click gate incorrectly selected buttons on already-completed tasks. The gate is not active in the normal runner; its [fixture](benchmarks.md#laya-baseline-measurement) and [Kena](kena-benchmark.md) probes do not establish cross-site reliability.
+
 ## Confidence and fallback
 
 Confidence must be calibrated against observed correctness. A score of 0.90 is meaningful only if decisions in that score range are correct at roughly the corresponding rate. High-confidence valid decisions may execute directly; uncertain decisions may receive extra validation or go to the large-model **fallback**. The numeric thresholds illustrated in [SPECS.md](../SPECS.md) are placeholders, not operational settings.

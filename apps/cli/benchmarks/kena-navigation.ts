@@ -10,6 +10,8 @@ import {
   runControlledTask,
 } from "@jolty/core";
 import { LAYA_REVISION, LayaDecisionModel } from "@jolty/decision";
+import type { DecisionInput } from "@jolty/decision/contract";
+import { uniqueLabelDecision } from "@jolty/decision/unique-label-gate";
 import { chromium, type Page } from "playwright";
 import { codexFallback } from "../src/codex-fallback.ts";
 import { heuristicDecision } from "./heuristic.ts";
@@ -29,6 +31,7 @@ const layaTopK = Number(process.env.JOLTY_KENA_LAYA_TOP_K ?? 10);
 if (!Number.isInteger(layaTopK) || layaTopK < 1 || layaTopK > 10)
   throw new Error("JOLTY_KENA_LAYA_TOP_K must be an integer from 1 to 10");
 const includeBack = process.env.JOLTY_KENA_INCLUDE_BACK !== "0";
+const includeGate = process.env.JOLTY_KENA_INCLUDE_GATE === "1";
 const includeCodex = process.env.JOLTY_INCLUDE_CODEX === "1";
 const guildId = "222222222222222222"; // Kena's published fake-adapter guild slot.
 const userId = "111111111111111111"; // Accepted only in KENA_TEST_MODE.
@@ -163,6 +166,44 @@ try {
           },
         },
       },
+      ...(includeGate
+        ? [
+            {
+              name: "Laya with unique-label gate",
+              version: `${LAYA_REVISION}+unique-label-v0`,
+              candidateLimit: layaTopK,
+              provider: {
+                decide(input: DecisionInput) {
+                  const start = performance.now();
+                  const gate = uniqueLabelDecision(input);
+                  if (gate)
+                    return Promise.resolve({
+                      status: "selected" as const,
+                      ...gate,
+                      confidence: null,
+                      gate: true,
+                      metrics: {
+                        decision_latency_ms: performance.now() - start,
+                        model_call_ms: 0,
+                        tokenization_ms: null,
+                        inference_ms: null,
+                        input_tokens: null,
+                      },
+                    });
+                  return laya.decide(
+                    {
+                      ...input,
+                      candidates: input.candidates.slice(0, layaTopK),
+                    },
+                    includeBack
+                      ? undefined
+                      : { targetFreeActions: ["scroll", "wait", "done"] },
+                  );
+                },
+              },
+            },
+          ]
+        : []),
       ...(teacher
         ? [
             {
@@ -262,7 +303,7 @@ try {
                   const rank = input.candidates.findIndex(
                     ({ element }) => element.id === decision.targetId,
                   );
-                  selectedChoice = `${decision.action}@${rank < 0 ? "none" : rank + 1}`;
+                  selectedChoice = `${"gate" in decision && decision.gate === true ? "gate:" : ""}${decision.action}@${rank < 0 ? "none" : rank + 1}`;
                 }
                 return decision;
               },
@@ -388,6 +429,7 @@ try {
           measured_runs_per_flow_policy: runs,
           laya_top_k: layaTopK,
           back_option_included: includeBack,
+          unique_label_gate_included: includeGate,
           model_revision: LAYA_REVISION,
           teacher_model: teacher?.model.version ?? null,
           results,

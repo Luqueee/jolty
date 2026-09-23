@@ -23,6 +23,8 @@ A follow-up run on the same date corrected action construction: only native `<se
 
 An option-set probe used one warmup and three measured repetitions per flow. `JOLTY_KENA_LAYA_TOP_K=10` reproduced **12/21** Laya completions; Top-5 also gave **12/21**, while Top-3 fell to **6/21**. The labeled target remained within every policy candidate set. At Top-10, Laya chose `back` on Staff and chose the candidates at ranks 10 and 8 for the prefix and language flows, respectively, while each labeled target was rank 1. At Top-3, the model also lost Configuration and Moderation. `JOLTY_KENA_INCLUDE_BACK=0` with Top-10 changed Staff to a wrong rank-2 click and left task completion at **12/21**. These repeated observations cover only seven cases on one application. The benchmark reports aggregate selected action/rank counts without exporting page state. Neither reduced Top-K nor omitting `back` is enabled in the normal runner.
 
+The opt-in unique-label gate (`JOLTY_KENA_INCLUDE_GATE=1`) selected the settings-prefix textbox in all three measured runs and deferred to Laya on the other six flows. Laya plus the gate completed **15/21** tasks, versus **12/21** for Laya alone in the same run; the heuristic completed **21/21**. Staff and language-menu selection remain Laya failures. These are three repetitions of one newly covered case, not evidence of general-site reliability or calibrated gate precision. The normal runner does not use the gate.
+
 Further candidates from Kena's E2E suite:
 
 | Flow | Steps | Deterministic outcome | Status |

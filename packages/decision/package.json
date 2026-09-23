@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/laya-decision.ts",
     "./contract": "./src/decision.ts",
+    "./unique-label-gate": "./src/unique-label-gate.ts",
     "./large-model": "./src/large-model-decision.ts",
     "./codex-subscription": "./src/codex-subscription.ts"
   },

@@ -78,6 +78,8 @@ In a subsequent 26-case isolated decision run on the same hardware, Node.js 25.9
 
 A paired option-set probe on 2026-09-23 used `JOLTY_DECISION_TOP_K=5` and `3` with `pnpm run benchmark:decision` against the same 26 fixture states. Both variants retained all 22 targeted cases and left Laya at **17/26** exact decisions. Omitting `back` instead (`JOLTY_DECISION_INCLUDE_BACK=0`, Top-10 unchanged) produced **18/26**: one initial form action changed from wrong to correct. These are ablations, not a validated policy or a multi-site improvement. Default inference still offers Top-10 candidates and all four target-free actions.
 
+The experimental unique-label gate selected **6/26** fixture decisions and matched all six labels. Using its selection when available and Laya otherwise matched **19/26**, versus Laya's **17/26**. The gate corrected the initial email and message inputs. A broader prototype that allowed click targets also selected two buttons in terminal states where the correct action was `done`, so the retained rule is limited to explicit writing goals and editable elements. This is a decision-label probe; it does not measure full fixture task completion. The gate is opt-in only in the Kena benchmark (`JOLTY_KENA_INCLUDE_GATE=1`) and is not active in the normal runner.
+
 ## Comparison baselines
 
 Evaluate the same test scenarios with:
