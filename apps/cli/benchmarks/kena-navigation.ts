@@ -1,10 +1,19 @@
 import { cpus } from "node:os";
-import { type DecisionProvider, runControlledTask } from "@jolty/core";
+import {
+  type BrowserState,
+  extractBrowserState,
+  INTERACTIVE_SELECTOR,
+} from "@jolty/browser";
+import {
+  type ControlledTask,
+  type DecisionProvider,
+  runControlledTask,
+} from "@jolty/core";
 import { LAYA_REVISION, LayaDecisionModel } from "@jolty/decision";
-import { chromium } from "playwright";
+import { chromium, type Page } from "playwright";
 import { codexFallback } from "../src/codex-fallback.ts";
 import { heuristicDecision } from "./heuristic.ts";
-import { expectedTargetId, matchesDecisionLabel } from "./step-accuracy.ts";
+import { matchesDecisionLabel } from "./step-accuracy.ts";
 
 const baseUrl = process.env.JOLTY_KENA_TEST_URL ?? "http://localhost:3012";
 const base = new URL(baseUrl);
@@ -20,25 +29,91 @@ const includeCodex = process.env.JOLTY_INCLUDE_CODEX === "1";
 const guildId = "222222222222222222"; // Kena's published fake-adapter guild slot.
 const userId = "111111111111111111"; // Accepted only in KENA_TEST_MODE.
 const startPath = `/en/guilds/${guildId}`;
+const settingsPath = `${startPath}/settings`;
 const flows = [
   {
     id: "configuration",
+    kind: "navigate",
     goal: "Open server configuration",
     path: `${startPath}/settings`,
   },
   {
     id: "moderation",
+    kind: "navigate",
     goal: "Open moderation settings",
     path: `${startPath}/moderation`,
   },
-  { id: "levels", goal: "Open levels settings", path: `${startPath}/leveling` },
+  {
+    id: "levels",
+    kind: "navigate",
+    goal: "Open levels settings",
+    path: `${startPath}/leveling`,
+  },
   {
     id: "automations",
+    kind: "navigate",
     goal: "Open server automations",
     path: `${startPath}/automations`,
   },
-  { id: "staff", goal: "Open server staff", path: `${startPath}/staff` },
+  {
+    id: "staff",
+    kind: "navigate",
+    goal: "Open server staff",
+    path: `${startPath}/staff`,
+  },
+  {
+    id: "settings-prefix",
+    kind: "type",
+    goal: "Change the command prefix",
+    startPath: settingsPath,
+    targetName: "Prefix",
+    value: "?",
+  },
+  {
+    id: "language-options",
+    kind: "reveal",
+    goal: "Open the language choices",
+    startPath: settingsPath,
+    targetSelector: 'button[role="combobox"]:has-text("Spanish")',
+    revealedRole: "option",
+    revealedName: "English",
+  },
 ] as const;
+
+async function expectedTargetId(
+  page: Page,
+  state: BrowserState,
+  selector: string | null,
+  roleName: string | null,
+): Promise<string> {
+  if (roleName) {
+    const targets = state.elements.filter(
+      (element) => element.role === "textbox" && element.name === roleName,
+    );
+    if (targets.length !== 1)
+      throw new Error(
+        `Expected one Kena textbox named ${roleName}; found ${targets.length}`,
+      );
+    return targets[0].id;
+  }
+  const domIndex = await page
+    .locator(selector ?? "")
+    .evaluate(
+      (element, interactiveSelector) =>
+        Array.from(document.querySelectorAll(interactiveSelector)).indexOf(
+          element,
+        ),
+      INTERACTIVE_SELECTOR,
+    );
+  const id = state.elements.find(
+    (element) => element.domIndex === domIndex,
+  )?.id;
+  if (!id)
+    throw new Error(
+      `Labeled Kena target missing from browser state: ${selector}`,
+    );
+  return id;
+}
 
 function percentile(
   values: readonly number[],
@@ -73,6 +148,16 @@ try {
     ];
     const results = [];
     for (const flow of flows) {
+      const initialPath = flow.kind === "navigate" ? startPath : flow.startPath;
+      const targetSelector =
+        flow.kind === "navigate"
+          ? `a[href="${flow.path}"]`
+          : flow.kind === "reveal"
+            ? flow.targetSelector
+            : null;
+      const targetName = flow.kind === "type" ? flow.targetName : null;
+      const action =
+        flow.kind === "type" ? ("type" as const) : ("click" as const);
       for (const policy of policies) {
         const samples = [];
         for (let iteration = 0; iteration <= runs; iteration++) {
@@ -87,7 +172,7 @@ try {
           });
           try {
             const page = await context.newPage();
-            await page.goto(new URL(startPath, base).href, {
+            await page.goto(new URL(initialPath, base).href, {
               waitUntil: "domcontentloaded",
               timeout: 60_000,
             });
@@ -104,8 +189,8 @@ try {
             const label = {
               phase: "initial",
               goal: flow.goal,
-              action: "click" as const,
-              targetSelector: `a[href="${flow.path}"]`,
+              action,
+              targetSelector: targetSelector ?? undefined,
               expectedAfterAction: {
                 kind: "visible_text" as const,
                 text: "unused",
@@ -114,9 +199,23 @@ try {
             let expectedId: string | null = null;
             let candidateRank = -1;
             let correct = false;
+            if (flow.kind === "type") {
+              const state = (await extractBrowserState(page)).state;
+              expectedId = await expectedTargetId(
+                page,
+                state,
+                targetSelector,
+                targetName,
+              );
+            }
             const provider: DecisionProvider = {
               async decide(input) {
-                expectedId = await expectedTargetId(page, input.state, label);
+                expectedId = await expectedTargetId(
+                  page,
+                  input.state,
+                  targetSelector,
+                  targetName,
+                );
                 candidateRank = input.candidates.findIndex(
                   ({ element }) => element.id === expectedId,
                 );
@@ -125,17 +224,44 @@ try {
                 return decision;
               },
             };
-            const task = {
+            const task: ControlledTask = {
               id: flow.id,
               steps: [
                 {
                   goal: flow.goal,
-                  checks: [
-                    {
-                      kind: "url_changed" as const,
-                      to: new URL(flow.path, base).href,
-                    },
-                  ],
+                  checks:
+                    flow.kind === "navigate"
+                      ? [
+                          {
+                            kind: "url_changed",
+                            to: new URL(flow.path, base).href,
+                          },
+                        ]
+                      : flow.kind === "type"
+                        ? [
+                            {
+                              kind: "input_value_changed",
+                              targetId: expectedId ?? "",
+                              expectedValue: flow.value,
+                            },
+                          ]
+                        : [
+                            {
+                              kind: "element_appeared",
+                              role: flow.revealedRole,
+                              name: flow.revealedName,
+                            },
+                          ],
+                  values:
+                    flow.kind === "type"
+                      ? [
+                          {
+                            action: "type",
+                            target: { role: "textbox", name: flow.targetName },
+                            value: flow.value,
+                          },
+                        ]
+                      : undefined,
                 },
               ],
             };
@@ -162,6 +288,7 @@ try {
         }
         results.push({
           flow: flow.id,
+          action,
           policy: policy.name,
           successful_tasks: samples.filter(({ completed }) => completed).length,
           correct_decisions: samples.filter(({ correct }) => correct).length,
@@ -192,7 +319,7 @@ try {
     console.log(
       JSON.stringify(
         {
-          benchmark: "kena-local-navigation-v0",
+          benchmark: "kena-local-flows-v1",
           target: "Kena local fake-adapter dashboard",
           browser_version: browser.version(),
           node_version: process.version,
