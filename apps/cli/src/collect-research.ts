@@ -11,8 +11,14 @@ import { targetId } from "../benchmarks/public-site-flows.ts";
 import { safeText } from "./dataset.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
 import { type ResearchSplit, researchCases } from "./research-cases.ts";
+import { researchCasesV1 } from "./research-cases-v1.ts";
 
-const output = process.argv[2] ?? "artifacts/research-corpus-v0.json";
+const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
+if (corpusVersion !== "0" && corpusVersion !== "1")
+  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0 or 1");
+const cases = corpusVersion === "1" ? researchCasesV1 : researchCases;
+const output =
+  process.argv[2] ?? `artifacts/research-corpus-v${corpusVersion}.json`;
 const splitByOrigin = new Map<string, ResearchSplit>([
   ["https://testpages.eviltester.com", "train"],
   ["https://qa-automation-practice.netlify.app", "train"],
@@ -21,6 +27,10 @@ const splitByOrigin = new Map<string, ResearchSplit>([
   ["https://todomvc.com", "test"],
   ["https://www.saucedemo.com", "test"],
   ["https://www.selenium.dev", "test"],
+  ["https://qapracticehub.com", "train"],
+  ["https://practice-automation.com", "validation"],
+  ["https://www.qa-practice.com", "test"],
+  ["https://playground.go-bigger.de", "test"],
 ]);
 
 function projectState(state: BrowserState) {
@@ -47,7 +57,7 @@ function projectState(state: BrowserState) {
 
 function validateCaseSources(): void {
   const ids = new Set<string>();
-  for (const entry of researchCases) {
+  for (const entry of cases) {
     if (ids.has(entry.id))
       throw new Error(`Duplicate research case: ${entry.id}`);
     ids.add(entry.id);
@@ -66,7 +76,7 @@ validateCaseSources();
 const browser = await chromium.launch();
 try {
   const samples = [];
-  for (const entry of researchCases) {
+  for (const entry of cases) {
     const context = await browser.newContext();
     try {
       const page = await context.newPage();
@@ -105,6 +115,13 @@ try {
           targetId: expectedId,
           value,
         });
+        if (executed.status === "executed")
+          for (const check of step.checks)
+            if (check.kind === "text_visible")
+              await page
+                .getByText(check.text, { exact: true })
+                .waitFor({ state: "visible", timeout: 1_500 })
+                .catch(() => {});
         validation = await session.validate(executed);
       } finally {
         session.close();
@@ -155,6 +172,7 @@ try {
   const artifact = {
     schema_version: 0,
     source: "curated-public-practice-cases",
+    corpus_version: Number(corpusVersion),
     content_sha256: contentSha256,
     samples: ordered,
   };

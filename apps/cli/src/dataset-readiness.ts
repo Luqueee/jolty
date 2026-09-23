@@ -5,6 +5,8 @@ const reservedTestOrigins = new Set([
   "https://todomvc.com",
   "https://www.saucedemo.com",
   "https://www.selenium.dev",
+  "https://www.qa-practice.com",
+  "https://playground.go-bigger.de",
 ]);
 
 export interface ReadinessSample {

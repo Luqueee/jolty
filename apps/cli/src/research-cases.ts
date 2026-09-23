@@ -11,7 +11,7 @@ const evil = "https://testpages.eviltester.com";
 const qa = "https://qa-automation-practice.netlify.app";
 const expand = "https://practice.expandtesting.com";
 
-function fieldCase(args: {
+export function fieldCase(args: {
   id: string;
   site: string;
   split: ResearchSplit;
@@ -46,7 +46,7 @@ function fieldCase(args: {
   };
 }
 
-function selectCase(args: {
+export function selectCase(args: {
   id: string;
   site: string;
   split: ResearchSplit;
@@ -80,7 +80,7 @@ function selectCase(args: {
   };
 }
 
-function navigationCase(args: {
+export function navigationCase(args: {
   id: string;
   site: string;
   split: ResearchSplit;

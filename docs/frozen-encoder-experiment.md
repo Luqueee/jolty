@@ -20,3 +20,20 @@ The first run on 2026-09-23 used corpus digest `4ef7f24c4ea8fdad8c0fbb98ebaa7618
 The frozen head matched 24/28 training decisions and 14/14 calibration decisions. Calibration selected temperature 0.25 and a zero abstention threshold because every calibration prediction was correct. Its top-choice correctness Brier score on test was 0.146. In the ten test predictions above 0.9 confidence, nine were correct, versus mean confidence 0.982; two live TodoMVC mistakes had confidence above 0.99. The head's live Node process reached 467 MiB RSS. The recorded decision times exclude model load and page navigation, and each live flow was measured once. The latency numbers do not establish a stable speed ratio or throughput. The saved-observation teacher result excludes browser execution and has Codex CLI overhead.
 
 The live head failed the Completed and Active TodoMVC filters, the Backpack-specific Add action, and Selenium form submission. The first two selected a text field with high confidence; the latter two selected a different candidate. Laya missed the Internet dropdown in its live run. No head weights, feature rules, or thresholds were changed after reading test outcomes. The current candidate does not beat Laya on these reserved flows, and its confidence is unsafe for unattended execution. Keep it out of the browser hot path. More independent training and calibration sites, especially diverse button and filter actions, are needed before a new experiment; previously inspected test flows cannot serve as an untouched evaluation for a revised candidate. No PEFT, partial fine-tuning, full fine-tuning, or ONNX head export is justified by this result.
+
+## Revised corpus v1
+
+Run `pnpm run research:collect-v1` and then `pnpm run research:train-frozen-v1`. The latter uses the same encoder revision, feature construction, 400 training steps, learning rate, L2 penalty, temperature grid, and threshold rule as v0. The training set grows from 28 to 35 distinct labels and includes seven new QA Practice Hub clicks. Calibration grows from 14 to 22 labels across two origins. The eleven test decisions come only from QA Practice and the HTTPS UI Testing Playground installation; the four v0 test origins are absent. No v1 model setting was chosen using the earlier test mistakes.
+
+`pnpm run research:baseline-laya-v1` evaluates saved v1 observations. Set `JOLTY_RESEARCH_INCLUDE_CODEX=1` for the ChatGPT subscription reference. `pnpm run research:benchmark-frozen-v1` executes the candidate on fresh pages. For Laya on those same flows, run `JOLTY_PUBLIC_CORPUS_VERSION=1 JOLTY_PUBLIC_RUNS=1 JOLTY_PUBLIC_POLICIES='Laya verbose/ranked' pnpm run benchmark:public`. Model loading and page setup remain outside decision timing. Laya has one warmup per flow; the frozen-head benchmark does not.
+
+The 2026-09-23 v1 run used corpus digest `9a3226fbd80e73873a9aea6d3a29738e728b6c5dddefba81acef173d2de82933`:
+
+| Measure | Frozen head | Laya | ChatGPT subscription reference |
+| --- | ---: | ---: | ---: |
+| Exact next decisions on saved test observations | 7/11 | 6/11 | 10/11 |
+| Exact decisions on fresh live flows | 7/11 | 6/11 | — |
+| Deterministically completed live tasks | 7/11 | 6/11 | — |
+| Live decision latency p50 / p95 | 8.3 / 16.4 ms | 198.7 / 246.0 ms | — |
+
+The head matched 31/35 training and 22/22 calibration decisions. Calibration again selected temperature 0.25 and zero abstention threshold. Its test top-choice correctness Brier score was 0.275; among nine test choices above 0.9 confidence, seven were correct despite mean confidence 0.998. The live Node process reached 454 MiB RSS. The head missed the QA Practice simple and checkbox submissions, the prepared language submission, and the button-name update on UI Testing Playground. Laya completed one fewer task on this one-run comparison. These are eleven authored one-step tasks on two practice sites, with no repeated runs for the head, no multistep recovery, and no measured throughput. The one-case difference is inconclusive, and overconfidence prevents safe autonomous execution. Do not ship this head or treat the revised test origins as untouched for a later variant.

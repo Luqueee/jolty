@@ -2,7 +2,10 @@ import { readFile, writeFile } from "node:fs/promises";
 import type { DecisionProvider } from "@jolty/core";
 import { runControlledTask } from "@jolty/core";
 import { chromium } from "playwright";
-import { flows, targetId } from "../benchmarks/public-site-flows.ts";
+import {
+  flows as legacyFlows,
+  targetId,
+} from "../benchmarks/public-site-flows.ts";
 import {
   ENCODER_MODEL,
   ENCODER_REVISION,
@@ -10,6 +13,7 @@ import {
   loadFrozenEncoder,
   probabilities,
 } from "./frozen-encoder.ts";
+import { freshTestFlows } from "./research-cases-v1.ts";
 import {
   type ResearchSample,
   readResearchCorpus,
@@ -18,6 +22,10 @@ import {
 const headPath = process.argv[2] ?? "artifacts/frozen-encoder-v0.json";
 const corpusPath = process.argv[3] ?? "artifacts/research-corpus-v0.json";
 const outputPath = process.argv[4] ?? "artifacts/frozen-encoder-live.json";
+const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
+if (corpusVersion !== "0" && corpusVersion !== "1")
+  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0 or 1");
+const flows = corpusVersion === "1" ? freshTestFlows : legacyFlows;
 const { digest } = await readResearchCorpus(corpusPath);
 const head = JSON.parse(await readFile(headPath, "utf8"));
 if (

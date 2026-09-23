@@ -8,13 +8,18 @@ import { LAYA_REVISION, LayaDecisionModel } from "@jolty/decision";
 import type { DecisionQuestionOptions } from "@jolty/decision/contract";
 import { uniqueLabelDecision } from "@jolty/decision/unique-label-gate";
 import { chromium } from "playwright";
+import { freshTestFlows } from "../src/research-cases-v1.ts";
 import { heuristicDecision } from "./heuristic.ts";
-import { flows, targetId } from "./public-site-flows.ts";
+import { flows as legacyFlows, targetId } from "./public-site-flows.ts";
 
 const runs = Number(process.env.JOLTY_PUBLIC_RUNS ?? 3);
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error("JOLTY_PUBLIC_RUNS must be a positive integer");
 const requestedFlows = process.env.JOLTY_PUBLIC_FLOWS?.split(",") ?? null;
+const corpusVersion = process.env.JOLTY_PUBLIC_CORPUS_VERSION ?? "0";
+if (corpusVersion !== "0" && corpusVersion !== "1")
+  throw new Error("JOLTY_PUBLIC_CORPUS_VERSION must be 0 or 1");
+const flows = corpusVersion === "1" ? freshTestFlows : legacyFlows;
 const requestedPolicies = process.env.JOLTY_PUBLIC_POLICIES?.split(",") ?? null;
 const measuredFlows = requestedFlows
   ? flows.filter((flow) => requestedFlows.includes(flow.id))

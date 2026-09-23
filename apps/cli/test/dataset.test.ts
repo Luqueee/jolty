@@ -198,18 +198,21 @@ test("blocks encoder evaluation when labels, action coverage, and sites are miss
   expect(overlappingTest.reasons).toContain(
     "Held-out site origin overlaps training or calibration",
   );
-  const reservedTest = assessResearchReadiness([
-    {
-      ...train,
-      browser_state: {
-        ...train.browser_state,
-        origin: "https://www.saucedemo.com",
+  for (const origin of [
+    "https://www.saucedemo.com",
+    "https://www.qa-practice.com",
+    "https://playground.go-bigger.de",
+  ]) {
+    const reservedTest = assessResearchReadiness([
+      {
+        ...train,
+        browser_state: { ...train.browser_state, origin },
       },
-    },
-  ]);
-  expect(reservedTest.reasons).toContain(
-    "Reserved public test origin appears outside test split",
-  );
+    ]);
+    expect(reservedTest.reasons).toContain(
+      "Reserved public test origin appears outside test split",
+    );
+  }
 });
 
 test("requires repeated evidence for every evaluated action", () => {

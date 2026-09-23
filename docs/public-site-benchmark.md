@@ -2,6 +2,8 @@
 
 Run `pnpm run benchmark:public` to compare the retrieved Top-1 heuristic with Laya's verbose/ranked, compact/ranked, verbose/reversed, and verbose/reversed plus unique-label gate presentations. `JOLTY_PUBLIC_RUNS` controls measured repetitions (default three). `JOLTY_PUBLIC_FLOWS` accepts a comma-separated list of flow IDs, and `JOLTY_PUBLIC_POLICIES` accepts a comma-separated list of policy names for scoped probes; both reject unknown or duplicate entries. Each flow and policy gets one warmup and a fresh Chromium context for every attempt. The benchmark runs serially and prints a JSON report with per-flow exact decision accuracy, validated completion, target Recall@10 and Recall@policy K, selected choices, gate selections, option and state token drops, and decision latency. Page setup and oracle resolution precede `runControlledTask` and are excluded from its task duration. Site responses and application state are live; no pages or assets are pinned locally. A network or setup error fails the benchmark rather than counting as a model error.
 
+`JOLTY_PUBLIC_CORPUS_VERSION=1` switches the flow list to the revised research corpus's eleven new test cases on QA Practice and the HTTPS UI Testing Playground installation. The default remains the original thirteen flows. The [frozen-encoder report](frozen-encoder-experiment.md#revised-corpus-v1) records a one-run Laya comparison on the revised list.
+
 The thirteen one-step flows use four public demonstration sites:
 
 | Site | Prepared state and measured action | Deterministic check |
