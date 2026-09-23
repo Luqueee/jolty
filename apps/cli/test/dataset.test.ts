@@ -177,4 +177,61 @@ test("blocks encoder evaluation when labels, action coverage, and sites are miss
   ]);
   expect(repeated.summary.train.validated_labels).toBe(2);
   expect(repeated.summary.train.distinct_validated_decisions).toBe(1);
+  const paraphrased = assessResearchReadiness([
+    train,
+    {
+      ...train,
+      sample_id: "modal:paraphrased",
+      goal: "Show the confirmation dialog",
+    },
+  ]);
+  expect(paraphrased.summary.train.distinct_validated_decisions).toBe(1);
+  expect(result.reasons).toContain("Calibration site origin overlaps training");
+  const overlappingTest = assessResearchReadiness([
+    train,
+    {
+      ...train,
+      sample_id: "dynamic-results:1",
+      split: "test",
+    },
+  ]);
+  expect(overlappingTest.reasons).toContain(
+    "Held-out site origin overlaps training or calibration",
+  );
+  const reservedTest = assessResearchReadiness([
+    {
+      ...train,
+      browser_state: {
+        ...train.browser_state,
+        origin: "https://www.saucedemo.com",
+      },
+    },
+  ]);
+  expect(reservedTest.reasons).toContain(
+    "Reserved public test origin appears outside test split",
+  );
+});
+
+test("requires repeated evidence for every evaluated action", () => {
+  const base = sample();
+  const train = ["one", "two"].map((name) => ({
+    ...base,
+    browser_state: {
+      ...base.browser_state,
+      elements: [{ id: name }],
+    },
+  }));
+  const validation = {
+    ...base,
+    split: "validation" as const,
+    browser_state: { ...base.browser_state, origin: "https://validation.test" },
+  };
+  const result = assessResearchReadiness([base, ...train, validation]);
+  expect(result.reasons).toContain(
+    "Fewer than 2 calibration decisions for click",
+  );
+  const weakTrain = assessResearchReadiness([base, validation]);
+  expect(weakTrain.reasons).toContain(
+    "Fewer than 3 training decisions for click",
+  );
 });

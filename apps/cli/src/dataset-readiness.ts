@@ -1,9 +1,27 @@
-import type { DatasetRow } from "./dataset.ts";
-
 type Split = "train" | "validation" | "test";
 const splits: readonly Split[] = ["train", "validation", "test"];
+const reservedTestOrigins = new Set([
+  "https://the-internet.herokuapp.com",
+  "https://todomvc.com",
+  "https://www.saucedemo.com",
+  "https://www.selenium.dev",
+]);
 
-export function assessResearchReadiness(rows: readonly DatasetRow[]) {
+export interface ReadinessSample {
+  split: Split;
+  split_group: string;
+  goal: string;
+  browser_state: {
+    origin: string;
+    pathname: string;
+    title: string;
+    elements: readonly unknown[];
+  };
+  candidates: readonly { id: string }[];
+  training_action: { action: string; target_id: string | null } | null;
+}
+
+export function assessResearchReadiness(rows: readonly ReadinessSample[]) {
   const summary = Object.fromEntries(
     splits.map((split) => {
       const selected = rows.filter((row) => row.split === split);
@@ -12,9 +30,7 @@ export function assessResearchReadiness(rows: readonly DatasetRow[]) {
         ...new Map(
           labeled.map((row) => [
             JSON.stringify({
-              goal: row.goal,
               state: row.browser_state,
-              candidate_ids: row.candidates.map((candidate) => candidate.id),
               label: row.training_action,
             }),
             row,
@@ -76,11 +92,35 @@ export function assessResearchReadiness(rows: readonly DatasetRow[]) {
     reasons.push(
       `Evaluation actions absent from training: ${unseenActions.sort().join(", ")}`,
     );
+  for (const action of new Set([
+    ...Object.keys(summary.validation.actions),
+    ...Object.keys(summary.test.actions),
+  ])) {
+    if ((summary.train.actions[action] ?? 0) < 3)
+      reasons.push(`Fewer than 3 training decisions for ${action}`);
+    if ((summary.validation.actions[action] ?? 0) < 2)
+      reasons.push(`Fewer than 2 calibration decisions for ${action}`);
+  }
   const trainSites = new Set(summary.train.origins);
   if (summary.train.origins.length < 2)
     reasons.push("Training lacks independent site origins");
   if (!summary.test.origins.some((origin) => !trainSites.has(origin)))
     reasons.push("Test split has no unseen site origin");
+  if (summary.validation.origins.some((origin) => trainSites.has(origin)))
+    reasons.push("Calibration site origin overlaps training");
+  const calibrationSites = new Set(summary.validation.origins);
+  if (
+    summary.test.origins.some(
+      (origin) => trainSites.has(origin) || calibrationSites.has(origin),
+    )
+  )
+    reasons.push("Held-out site origin overlaps training or calibration");
+  if (
+    [...summary.train.origins, ...summary.validation.origins].some((origin) =>
+      reservedTestOrigins.has(origin),
+    )
+  )
+    reasons.push("Reserved public test origin appears outside test split");
   return {
     assessment_version: 1,
     summary,

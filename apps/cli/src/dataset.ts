@@ -18,7 +18,7 @@ export const SPLITS = {
 
 const sensitive =
   /(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|(?:password|secret|token|api[_ -]?key|authorization|bearer)\s*[:=]\s*\S+|\b(?:sk-[A-Za-z0-9_-]{12,}|[A-Fa-f0-9]{32,})\b)/i;
-function safeText(value: string): string {
+export function safeText(value: string): string {
   if (sensitive.test(value))
     throw new Error("Dataset text may contain sensitive data");
   return value;

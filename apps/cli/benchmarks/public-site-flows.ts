@@ -1,4 +1,8 @@
-import { extractBrowserState, INTERACTIVE_SELECTOR } from "@jolty/browser";
+import {
+  type BrowserState,
+  extractBrowserState,
+  INTERACTIVE_SELECTOR,
+} from "@jolty/browser";
 import type { ControlledTask } from "@jolty/core";
 import type { Page } from "playwright";
 
@@ -275,8 +279,12 @@ async function prepareSauce(page: Page): Promise<void> {
   await page.locator(".inventory_item").first().waitFor();
 }
 
-export async function targetId(page: Page, selector: string): Promise<string> {
-  const state = (await extractBrowserState(page)).state;
+export async function targetId(
+  page: Page,
+  selector: string,
+  observedState?: BrowserState,
+): Promise<string> {
+  const state = observedState ?? (await extractBrowserState(page)).state;
   const target = page.locator(selector);
   if ((await target.count()) !== 1)
     throw new Error(`Expected one target for ${selector}`);
