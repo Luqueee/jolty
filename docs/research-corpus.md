@@ -120,3 +120,5 @@ The 2026-09-24 collection validated all 166 cases with digest `aa9d1e4b8827547e4
 | Test | 2 | 10 | 8 | 0 | 2 |
 
 The readiness gate passed, and no training label was excluded. All ten test targets appeared in Top-10 and passed deterministic execution and validation before model fitting. These test outcomes have now been scored and must remain outside future training and calibration. The [v8 experiment](frozen-encoder-experiment.md#corpus-v8-frozen-head-iteration) reports the model comparison and the inspected multistep diagnostic.
+
+The [PEFT experiment protocol](peft-experiment.md) reserves six further origins and sets hard-case, split, and promotion gates before new labels are authored. No PEFT corpus or weights have been created yet.

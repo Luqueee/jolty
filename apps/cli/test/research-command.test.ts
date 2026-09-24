@@ -153,4 +153,31 @@ describe("research catalog", () => {
       );
     }
   });
+
+  it("locks the PEFT site allocation before case authoring", () => {
+    const allocation = {
+      train: ["https://www.play-qa.com", "https://dojo.upexgalaxy.com"],
+      validation: ["https://www.globalsqa.com"],
+      test: [
+        "https://automationexercise.com",
+        "https://www.demoblaze.com",
+        "https://parabank.parasoft.com",
+      ],
+    } as const;
+    const origins = Object.values(allocation).flat();
+    expect(new Set(origins).size).toBe(origins.length);
+    for (const [split, splitOrigins] of Object.entries(allocation)) {
+      for (const origin of splitOrigins) {
+        expect(splitByOrigin.get(origin)).toBe(split);
+        expect(reservedTestOrigins.has(origin)).toBe(split === "test");
+        for (let version = 0; version <= 8; version++) {
+          expect(
+            researchCasesForVersion(String(version)).some(
+              (entry) => new URL(entry.url).origin === origin,
+            ),
+          ).toBe(false);
+        }
+      }
+    }
+  });
 });
