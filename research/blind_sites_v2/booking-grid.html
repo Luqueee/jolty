@@ -1,0 +1,4 @@
+<!doctype html><title>Studio sessions</title>
+<h1>Studio sessions</h1><fieldset aria-label="Available times"><button type="button" id="morning">Morning</button><button type="button" id="evening">Evening</button></fieldset>
+<output id="chosen"></output><label>Participant <input id="participant"></label><button type="button" id="confirm">Confirm session</button><output id="confirmation"></output>
+<script>let slot='';document.querySelector('#morning').onclick=()=>{slot='Morning';document.querySelector('#chosen').textContent=slot;};document.querySelector('#evening').onclick=()=>{slot='Evening';document.querySelector('#chosen').textContent=slot;};document.querySelector('#confirm').onclick=()=>{const name=document.querySelector('#participant').value;if(slot&&name)document.querySelector('#confirmation').textContent=slot+' session for '+name;};</script>

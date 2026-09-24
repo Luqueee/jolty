@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "status": "validation-frozen",
+  "scope": "browser Laya v10s value-aware native-select input",
+  "checkpoint_revision": "4219958196e2c566c141688c773e08da10c1ff3b",
+  "validation_rows": 76,
+  "native_select_rows_recaptured_and_validated": 9,
+  "remaining_rows_from_sealed_v9_validation_projection": 67,
+  "test_sources_used": 0,
+  "temperature": 1,
+  "acceptance_threshold": 0.9791000000000003,
+  "validation_exact": 64,
+  "validation_accepted_correct": 5,
+  "validation_accepted_wrong": 0,
+  "source_sha256": {
+    "apps/cli/src/research/browser-laya-v2-projection.ts": "69de19e1d6cb7f4b2b3e73510735b6acdb2aed8bb50480fa64d654861e1351e4",
+    "apps/cli/src/research/collect-research.ts": "400869800e0148f4edcb5dad34a58edeaad4d2e7f8347c2b58d7026067a8d6c1",
+    "research/laya_browser/serialize_v2.py": "d34cd5b20da0bd5ee28900a846560cd556e49f88ac2ea8a5e6e467ec02ca89e2",
+    "research/laya_browser/prepare_validation_v2.py": "6dfff03bfd10a0a20addc04ca4f63b2fdb31a4f23c2fcfac40dfb7f1e267058a",
+    "research/laya_browser/score_validation_v2.py": "034038e349d3e18c781564189913ea7b97eae1256e476b8066e7f06b9c3810a1",
+    "apps/cli/src/research/choice-calibration.ts": "df9a6b549b1052aaeefc4c14cb5780d7ee91de7a50cff6fd2e9e9df4f283b673",
+    "apps/cli/src/research/calibrate-browser-laya-v2-validation.ts": "60d8d53872fbd198bfa4a82c9979dc6a090d90cf0608a78463498dfb4ab27b2f"
+  },
+  "artifact_sha256": {
+    "artifacts/laya-select-validation-recapture-v2.json": "1d3057b09bfd0ed77b1a7a5f442a09b94ec9742b29a7f831e5e3767809003baa",
+    "artifacts/laya-browser-validation-input-v2.json": "5d71a7442cfd26820f0d82a822efd2bc70f688370ecf6edc9fa87cdb1a570604",
+    "artifacts/laya-browser-validation-scores-v2.json": "a00cab267280460f4239540a83bf4cb213c25d0b4d21d43aef27d2c669f5f23a",
+    "artifacts/laya-browser-validation-policy-v2.json": "b160f4f877c307b578a39d4ae1578b609c6b2aa7a0bbcee70efb85b30aa6b977"
+  }
+}

@@ -1,0 +1,5 @@
+<!doctype html><title>Canal visits</title>
+<h1>Canal visits</h1><section id="identity"><label>Visitor <input id="visitor"></label><button type="button" id="next">Continue to time</button></section>
+<section id="schedule" hidden><label>Time <select id="time"><option>09:00</option><option>14:00</option></select></label><button type="button" id="book">Reserve visit</button></section>
+<p id="receipt"></p>
+<script>document.querySelector('#next').onclick=()=>{if(document.querySelector('#visitor').value){document.querySelector('#identity').hidden=true;document.querySelector('#schedule').hidden=false;}};document.querySelector('#book').onclick=()=>{document.querySelector('#receipt').textContent='Visit reserved at '+document.querySelector('#time').value+' for '+document.querySelector('#visitor').value;};</script>

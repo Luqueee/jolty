@@ -1,0 +1,4 @@
+<!doctype html><title>North support</title>
+<h1>North support</h1><label>Ticket search <input id="search"></label><button type="button" id="find">Find ticket</button>
+<ul id="results"></ul><output id="outcome"></output>
+<script>document.querySelector('#find').onclick=()=>{const term=document.querySelector('#search').value;document.querySelector('#results').innerHTML=term==='Printer'?'<li>Printer <button id="resolve">Resolve ticket</button></li>':'';document.querySelector('#resolve')?.addEventListener('click',()=>{document.querySelector('#outcome').textContent='Printer resolved';});};</script>

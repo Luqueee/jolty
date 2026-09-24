@@ -1,0 +1,4 @@
+<!doctype html><title>West service board</title>
+<h1>West service board</h1><div class="board"><section><h2>Open</h2><article id="ticket"><h3>Router</h3><button type="button" id="open">Open details</button></article></section><section><h2>Done</h2><output id="completed"></output></section></div>
+<aside id="details" hidden><p>Router needs inspection</p><label>Resolution note <input id="note"></label><button type="button" id="close">Close ticket</button></aside>
+<script>document.querySelector('#open').onclick=()=>{document.querySelector('#details').hidden=false;};document.querySelector('#close').onclick=()=>{if(document.querySelector('#note').value)document.querySelector('#completed').textContent='Router closed: '+document.querySelector('#note').value;};</script>

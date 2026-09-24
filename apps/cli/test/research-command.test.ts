@@ -234,9 +234,7 @@ describe("research catalog", () => {
       "https://parabank.parasoft.com",
     ])
       expect(count(origin)).toBeGreaterThanOrEqual(10);
-    expect(
-      fresh.filter((entry) => entry.split === "test").length,
-    ).toBeGreaterThanOrEqual(30);
+    expect(fresh.filter((entry) => entry.split === "test").length).toBe(40);
     for (const mode of [
       "search_field_button_conflict",
       "duplicate_nearby_labels",
@@ -249,6 +247,9 @@ describe("research catalog", () => {
         ).length,
       ).toBeGreaterThanOrEqual(6);
     expect(researchMultistepFlowsV9).toHaveLength(9);
+    expect(
+      researchMultistepFlowsV9.every((flow) => flow.labels.length === 3),
+    ).toBe(true);
     for (const origin of [
       "https://automationexercise.com",
       "https://www.demoblaze.com",

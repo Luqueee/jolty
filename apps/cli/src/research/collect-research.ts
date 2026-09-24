@@ -8,15 +8,44 @@ import { filterCandidates } from "../../../../packages/retrieval/src/candidate-f
 import { retrieveCandidates } from "../../../../packages/retrieval/src/candidate-retrieval.ts";
 import { ValidationSession } from "../../../../packages/validator/src/validate-action.ts";
 import { targetId } from "../../benchmarks/public-site-flows.ts";
+import { projectBrowserLayaV2State } from "./browser-laya-v2-projection.ts";
 import { researchCasesForVersion } from "./catalog.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
+import { selectDevelopmentCases } from "./development-cases.ts";
 import { safeResearchText } from "./research-text.ts";
 import { splitByOrigin } from "./sources.ts";
 
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-const cases = researchCasesForVersion(corpusVersion);
+const developmentIds =
+  process.env.JOLTY_RESEARCH_DEV_CASE_IDS?.split(",").filter(Boolean);
+const browserLayaV2 = process.env.JOLTY_RESEARCH_BROWSER_LAYA_V2 === "1";
+if (browserLayaV2 && !developmentIds)
+  throw new Error("Browser Laya v2 projection is development-only");
+const catalog = researchCasesForVersion(corpusVersion);
+const validationRecapture = browserLayaV2
+  ? catalog.filter(
+      (entry) =>
+        developmentIds?.includes(entry.id) && entry.split === "validation",
+    )
+  : [];
+if (
+  browserLayaV2 &&
+  (validationRecapture.length !== developmentIds?.length ||
+    new Set(developmentIds).size !== developmentIds.length)
+)
+  throw new Error("Browser Laya v2 recapture needs unique validation case IDs");
+const cases = developmentIds
+  ? browserLayaV2
+    ? validationRecapture
+    : selectDevelopmentCases(catalog, developmentIds)
+  : catalog;
 const output =
   process.argv[2] ?? `artifacts/research-corpus-v${corpusVersion}.json`;
+
+if (developmentIds) {
+  if (output === `artifacts/research-corpus-v${corpusVersion}.json`)
+    throw new Error("Development collection needs a separate output path");
+}
 
 function projectState(state: BrowserState) {
   const url = new URL(state.url);
@@ -62,6 +91,7 @@ validateCaseSources();
 const browser = await chromium.launch();
 try {
   const samples = [];
+  const rejected: { sample_id: string; reason: string }[] = [];
   for (const entry of cases) {
     const context = await browser.newContext();
     try {
@@ -78,7 +108,9 @@ try {
       const observation = await extractBrowserState(page);
       const state = observation.state;
       const expectedId = await targetId(page, entry.target, state);
-      const projected = projectState(state);
+      const projected = browserLayaV2
+        ? projectBrowserLayaV2State(state)
+        : projectState(state);
       if (splitByOrigin.get(projected.origin) !== entry.split)
         throw new Error(`Research case changed site origin: ${entry.id}`);
       const filtered = filterCandidates(state);
@@ -145,6 +177,16 @@ try {
         postcondition_passed: postcondition,
       });
       console.error(`${entry.id}: ${labelValid ? "validated" : "unvalidated"}`);
+    } catch (error) {
+      if (!developmentIds) throw error;
+      const message = error instanceof Error ? error.message : "Unknown error";
+      rejected.push({
+        sample_id: entry.id,
+        reason: /target|locator|strict mode/i.test(message)
+          ? "ambiguous_or_unidentifiable_target"
+          : "collection_or_validation_error",
+      });
+      console.error(`${entry.id}: rejected (${rejected.at(-1)?.reason})`);
     } finally {
       await context.close();
     }
@@ -162,6 +204,7 @@ try {
     corpus_version: Number(corpusVersion),
     content_sha256: contentSha256,
     samples: ordered,
+    ...(developmentIds ? { rejected } : {}),
   };
   await mkdir(dirname(output), { recursive: true });
   await writeFile(output, `${JSON.stringify(artifact, null, 2)}\n`);
@@ -175,6 +218,7 @@ try {
         ).length,
         content_sha256: contentSha256,
         assessment,
+        ...(developmentIds ? { rejected } : {}),
       },
       null,
       2,

@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "status": "calibration-frozen",
+  "purpose": "one-time comparison on the second independent blind set",
+  "manifest_sha256": "94f8ec8a5332b42cef5e400a8675cfc856f7132499b1eb4968f3b2e4210ab1cd",
+  "calibration_freeze_sha256": "a84a4b575322812da8d70b1c0eaf542b6fb74cc4f22c2d81feb759efc4f67bbb",
+  "decision_contract": {
+    "shared_candidate_order": "Jolty retrieval Top 10, ranked",
+    "actions": [
+      "click",
+      "type",
+      "select"
+    ],
+    "target_bearing_only": true,
+    "planned_values": "from fixed reference flow, never predicted by model",
+    "threshold_rule": "Validation-only maximum coverage with zero observed accepted errors",
+    "score_rule": "Full task completion first, then accepted correct coverage at zero accepted wrong decisions; report retrieval failures separately",
+    "test_reads": "One scoring pass on the same captured decision observations after every scorer passes its validation smoke test"
+  },
+  "test_capture_policy": "Fresh Chromium context per flow; one unlabeled Top 10 observation per validated reference step; abort before writing on retrieval or validator failure",
+  "models": [
+    {
+      "id": "heuristic",
+      "artifact": {
+        "path": "artifacts/heuristic-validation-policy.json",
+        "sha256": "19d78789ffdbee8ac76cdefa5595dc1db1d284fac01d7eeb53f27a4c001725e4"
+      },
+      "policy": {
+        "total": 76,
+        "correct": 65,
+        "covered": 38,
+        "covered_correct": 38,
+        "threshold": 34
+      },
+      "serializer": "Top-ranked retrieved element; type if editable, select if native select, otherwise click. Accept only when top score minus runner-up score meets the validation threshold.",
+      "probability_stage": "margin"
+    },
+    {
+      "id": "laya-original",
+      "artifact": {
+        "path": "artifacts/laya-original-validation-policy.json",
+        "sha256": "bd097c889b437b735f278241b2c4f40516e520476bc380add7f48bd015d9f52c"
+      },
+      "revision": "68f27dfe5a27a54fb2b1fefc432f43f972e90868",
+      "policy": {
+        "temperature": 1,
+        "threshold": 0.9386061393860616,
+        "validation_total": 76,
+        "validation_correct": 44,
+        "validation_covered": 2,
+        "validation_covered_correct": 2,
+        "missing_correct_option": 0,
+        "negative_log_likelihood": 1.2529373616138648
+      },
+      "serializer": {
+        "descriptionStyle": "verbose",
+        "candidateOrder": "ranked",
+        "targetFreeActions": []
+      },
+      "probability_stage": "raw"
+    },
+    {
+      "id": "laya-browser-v10s",
+      "artifact": {
+        "path": "artifacts/laya-browser-validation-policy-v2.json",
+        "sha256": "b160f4f877c307b578a39d4ae1578b609c6b2aa7a0bbcee70efb85b30aa6b977"
+      },
+      "checkpoint": {
+        "path": "artifacts/laya-browser/v10s/model.safetensors",
+        "sha256": "b11217df18bf79cfcd4ab639caf1ae8652b91c9c44fcb9457fbe480237332335"
+      },
+      "revision": "4219958196e2c566c141688c773e08da10c1ff3b",
+      "policy": {
+        "temperature": 1,
+        "threshold": 0.9791000000000003,
+        "validation_total": 76,
+        "validation_correct": 64,
+        "validation_covered": 5,
+        "validation_covered_correct": 5,
+        "missing_correct_option": 0,
+        "negative_log_likelihood": 0.7069061177054592
+      },
+      "serializer": "browser-laya-v2: ranked candidate descriptions include native-select current_value",
+      "probability_stage": "raw"
+    },
+    {
+      "id": "minilm-frozen-v9",
+      "artifact": {
+        "path": "artifacts/frozen-encoder-v9.json",
+        "sha256": "c4d892f8b8c0fd259809422390545abe7d10e3b5d283161d231ab8d5b43b2dea"
+      },
+      "base_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "policy": {
+        "temperature": 0.25,
+        "threshold": 0.9996791016903722
+      },
+      "probability_stage": "calibrated"
+    },
+    {
+      "id": "minilm-lora-v9",
+      "artifact": {
+        "path": "artifacts/peft-v9/head.json",
+        "sha256": "9a0edc8b38c5efd7ffe7f02eb87e739cbb9516c0ac9eb723f96c0a17be9d39ce"
+      },
+      "adapter": {
+        "path": "artifacts/peft-v9/adapter/adapter_model.safetensors",
+        "sha256": "e44120625aca37e009d93c76ff0c658c3219678818cfb9b956fd0a15428caf0b"
+      },
+      "base_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "policy": {
+        "temperature": 0.25,
+        "threshold": 0.9996786117553713
+      },
+      "probability_stage": "calibrated"
+    }
+  ],
+  "teacher": {
+    "role": "diagnostic reference only, outside the fast path",
+    "model": "gpt-6-sol",
+    "scoring": "saved observations only; no threshold or browser execution",
+    "scorer": "apps/cli/src/research/score-blind-v2-teacher.ts"
+  },
+  "resource_targets": {
+    "decision_pipeline_p95_ms": {
+      "value": 25,
+      "status": "engineering goal from SPECS section 51"
+    },
+    "incremental_rss_bytes": {
+      "value": 1073741824,
+      "status": "provisional research target"
+    }
+  },
+  "source_sha256": {
+    "apps/cli/src/research/freeze-blind-v2-plan.ts": "92eaf766a2a5396e4abd35abe9e29cd3ed4838fc4bb73d05dd126ba5250dfd7e",
+    "apps/cli/src/research/capture-blind-v2-once.ts": "164de671cc42bbe63edcf67b374c3cbce4e7776eb4f35f8d68550f88f80e0da4",
+    "apps/cli/src/research/score-blind-v2-models.ts": "b4106fffb16d2825c7822118288c8747913d44665388d0ad5e898bd0385b1f96",
+    "apps/cli/src/research/score-blind-v2-teacher.ts": "e4cd985ba543c1805dacead8e9da3f54c241f6a52d57faa62fd6337b8a09e71e",
+    "apps/cli/src/research/choice-calibration.ts": "df9a6b549b1052aaeefc4c14cb5780d7ee91de7a50cff6fd2e9e9df4f283b673",
+    "research/laya_browser/serialize_v2.py": "d34cd5b20da0bd5ee28900a846560cd556e49f88ac2ea8a5e6e467ec02ca89e2",
+    "research/laya_browser/score_observations_v2.py": "777bc1e2a7851aa28f3547036707c5f006abddcbd89b904cfeaef28046473f7c",
+    "research/peft/score_observations.py": "ceb67c6772bae9594d6471dae6a87dd495e28bfbf6fbe4bd462bc6126f4ae3ee"
+  }
+}

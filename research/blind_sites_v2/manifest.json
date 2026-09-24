@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "status": "frozen-unscored",
+  "purpose": "independent value-aware browser Laya follow-up",
+  "calibration_freeze_sha256": "a84a4b575322812da8d70b1c0eaf542b6fb74cc4f22c2d81feb759efc4f67bbb",
+  "first_blind_72_observations": "excluded from development and this test",
+  "v9_test": "sealed",
+  "reference_replay": {
+    "fresh_browser_context_per_flow": true,
+    "flows_passed": 6,
+    "steps_validated": 17,
+    "target_recall_at_10": "17/17 admission check; not a population retrieval estimate"
+  },
+  "case_source_sha256": "3f973a96d7d9d6d269249d729a762ec3d6facca0130c407f306d0a7b423adc55",
+  "reference_runner_sha256": "3d42f21233b28b37cd160b9997d8c4a4e5baa935beb433fa9e3f87f7cb0d4347",
+  "sites": [
+    {
+      "id": "harbor-stock",
+      "origin": "http://harbor-stock.blind-v2.jolty.test",
+      "family": "catalog",
+      "source": "catalog-table.html",
+      "source_sha256": "39ae95dac98f79cd49aa13d8ae52884cda3b910faccac01b4acef7bb589b461b",
+      "provenance": "authored locally for this follow-up after the v10s checkpoint",
+      "site_exposure_to_v10s": "excluded by new local source provenance",
+      "template_exposure_to_v10s": "unknown",
+      "initial_state": "fresh context, fixture URL, All section selected",
+      "actions": ["select", "click"],
+      "independent_validator": "selected section value, then exact result text Showing Hardware"
+    },
+    {
+      "id": "orchard-catalog",
+      "origin": "http://orchard-catalog.blind-v2.jolty.test",
+      "family": "catalog",
+      "source": "catalog-cards.html",
+      "source_sha256": "b1d6bd396d1fb7a15e98ab9a00d3054acb5567f225da3d284c49566cd5f1f17f",
+      "provenance": "authored locally for this follow-up after the v10s checkpoint",
+      "site_exposure_to_v10s": "excluded by new local source provenance",
+      "template_exposure_to_v10s": "unknown",
+      "initial_state": "fresh context, fixture URL, All department selected",
+      "actions": ["select", "click"],
+      "independent_validator": "selected department value, then exact Department: Fruit output"
+    },
+    {
+      "id": "canal-visits",
+      "origin": "http://canal-visits.blind-v2.jolty.test",
+      "family": "booking",
+      "source": "booking-wizard.html",
+      "source_sha256": "a292b51fcc2eeefc8d09dfb99b44b92339b8694c4ea9eeaa5cfb981c7fe2ba6a",
+      "provenance": "authored locally for this follow-up after the v10s checkpoint",
+      "site_exposure_to_v10s": "excluded by new local source provenance",
+      "template_exposure_to_v10s": "unknown",
+      "initial_state": "fresh context, fixture URL, identity stage visible and schedule hidden",
+      "actions": ["type", "click", "select"],
+      "independent_validator": "input value, stage visibility, selected time, then exact reservation receipt"
+    },
+    {
+      "id": "studio-sessions",
+      "origin": "http://studio-sessions.blind-v2.jolty.test",
+      "family": "booking",
+      "source": "booking-grid.html",
+      "source_sha256": "3e854742aa7acda33de3e897c6cc31987b63e975aff4485ccbe6a15ab88d46a2",
+      "provenance": "authored locally for this follow-up after the v10s checkpoint",
+      "site_exposure_to_v10s": "excluded by new local source provenance",
+      "template_exposure_to_v10s": "unknown",
+      "initial_state": "fresh context, fixture URL, no slot chosen",
+      "actions": ["click", "type"],
+      "independent_validator": "chosen slot text, participant input value, then exact confirmation output"
+    },
+    {
+      "id": "north-support",
+      "origin": "http://north-support.blind-v2.jolty.test",
+      "family": "support",
+      "source": "support-list.html",
+      "source_sha256": "0d15514810ce713c33f333f1c8d5becb80d769e812abefaf4b18d47017d46b4f",
+      "provenance": "authored locally for this follow-up after the v10s checkpoint",
+      "site_exposure_to_v10s": "excluded by new local source provenance",
+      "template_exposure_to_v10s": "unknown",
+      "initial_state": "fresh context, fixture URL, empty search and result list",
+      "actions": ["type", "click"],
+      "independent_validator": "search input value, resolve control visibility, then exact resolved output"
+    },
+    {
+      "id": "west-service",
+      "origin": "http://west-service.blind-v2.jolty.test",
+      "family": "support",
+      "source": "support-board.html",
+      "source_sha256": "412754d1cba9449a10b0f63d3c5d1232c6094f19b5ff0015d6317dd69733be25",
+      "provenance": "authored locally for this follow-up after the v10s checkpoint",
+      "site_exposure_to_v10s": "excluded by new local source provenance",
+      "template_exposure_to_v10s": "unknown",
+      "initial_state": "fresh context, fixture URL, ticket details hidden and no completion",
+      "actions": ["click", "type"],
+      "independent_validator": "ticket detail visibility, note input value, then exact closed output"
+    }
+  ]
+}
