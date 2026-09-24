@@ -14,6 +14,7 @@ import { freshTestFlowsV3 } from "../src/research-cases-v3.ts";
 import { freshTestFlowsV4 } from "../src/research-cases-v4.ts";
 import { freshTestFlowsV5 } from "../src/research-cases-v5.ts";
 import { freshTestFlowsV6 } from "../src/research-cases-v6.ts";
+import { freshTestCasesV7 } from "../src/research-cases-v7-test.ts";
 import { heuristicDecision } from "./heuristic.ts";
 import { flows as legacyFlows, targetId } from "./public-site-flows.ts";
 
@@ -22,22 +23,27 @@ if (!Number.isInteger(runs) || runs < 1)
   throw new Error("JOLTY_PUBLIC_RUNS must be a positive integer");
 const requestedFlows = process.env.JOLTY_PUBLIC_FLOWS?.split(",") ?? null;
 const corpusVersion = process.env.JOLTY_PUBLIC_CORPUS_VERSION ?? "0";
-if (!["0", "1", "2", "3", "4", "5", "6"].includes(corpusVersion))
-  throw new Error("JOLTY_PUBLIC_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, or 6");
-const flows =
-  corpusVersion === "6"
-    ? freshTestFlowsV6
-    : corpusVersion === "5"
-      ? freshTestFlowsV5
-      : corpusVersion === "4"
-        ? freshTestFlowsV4
-        : corpusVersion === "3"
-          ? freshTestFlowsV3
-          : corpusVersion === "2"
-            ? freshTestFlowsV2
-            : corpusVersion === "1"
-              ? freshTestFlows
-              : legacyFlows;
+const flowsByVersion = [
+  legacyFlows,
+  freshTestFlows,
+  freshTestFlowsV2,
+  freshTestFlowsV3,
+  freshTestFlowsV4,
+  freshTestFlowsV5,
+  freshTestFlowsV6,
+  freshTestCasesV7,
+];
+const versionIndex = Number(corpusVersion);
+if (
+  !Number.isInteger(versionIndex) ||
+  corpusVersion !== String(versionIndex) ||
+  versionIndex < 0 ||
+  versionIndex >= flowsByVersion.length
+)
+  throw new Error(
+    "JOLTY_PUBLIC_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, 6, or 7",
+  );
+const flows = flowsByVersion[versionIndex];
 const requestedPolicies = process.env.JOLTY_PUBLIC_POLICIES?.split(",") ?? null;
 const measuredFlows = requestedFlows
   ? flows.filter((flow) => requestedFlows.includes(flow.id))

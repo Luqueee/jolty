@@ -17,6 +17,8 @@ const reservedTestOrigins = new Set([
   "https://www.automation-bible.com",
   "https://www.stepcampus.in",
   "https://www.sreenidhirajakrishnan.com",
+  "https://www.velocity-qa-platform.com",
+  "https://www.learnaqa.info",
 ]);
 
 export interface ReadinessSample {

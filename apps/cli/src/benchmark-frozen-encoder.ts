@@ -19,6 +19,7 @@ import { freshTestFlowsV3 } from "./research-cases-v3.ts";
 import { freshTestFlowsV4 } from "./research-cases-v4.ts";
 import { freshTestFlowsV5 } from "./research-cases-v5.ts";
 import { freshTestFlowsV6 } from "./research-cases-v6.ts";
+import { freshTestCasesV7 } from "./research-cases-v7-test.ts";
 import {
   type ResearchSample,
   readResearchCorpus,
@@ -29,24 +30,27 @@ const corpusPath = process.argv[3] ?? "artifacts/research-corpus-v0.json";
 const outputPath = process.argv[4] ?? "artifacts/frozen-encoder-live.json";
 const diagnosticThreshold = 0.9;
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-if (!["0", "1", "2", "3", "4", "5", "6"].includes(corpusVersion))
+const flowsByVersion = [
+  legacyFlows,
+  freshTestFlows,
+  freshTestFlowsV2,
+  freshTestFlowsV3,
+  freshTestFlowsV4,
+  freshTestFlowsV5,
+  freshTestFlowsV6,
+  freshTestCasesV7,
+];
+const versionIndex = Number(corpusVersion);
+if (
+  !Number.isInteger(versionIndex) ||
+  corpusVersion !== String(versionIndex) ||
+  versionIndex < 0 ||
+  versionIndex >= flowsByVersion.length
+)
   throw new Error(
-    "JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, or 6",
+    "JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, 6, or 7",
   );
-const flows =
-  corpusVersion === "6"
-    ? freshTestFlowsV6
-    : corpusVersion === "5"
-      ? freshTestFlowsV5
-      : corpusVersion === "4"
-        ? freshTestFlowsV4
-        : corpusVersion === "3"
-          ? freshTestFlowsV3
-          : corpusVersion === "2"
-            ? freshTestFlowsV2
-            : corpusVersion === "1"
-              ? freshTestFlows
-              : legacyFlows;
+const flows = flowsByVersion[versionIndex];
 const { digest } = await readResearchCorpus(corpusPath);
 const head = JSON.parse(await readFile(headPath, "utf8"));
 if (

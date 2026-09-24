@@ -89,3 +89,17 @@ Run `pnpm run research:collect-v6` to collect the v5 training and validation cas
 | Test | 2 | 20 | 13 | 2 | 5 |
 
 The engineering admission gate passes. During collection, a target index on the Sreenidhi page resolved to a different control because Playwright locators pierce Shadow DOM while browser-state extraction uses main-document `querySelectorAll`. The executor now resolves observed indices with that same DOM query, and a focused regression test reproduces the mismatch. The collected test outcomes are now inspected and must not be used as untouched evaluation for a tuned candidate. See the [fixed-head and multistep comparison](frozen-encoder-experiment.md#fixed-v5-heads-on-v6-and-multistep-flows).
+
+## Corpus v7: broader training and calibration
+
+Run `pnpm run research:collect-v7` to rebuild the ignored `artifacts/research-corpus-v7.json` artifact. V7 retains the 68 v6 training and validation cases, adds 49 training cases on Automation Testing Register, LetsKodeIt, Blogspot Automation Testing Practice, and LetCode, and adds 20 calibration cases on QA Practice and AppTesting. The 21 new held-out cases use TestForge and LearnAQA. Previously evaluated v6 test pages are absent. The 2026-09-24 collection validated 158/158 distinct labels with digest `00ea9701e673f4251c5f5e3aa86d2a6e7060d25067fad147f7bca5a7ac65610a`:
+
+| Split | Origins | Distinct labels | Click | Select | Type |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Train | 7 | 90 | 39 | 13 | 38 |
+| Calibration | 4 | 47 | 28 | 5 | 14 |
+| Test | 2 | 21 | 15 | 3 | 3 |
+
+Every label passed target retrieval within Top-10, bounded execution, deterministic validation, and a case-specific outcome check for clicks. All observed text passed the dataset sensitive-text guard. A LetCode case needed a network-idle wait to avoid an occasional state change between observation and execution; it passed 20 repeated isolated validations before the successful full collection. Public pages remain externally mutable, so the digest and outcomes should be checked on every rerun.
+
+A local Ollama model on an 8 GB GPU was tried for site and action ideation. LFM2.5 proposed unsupported actions and unverified routes; Qwen3.5:9b identified two page risks but produced no accepted case labels. The accepted cases were authored from browser inspection and validated with Playwright. A candidate page that nearly duplicated an earlier evaluated site was excluded despite having a different origin. No local-model dependency or automatic labeling path was added. The v7 test labels have been validated but no decision model has been scored on them yet; preserve that separation until the training recipe is fixed.

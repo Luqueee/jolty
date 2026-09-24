@@ -212,6 +212,8 @@ test("blocks encoder evaluation when labels, action coverage, and sites are miss
     "https://www.automation-bible.com",
     "https://www.stepcampus.in",
     "https://www.sreenidhirajakrishnan.com",
+    "https://www.velocity-qa-platform.com",
+    "https://www.learnaqa.info",
   ]) {
     const reservedTest = assessResearchReadiness([
       {

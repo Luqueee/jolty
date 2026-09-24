@@ -10,33 +10,41 @@ import { ValidationSession } from "../../../packages/validator/src/validate-acti
 import { targetId } from "../benchmarks/public-site-flows.ts";
 import { safeText } from "./dataset.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
-import { type ResearchSplit, researchCases } from "./research-cases.ts";
+import {
+  type ResearchCase,
+  type ResearchSplit,
+  researchCases,
+} from "./research-cases.ts";
 import { researchCasesV1 } from "./research-cases-v1.ts";
 import { researchCasesV2 } from "./research-cases-v2.ts";
 import { researchCasesV3 } from "./research-cases-v3.ts";
 import { researchCasesV4 } from "./research-cases-v4.ts";
 import { researchCasesV5 } from "./research-cases-v5.ts";
 import { researchCasesV6 } from "./research-cases-v6.ts";
+import { researchCasesV7 } from "./research-cases-v7.ts";
 
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-if (!["0", "1", "2", "3", "4", "5", "6"].includes(corpusVersion))
+const casesByVersion = [
+  researchCases,
+  researchCasesV1,
+  researchCasesV2,
+  researchCasesV3,
+  researchCasesV4,
+  researchCasesV5,
+  researchCasesV6,
+  researchCasesV7,
+];
+const versionIndex = Number(corpusVersion);
+if (
+  !Number.isInteger(versionIndex) ||
+  corpusVersion !== String(versionIndex) ||
+  versionIndex < 0 ||
+  versionIndex >= casesByVersion.length
+)
   throw new Error(
-    "JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, or 6",
+    "JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, 6, or 7",
   );
-const cases =
-  corpusVersion === "6"
-    ? researchCasesV6
-    : corpusVersion === "5"
-      ? researchCasesV5
-      : corpusVersion === "4"
-        ? researchCasesV4
-        : corpusVersion === "3"
-          ? researchCasesV3
-          : corpusVersion === "2"
-            ? researchCasesV2
-            : corpusVersion === "1"
-              ? researchCasesV1
-              : researchCases;
+const cases = casesByVersion[versionIndex] as ResearchCase[];
 const output =
   process.argv[2] ?? `artifacts/research-corpus-v${corpusVersion}.json`;
 const splitByOrigin = new Map<string, ResearchSplit>([
@@ -61,6 +69,14 @@ const splitByOrigin = new Map<string, ResearchSplit>([
   ["https://www.automation-bible.com", "test"],
   ["https://www.stepcampus.in", "test"],
   ["https://www.sreenidhirajakrishnan.com", "test"],
+  ["https://demo.automationtesting.in", "train"],
+  ["https://www.letskodeit.com", "train"],
+  ["https://testautomationpractice.blogspot.com", "train"],
+  ["https://letcode.in", "train"],
+  ["https://www.qapractice.com", "validation"],
+  ["https://apptesting.pl", "validation"],
+  ["https://www.velocity-qa-platform.com", "test"],
+  ["https://www.learnaqa.info", "test"],
 ]);
 
 function projectState(state: BrowserState) {
