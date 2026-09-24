@@ -52,7 +52,7 @@ describe("research command", () => {
   });
 
   it("rejects invalid versions, options, and measurements", () => {
-    expect(() => parseResearchCommand(["collect", "--version", "8"])).toThrow();
+    expect(() => parseResearchCommand(["collect", "--version", "9"])).toThrow();
     expect(() =>
       parseResearchCommand(["collect", "--version", "07"]),
     ).toThrow();
@@ -93,11 +93,45 @@ describe("research command", () => {
       },
     });
   });
+
+  it("can probe a newer frozen head on the inspected multistep suite", () => {
+    expect(
+      parseResearchCommand([
+        "multistep",
+        "--suite",
+        "heldout",
+        "--policy",
+        "zero",
+        "--head-version",
+        "8",
+        "--runs",
+        "3",
+      ]),
+    ).toEqual({
+      script: "benchmark-research-multistep.ts",
+      args: ["artifacts/research-multistep-heldout-zero-head-v8.json"],
+      env: {
+        JOLTY_RESEARCH_MULTI_POLICY: "zero",
+        JOLTY_RESEARCH_MULTI_SUITE: "heldout",
+        JOLTY_RESEARCH_MULTI_HEAD_VERSION: "8",
+        JOLTY_RESEARCH_MULTI_RUNS: "3",
+      },
+    });
+    expect(() =>
+      parseResearchCommand([
+        "multistep",
+        "--policy",
+        "laya",
+        "--head-version",
+        "8",
+      ]),
+    ).toThrow(/requires --policy zero/);
+  });
 });
 
 describe("research catalog", () => {
   it("keeps every curated case on an approved split origin", () => {
-    for (let version = 0; version <= 7; version++) {
+    for (let version = 0; version <= 8; version++) {
       const cases = researchCasesForVersion(String(version));
       const flows = testFlowsForVersion(String(version));
       expect(cases.length).toBeGreaterThan(0);

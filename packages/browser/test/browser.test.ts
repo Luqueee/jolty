@@ -125,3 +125,28 @@ test("omits freeform control contents while retaining their state", async () => 
   expect(JSON.stringify(state)).not.toContain("private draft");
   await page.close();
 });
+
+test("uses a unique nearby label and identifies native multiple selects", async () => {
+  browser ??= await chromium.launch();
+  const page = await browser.newPage();
+  await page.setContent(`
+    <div><label>Email address</label><div><input type="email"></div></div>
+    <div><label>Shared field</label><div><input type="text"><input type="text"></div></div>
+    <label>Fruit <select multiple><option selected>Orange</option><option>Apple</option></select></label>
+    <div role="listbox" aria-label="Custom fruit list"></div>
+  `);
+  const { state } = await extractBrowserState(page);
+  expect(state.elements[0]).toMatchObject({
+    name: "Email address",
+    role: "textbox",
+  });
+  expect(state.elements[1]?.name).toBe("");
+  expect(state.elements[2]?.name).toBe("");
+  expect(state.elements[3]).toMatchObject({ role: "listbox", value: "Orange" });
+  expect(state.elements[4]).toMatchObject({
+    role: "listbox",
+    name: "Custom fruit list",
+  });
+  expect(state.elements[4]?.value).toBeUndefined();
+  await page.close();
+});

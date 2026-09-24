@@ -19,7 +19,8 @@ if (suite === "heldout" && policy === "biased")
   throw new Error("The held-out suite has no fitted-intercept head");
 const flows =
   suite === "v6" ? researchMultistepFlowsV6 : researchMultistepHeldout;
-const headVersion = suite === "v6" ? "5" : "7";
+const headVersion =
+  process.env.JOLTY_RESEARCH_MULTI_HEAD_VERSION ?? (suite === "v6" ? "5" : "7");
 const runs = Number(process.env.JOLTY_RESEARCH_MULTI_RUNS ?? 3);
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error("JOLTY_RESEARCH_MULTI_RUNS must be a positive integer");
@@ -110,6 +111,7 @@ async function loadPolicy(): Promise<LoadedPolicy | null> {
             enabled: element.enabled,
             has_value: element.hasValue ?? false,
             selected: element.selected ?? false,
+            ...(element.value !== undefined ? { native_select: true } : {}),
           })),
         },
         candidates: input.candidates.map((candidate) => ({

@@ -13,6 +13,7 @@ export interface ResearchElement {
   enabled: boolean;
   has_value: boolean;
   selected: boolean;
+  native_select?: boolean;
 }
 
 export interface ResearchSample {

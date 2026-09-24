@@ -72,6 +72,9 @@ describe("decision question", () => {
   it("clicks custom list controls and selects only native selects", () => {
     expect(actionFor(element("e1", "combobox"))).toBe("click");
     expect(actionFor(element("e2", "listbox"))).toBe("click");
+    expect(actionFor({ ...element("e5", "listbox"), value: "Orange" })).toBe(
+      "select",
+    );
     expect(actionFor(element("e3", "option"))).toBe("click");
     expect(actionFor({ ...element("e4", "combobox"), value: "" })).toBe(
       "select",

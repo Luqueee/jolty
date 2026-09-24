@@ -18,7 +18,7 @@ function required<T>(values: ArrayLike<T>, index: number): T {
 
 export function actionFor(element: ResearchElement): Action {
   if (element.editable) return "type";
-  if (element.role === "combobox") return "select";
+  if (element.role === "combobox" || element.native_select) return "select";
   return "click";
 }
 

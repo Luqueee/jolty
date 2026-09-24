@@ -47,7 +47,10 @@ export interface ModelQuestion {
 
 export function actionFor(element: InteractiveElement): Action {
   if (element.editable) return "type";
-  if (element.role === "combobox" && element.value !== undefined)
+  if (
+    (element.role === "combobox" || element.role === "listbox") &&
+    element.value !== undefined
+  )
     return "select";
   return "click";
 }

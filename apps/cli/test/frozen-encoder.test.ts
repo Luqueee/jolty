@@ -132,4 +132,17 @@ test("excludes unsupported training actions without hiding evaluation mismatches
       makeSample("held-out", "test", "listbox", "select"),
     ]),
   ).toThrow(/Unsupported evaluation label for held-out/);
+  const nativeMultiple = makeSample(
+    "native-multiple",
+    "train",
+    "listbox",
+    "select",
+  );
+  const nativeElement = nativeMultiple.browser_state.elements[0];
+  if (!nativeElement) throw new Error("Missing native select fixture");
+  nativeElement.native_select = true;
+  expect(selectTrainableSamples([nativeMultiple])).toEqual({
+    selected: [nativeMultiple],
+    excludedTrainIds: [],
+  });
 });

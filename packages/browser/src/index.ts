@@ -139,6 +139,26 @@ export async function extractBrowserState(
               return copy.textContent ?? "";
             }).join(" ")
           : "";
+      const nearbyLabel = (): string => {
+        if (
+          !(element instanceof HTMLInputElement) &&
+          !(element instanceof HTMLSelectElement) &&
+          !(element instanceof HTMLTextAreaElement)
+        )
+          return "";
+        let container = element.parentElement;
+        for (let depth = 0; container && depth < 3; depth++) {
+          const controls = container.querySelectorAll(
+            "input:not([type=hidden]), select, textarea",
+          );
+          if (controls.length > 1) return "";
+          const nearby = container.querySelectorAll("label");
+          if (controls.length === 1 && nearby.length === 1)
+            return nearby[0]?.textContent ?? "";
+          container = container.parentElement;
+        }
+        return "";
+      };
       const freeform =
         (element instanceof HTMLInputElement &&
           editableInputTypes.has(element.type)) ||
@@ -158,6 +178,7 @@ export async function extractBrowserState(
           (element instanceof HTMLInputElement
             ? element.alt || element.placeholder
             : "") ||
+          nearbyLabel() ||
           text ||
           element.getAttribute("title"),
       );

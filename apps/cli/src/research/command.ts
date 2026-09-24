@@ -22,7 +22,7 @@ const allowedOptions: Record<Operation, readonly string[]> = {
   train: ["version", "corpus", "output", "bias"],
   baseline: ["version", "corpus", "output", "include-codex"],
   benchmark: ["version", "head", "head-version", "corpus", "output", "bias"],
-  multistep: ["policy", "suite", "runs", "output"],
+  multistep: ["policy", "suite", "runs", "output", "head-version"],
   public: ["version", "runs", "flows", "policies"],
 };
 
@@ -125,11 +125,19 @@ export function parseResearchCommand(argv: readonly string[]): ResearchCommand {
         throw new Error("--suite must be v6 or heldout");
       if (suite === "heldout" && policy === "biased")
         throw new Error("The held-out suite has no fitted-intercept head");
+      const headVersion = get("head-version");
+      if (headVersion) {
+        if (policy !== "zero")
+          throw new Error("--head-version requires --policy zero");
+        parseResearchVersion(headVersion);
+        env.JOLTY_RESEARCH_MULTI_HEAD_VERSION = headVersion;
+      }
       env.JOLTY_RESEARCH_MULTI_POLICY = policy;
       env.JOLTY_RESEARCH_MULTI_SUITE = suite;
       if (runs) env.JOLTY_RESEARCH_MULTI_RUNS = runs;
       args = [
-        get("output") ?? `artifacts/research-multistep-${suite}-${policy}.json`,
+        get("output") ??
+          `artifacts/research-multistep-${suite}-${policy}${headVersion ? `-head-v${headVersion}` : ""}.json`,
       ];
       break;
     }

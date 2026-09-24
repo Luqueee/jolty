@@ -15,6 +15,7 @@ import {
   type ResearchSample,
   readResearchCorpus,
 } from "./research-corpus-reader.ts";
+import { safeResearchText } from "./research-text.ts";
 
 const headPath = process.argv[2] ?? "artifacts/frozen-encoder-v0.json";
 const corpusPath = process.argv[3] ?? "artifacts/research-corpus-v0.json";
@@ -72,17 +73,18 @@ try {
             browser_state: {
               origin: url.origin,
               pathname: url.pathname,
-              title: input.state.title,
+              title: safeResearchText(input.state.title),
               elements: input.state.elements.map((element) => ({
                 id: element.id,
                 role: element.role,
-                name: element.name,
-                text: element.text,
+                name: safeResearchText(element.name),
+                text: safeResearchText(element.text),
                 editable: element.editable,
                 visible: element.visible,
                 enabled: element.enabled,
                 has_value: element.hasValue ?? false,
                 selected: element.selected ?? false,
+                ...(element.value !== undefined ? { native_select: true } : {}),
               })),
             },
             candidates: input.candidates.map((candidate) => ({

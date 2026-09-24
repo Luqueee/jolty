@@ -8,9 +8,9 @@ import { filterCandidates } from "../../../../packages/retrieval/src/candidate-f
 import { retrieveCandidates } from "../../../../packages/retrieval/src/candidate-retrieval.ts";
 import { ValidationSession } from "../../../../packages/validator/src/validate-action.ts";
 import { targetId } from "../../benchmarks/public-site-flows.ts";
-import { safeText } from "../dataset.ts";
 import { researchCasesForVersion } from "./catalog.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
+import { safeResearchText } from "./research-text.ts";
 import { splitByOrigin } from "./sources.ts";
 
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
@@ -25,17 +25,18 @@ function projectState(state: BrowserState) {
   return {
     origin: url.origin,
     pathname: url.pathname,
-    title: safeText(state.title),
+    title: safeResearchText(state.title),
     elements: state.elements.map((element) => ({
       id: element.id,
       role: element.role,
-      name: safeText(element.name),
-      text: safeText(element.text),
+      name: safeResearchText(element.name),
+      text: safeResearchText(element.text),
       visible: element.visible,
       enabled: element.enabled,
       editable: element.editable,
       has_value: element.hasValue ?? false,
       selected: element.selected ?? false,
+      ...(element.value !== undefined ? { native_select: true } : {}),
     })),
   };
 }
@@ -121,7 +122,7 @@ try {
         sample_id: entry.id,
         split: entry.split,
         split_group: projected.origin,
-        goal: safeText(entry.goal),
+        goal: safeResearchText(entry.goal),
         browser_state: projected,
         candidates: retrieved.topCandidates.map(
           ({ element, score, signals }) => ({

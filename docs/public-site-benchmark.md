@@ -12,6 +12,8 @@ Run `pnpm research public` to compare the retrieved Top-1 heuristic with Laya's 
 
 `pnpm research public --version 5` selects ten cases on DemoQA and Automation Bible. The [v5 ablation](frozen-encoder-experiment.md#corpus-v5-action-bias-ablation) compares Laya with two frozen-encoder heads. The default remains the original thirteen flows.
 
+`pnpm research public --version 8 --runs 1 --policies 'Laya verbose/ranked'` runs the ten fresh test cases on Process Practice and Snippy Lab. The [v8 experiment](frozen-encoder-experiment.md#corpus-v8-frozen-head-iteration) records the one-run comparison. The default remains the original thirteen flows.
+
 The thirteen one-step flows use four public demonstration sites:
 
 | Site | Prepared state and measured action | Deterministic check |

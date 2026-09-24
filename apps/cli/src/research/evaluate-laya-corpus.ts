@@ -23,7 +23,8 @@ function layaInput(sample: ResearchSample): DecisionInput {
     title: sample.browser_state.title,
     elements: sample.browser_state.elements.map((element) => ({
       ...element,
-      value: element.role === "combobox" ? "" : undefined,
+      value:
+        element.role === "combobox" || element.native_select ? "" : undefined,
       hasValue: element.has_value,
     })),
   };

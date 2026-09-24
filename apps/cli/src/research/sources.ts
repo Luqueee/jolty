@@ -30,6 +30,11 @@ export const splitByOrigin = new Map<string, ResearchSplit>([
   ["https://apptesting.pl", "validation"],
   ["https://www.velocity-qa-platform.com", "test"],
   ["https://www.learnaqa.info", "test"],
+  ["https://playwrightlab.github.io", "train"],
+  ["https://www.xqa.io", "train"],
+  ["https://gauravkhurana.com", "validation"],
+  ["https://process-practice.dev", "test"],
+  ["https://snippylab.com", "test"],
 ]);
 
 export const reservedTestOrigins = new Set(
