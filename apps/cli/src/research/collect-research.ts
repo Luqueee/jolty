@@ -3,81 +3,20 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { type BrowserState, extractBrowserState } from "@jolty/browser";
 import { chromium } from "playwright";
-import { executeAction } from "../../../packages/executor/src/execute-action.ts";
-import { filterCandidates } from "../../../packages/retrieval/src/candidate-filter.ts";
-import { retrieveCandidates } from "../../../packages/retrieval/src/candidate-retrieval.ts";
-import { ValidationSession } from "../../../packages/validator/src/validate-action.ts";
-import { targetId } from "../benchmarks/public-site-flows.ts";
-import { safeText } from "./dataset.ts";
+import { executeAction } from "../../../../packages/executor/src/execute-action.ts";
+import { filterCandidates } from "../../../../packages/retrieval/src/candidate-filter.ts";
+import { retrieveCandidates } from "../../../../packages/retrieval/src/candidate-retrieval.ts";
+import { ValidationSession } from "../../../../packages/validator/src/validate-action.ts";
+import { targetId } from "../../benchmarks/public-site-flows.ts";
+import { safeText } from "../dataset.ts";
+import { researchCasesForVersion } from "./catalog.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
-import {
-  type ResearchCase,
-  type ResearchSplit,
-  researchCases,
-} from "./research-cases.ts";
-import { researchCasesV1 } from "./research-cases-v1.ts";
-import { researchCasesV2 } from "./research-cases-v2.ts";
-import { researchCasesV3 } from "./research-cases-v3.ts";
-import { researchCasesV4 } from "./research-cases-v4.ts";
-import { researchCasesV5 } from "./research-cases-v5.ts";
-import { researchCasesV6 } from "./research-cases-v6.ts";
-import { researchCasesV7 } from "./research-cases-v7.ts";
+import { splitByOrigin } from "./sources.ts";
 
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-const casesByVersion = [
-  researchCases,
-  researchCasesV1,
-  researchCasesV2,
-  researchCasesV3,
-  researchCasesV4,
-  researchCasesV5,
-  researchCasesV6,
-  researchCasesV7,
-];
-const versionIndex = Number(corpusVersion);
-if (
-  !Number.isInteger(versionIndex) ||
-  corpusVersion !== String(versionIndex) ||
-  versionIndex < 0 ||
-  versionIndex >= casesByVersion.length
-)
-  throw new Error(
-    "JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, 6, or 7",
-  );
-const cases = casesByVersion[versionIndex] as ResearchCase[];
+const cases = researchCasesForVersion(corpusVersion);
 const output =
   process.argv[2] ?? `artifacts/research-corpus-v${corpusVersion}.json`;
-const splitByOrigin = new Map<string, ResearchSplit>([
-  ["https://testpages.eviltester.com", "train"],
-  ["https://qa-automation-practice.netlify.app", "train"],
-  ["https://practice.expandtesting.com", "validation"],
-  ["https://the-internet.herokuapp.com", "test"],
-  ["https://todomvc.com", "test"],
-  ["https://www.saucedemo.com", "test"],
-  ["https://www.selenium.dev", "test"],
-  ["https://qapracticehub.com", "train"],
-  ["https://practice-automation.com", "validation"],
-  ["https://www.qa-practice.com", "test"],
-  ["https://playground.go-bigger.de", "test"],
-  ["https://www.testtrack.org", "test"],
-  ["https://webdriveruniversity.com", "test"],
-  ["https://lastest.cloud", "test"],
-  ["https://qaplayground.com", "test"],
-  ["https://testing.qaautomationlabs.com", "test"],
-  ["https://practicetestautomation.com", "test"],
-  ["https://demoqa.com", "test"],
-  ["https://www.automation-bible.com", "test"],
-  ["https://www.stepcampus.in", "test"],
-  ["https://www.sreenidhirajakrishnan.com", "test"],
-  ["https://demo.automationtesting.in", "train"],
-  ["https://www.letskodeit.com", "train"],
-  ["https://testautomationpractice.blogspot.com", "train"],
-  ["https://letcode.in", "train"],
-  ["https://www.qapractice.com", "validation"],
-  ["https://apptesting.pl", "validation"],
-  ["https://www.velocity-qa-platform.com", "test"],
-  ["https://www.learnaqa.info", "test"],
-]);
 
 function projectState(state: BrowserState) {
   const url = new URL(state.url);

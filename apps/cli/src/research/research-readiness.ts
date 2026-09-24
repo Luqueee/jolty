@@ -1,4 +1,4 @@
-import { readDataset } from "./dataset-reader.ts";
+import { readDataset } from "../dataset-reader.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
 
 const directory = process.argv[2] ?? "artifacts/dataset-v1-fallback";

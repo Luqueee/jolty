@@ -2,7 +2,7 @@ import type { Page } from "playwright";
 import {
   type Flow,
   flows as heldOutFlows,
-} from "../benchmarks/public-site-flows.ts";
+} from "../../../benchmarks/public-site-flows.ts";
 
 export type ResearchSplit = "train" | "validation" | "test";
 export type ResearchCase = Flow & { split: ResearchSplit };

@@ -2,10 +2,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import type { DecisionProvider } from "@jolty/core";
 import { runControlledTask } from "@jolty/core";
 import { chromium } from "playwright";
-import {
-  flows as legacyFlows,
-  targetId,
-} from "../benchmarks/public-site-flows.ts";
+import { targetId } from "../../benchmarks/public-site-flows.ts";
+import { testFlowsForVersion } from "./catalog.ts";
 import {
   ENCODER_MODEL,
   ENCODER_REVISION,
@@ -13,13 +11,6 @@ import {
   loadFrozenEncoder,
   probabilities,
 } from "./frozen-encoder.ts";
-import { freshTestFlows } from "./research-cases-v1.ts";
-import { freshTestFlowsV2 } from "./research-cases-v2.ts";
-import { freshTestFlowsV3 } from "./research-cases-v3.ts";
-import { freshTestFlowsV4 } from "./research-cases-v4.ts";
-import { freshTestFlowsV5 } from "./research-cases-v5.ts";
-import { freshTestFlowsV6 } from "./research-cases-v6.ts";
-import { freshTestCasesV7 } from "./research-cases-v7-test.ts";
 import {
   type ResearchSample,
   readResearchCorpus,
@@ -30,27 +21,7 @@ const corpusPath = process.argv[3] ?? "artifacts/research-corpus-v0.json";
 const outputPath = process.argv[4] ?? "artifacts/frozen-encoder-live.json";
 const diagnosticThreshold = 0.9;
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-const flowsByVersion = [
-  legacyFlows,
-  freshTestFlows,
-  freshTestFlowsV2,
-  freshTestFlowsV3,
-  freshTestFlowsV4,
-  freshTestFlowsV5,
-  freshTestFlowsV6,
-  freshTestCasesV7,
-];
-const versionIndex = Number(corpusVersion);
-if (
-  !Number.isInteger(versionIndex) ||
-  corpusVersion !== String(versionIndex) ||
-  versionIndex < 0 ||
-  versionIndex >= flowsByVersion.length
-)
-  throw new Error(
-    "JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, 4, 5, 6, or 7",
-  );
-const flows = flowsByVersion[versionIndex];
+const flows = testFlowsForVersion(corpusVersion);
 const { digest } = await readResearchCorpus(corpusPath);
 const head = JSON.parse(await readFile(headPath, "utf8"));
 if (

@@ -1,25 +1,7 @@
+import { reservedTestOrigins } from "./sources.ts";
+
 type Split = "train" | "validation" | "test";
 const splits: readonly Split[] = ["train", "validation", "test"];
-const reservedTestOrigins = new Set([
-  "https://the-internet.herokuapp.com",
-  "https://todomvc.com",
-  "https://www.saucedemo.com",
-  "https://www.selenium.dev",
-  "https://www.qa-practice.com",
-  "https://playground.go-bigger.de",
-  "https://www.testtrack.org",
-  "https://webdriveruniversity.com",
-  "https://lastest.cloud",
-  "https://qaplayground.com",
-  "https://testing.qaautomationlabs.com",
-  "https://practicetestautomation.com",
-  "https://demoqa.com",
-  "https://www.automation-bible.com",
-  "https://www.stepcampus.in",
-  "https://www.sreenidhirajakrishnan.com",
-  "https://www.velocity-qa-platform.com",
-  "https://www.learnaqa.info",
-]);
 
 export interface ReadinessSample {
   split: Split;

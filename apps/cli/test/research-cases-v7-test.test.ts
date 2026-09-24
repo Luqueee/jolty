@@ -7,7 +7,7 @@ import { retrieveCandidates } from "../../../packages/retrieval/src/candidate-re
 import { ValidationSession } from "../../../packages/validator/src/validate-action.ts";
 import { targetId } from "../benchmarks/public-site-flows.ts";
 import { safeText } from "../src/dataset.ts";
-import { freshTestCasesV7 } from "../src/research-cases-v7-test.ts";
+import { freshTestCasesV7 } from "../src/research/cases/research-cases-v7-test.ts";
 
 test("keeps test cases on two independent HTTPS origins", () => {
   expect(freshTestCasesV7).toHaveLength(21);

@@ -1,12 +1,12 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { type DecisionProvider, runControlledTask } from "@jolty/core";
 import { chromium } from "playwright";
-import { targetId } from "../benchmarks/public-site-flows.ts";
+import { targetId } from "../../benchmarks/public-site-flows.ts";
+import { researchMultistepFlowsV6 } from "./cases/research-multistep-v6.ts";
 import {
   type ResearchSample,
   readResearchCorpus,
 } from "./research-corpus-reader.ts";
-import { researchMultistepFlowsV6 } from "./research-multistep-v6.ts";
 
 const policy = process.env.JOLTY_RESEARCH_MULTI_POLICY ?? "reference";
 if (!["reference", "laya", "zero", "biased"].includes(policy))

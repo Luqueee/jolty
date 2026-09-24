@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import type { RankedCandidate } from "../../../packages/retrieval/src/candidate-retrieval.ts";
+import type { RankedCandidate } from "../../../../packages/retrieval/src/candidate-retrieval.ts";
 import { assessResearchReadiness } from "./dataset-readiness.ts";
 
 export interface ResearchElement {

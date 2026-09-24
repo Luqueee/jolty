@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { trainCasesV7A } from "../src/research-cases-v7-train-a.ts";
+import { trainCasesV7A } from "../src/research/cases/research-cases-v7-train-a.ts";
 
 test("adds 25 training decisions from two new HTTPS origins", () => {
   expect(trainCasesV7A).toHaveLength(25);

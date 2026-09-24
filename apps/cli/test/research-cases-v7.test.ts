@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { researchCasesV7 } from "../src/research-cases-v7.ts";
+import { researchCasesV7 } from "../src/research/cases/research-cases-v7.ts";
 
 test("keeps v7 origins disjoint across splits", () => {
   expect(researchCasesV7).toHaveLength(158);

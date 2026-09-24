@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { researchCasesV5 } from "../src/research-cases-v5.ts";
+import { researchCasesV5 } from "../src/research/cases/research-cases-v5.ts";
 
 test("keeps the sixth corpus test origins disjoint from earlier splits", () => {
   const ids = researchCasesV5.map((entry) => entry.id);

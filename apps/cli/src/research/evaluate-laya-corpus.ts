@@ -6,8 +6,8 @@ import {
   assertChatGptLogin,
   CODEX_MODEL,
   codexSubscriptionAdapter,
-} from "../../../packages/decision/src/codex-subscription.ts";
-import { evaluateLargeModelDecision } from "../../../packages/decision/src/large-model-decision.ts";
+} from "../../../../packages/decision/src/codex-subscription.ts";
+import { evaluateLargeModelDecision } from "../../../../packages/decision/src/large-model-decision.ts";
 import {
   type ResearchSample,
   readResearchCorpus,

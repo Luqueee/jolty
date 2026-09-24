@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { researchCasesV6 } from "../src/research-cases-v6.ts";
+import { researchCasesV6 } from "../src/research/cases/research-cases-v6.ts";
 
 test("reserves two new test origins without split overlap", () => {
   const ids = researchCasesV6.map((entry) => entry.id);

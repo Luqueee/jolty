@@ -11,7 +11,7 @@ import {
   writeDataset,
 } from "../src/dataset.ts";
 import { readDataset } from "../src/dataset-reader.ts";
-import { assessResearchReadiness } from "../src/dataset-readiness.ts";
+import { assessResearchReadiness } from "../src/research/dataset-readiness.ts";
 
 const directories: string[] = [];
 afterEach(async () => {

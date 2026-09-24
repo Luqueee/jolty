@@ -8,8 +8,8 @@ import {
   probabilities,
   selectThreshold,
   trainHead,
-} from "../src/frozen-encoder.ts";
-import { readResearchCorpus } from "../src/research-corpus-reader.ts";
+} from "../src/research/frozen-encoder.ts";
+import { readResearchCorpus } from "../src/research/research-corpus-reader.ts";
 
 test("rejects a changed research corpus digest", async () => {
   const directory = await mkdtemp(join(tmpdir(), "jolty-research-"));

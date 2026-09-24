@@ -1,6 +1,6 @@
 import type { ControlledTask } from "@jolty/core";
 import type { Page } from "playwright";
-import { targetId } from "../benchmarks/public-site-flows.ts";
+import { targetId } from "../../../benchmarks/public-site-flows.ts";
 
 export interface ResearchMultistepFlow {
   id: string;

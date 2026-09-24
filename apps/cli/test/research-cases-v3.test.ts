@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { researchCasesV3 } from "../src/research-cases-v3.ts";
+import { researchCasesV3 } from "../src/research/cases/research-cases-v3.ts";
 
 test("keeps the fourth corpus held-out origins disjoint", () => {
   const ids = researchCasesV3.map((entry) => entry.id);

@@ -43,7 +43,7 @@ pnpm run benchmark:compare
 pnpm run benchmark:hybrid
 pnpm run benchmark:kena
 pnpm run dataset:export
-pnpm run research:readiness
+pnpm research readiness
 pnpm run jolty -- run modal --trace
 ```
 

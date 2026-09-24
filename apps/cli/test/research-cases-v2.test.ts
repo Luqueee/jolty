@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { researchCasesV2 } from "../src/research-cases-v2.ts";
+import { researchCasesV2 } from "../src/research/cases/research-cases-v2.ts";
 
 test("reserves two untouched origins for the third corpus", () => {
   const ids = researchCasesV2.map((entry) => entry.id);

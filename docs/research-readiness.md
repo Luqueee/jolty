@@ -1,6 +1,6 @@
 # Milestone 13 research readiness
 
-Run `pnpm run dataset:export --fallback` followed by `pnpm run research:readiness`. The second command reads the Parquet file, validates the schema and manifest checksum, and prints validated label counts, action coverage, fixture groups, and site origins by split. Pass a dataset directory as the first positional argument to audit another v1 export.
+Run `pnpm run dataset:export --fallback` followed by `pnpm research readiness`. The second command reads the Parquet file, validates the schema and manifest checksum, and prints validated label counts, action coverage, fixture groups, and site origins by split. Pass `--dataset DIR` to audit another v1 export.
 
 The first fallback export on 2026-09-23 produced:
 

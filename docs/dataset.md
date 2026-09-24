@@ -12,6 +12,6 @@ The split is fixed by fixture: `modal`, `cookie-overlay`, and `ambiguous-row` ar
 
 These five authored templates are a smoke dataset, not evidence of cross-site generalization or a representative training corpus. The held-out fixtures provide separation within this small set; they do not establish independence across real sites or page families. Expansion should group all pages sharing a site or template family before assigning splits.
 
-Use `pnpm run research:readiness` to audit an export before model adaptation. The reader verifies the schema, row count, and manifest content digest; the [research readiness report](research-readiness.md) describes the current admission gates and limitations.
+Use `pnpm research readiness` to audit an export before model adaptation. The reader verifies the schema, row count, and manifest content digest; the [research readiness report](research-readiness.md) describes the current admission gates and limitations.
 
 The separate [public-site research corpus pilot](research-corpus.md) uses curated browser cases and a JSON v0 artifact. Its collection and validation rules differ from this controlled Parquet v1 exporter. The JSON pilot is not a drop-in v1 dataset.

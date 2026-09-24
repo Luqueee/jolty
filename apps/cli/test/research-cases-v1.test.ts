@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { researchCasesV1 } from "../src/research-cases-v1.ts";
+import { researchCasesV1 } from "../src/research/cases/research-cases-v1.ts";
 
 test("keeps the revised corpus and fresh test origins separate", () => {
   const ids = researchCasesV1.map((entry) => entry.id);
