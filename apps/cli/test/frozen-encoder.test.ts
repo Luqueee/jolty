@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -28,6 +29,27 @@ test("rejects a changed research corpus digest", async () => {
       }),
     );
     await expect(readResearchCorpus(path)).rejects.toThrow(/checksum/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("rejects malformed failure-mode metadata after checksum validation", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "jolty-research-"));
+  try {
+    const path = join(directory, "corpus.json");
+    const sample = { sample_id: "bad-mode", failure_modes: [42] };
+    await writeFile(
+      path,
+      JSON.stringify({
+        schema_version: 0,
+        content_sha256: createHash("sha256")
+          .update(JSON.stringify(sample))
+          .digest("hex"),
+        samples: [sample],
+      }),
+    );
+    await expect(readResearchCorpus(path)).rejects.toThrow(/failure modes/);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

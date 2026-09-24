@@ -27,6 +27,10 @@ import {
   freshTestCasesV8,
   researchCasesV8,
 } from "./cases/research-cases-v8.ts";
+import {
+  freshTestCasesV9,
+  researchCasesV9,
+} from "./cases/research-cases-v9.ts";
 
 const corpusCases = [
   researchCases,
@@ -38,6 +42,7 @@ const corpusCases = [
   researchCasesV6,
   researchCasesV7,
   researchCasesV8,
+  researchCasesV9,
 ] as const;
 const testFlows = [
   legacyFlows,
@@ -49,6 +54,7 @@ const testFlows = [
   freshTestFlowsV6,
   freshTestCasesV7,
   freshTestCasesV8,
+  freshTestCasesV9,
 ] as const;
 
 export const latestResearchVersion = corpusCases.length - 1;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { researchMultistepHeldout } from "../src/research/cases/research-multistep-heldout.ts";
+import { researchMultistepFlowsV9 } from "../src/research/cases/research-multistep-v9.ts";
 import {
   researchCasesForVersion,
   testFlowsForVersion,
@@ -52,7 +53,9 @@ describe("research command", () => {
   });
 
   it("rejects invalid versions, options, and measurements", () => {
-    expect(() => parseResearchCommand(["collect", "--version", "9"])).toThrow();
+    expect(() =>
+      parseResearchCommand(["collect", "--version", "10"]),
+    ).toThrow();
     expect(() =>
       parseResearchCommand(["collect", "--version", "07"]),
     ).toThrow();
@@ -131,7 +134,7 @@ describe("research command", () => {
 
 describe("research catalog", () => {
   it("keeps every curated case on an approved split origin", () => {
-    for (let version = 0; version <= 8; version++) {
+    for (let version = 0; version <= 9; version++) {
       const cases = researchCasesForVersion(String(version));
       const flows = testFlowsForVersion(String(version));
       expect(cases.length).toBeGreaterThan(0);
@@ -157,7 +160,7 @@ describe("research catalog", () => {
   it("locks the PEFT site allocation before case authoring", () => {
     const allocation = {
       train: ["https://www.play-qa.com", "https://dojo.upexgalaxy.com"],
-      validation: ["https://www.globalsqa.com"],
+      validation: ["https://www.syntaxprojects.com"],
       test: [
         "https://automationexercise.com",
         "https://www.demoblaze.com",
@@ -179,5 +182,72 @@ describe("research catalog", () => {
         }
       }
     }
+  });
+
+  it("keeps the PEFT corpus and reference flows above the pre-registered admission counts", () => {
+    const freshOrigins = new Set([
+      "https://www.play-qa.com",
+      "https://dojo.upexgalaxy.com",
+      "https://www.syntaxprojects.com",
+      "https://automationexercise.com",
+      "https://www.demoblaze.com",
+      "https://parabank.parasoft.com",
+    ]);
+    const fresh = researchCasesForVersion("9").filter((entry) =>
+      freshOrigins.has(new URL(entry.url).origin),
+    );
+    for (const entry of fresh)
+      expect(entry.postcondition).toBeTypeOf("function");
+    const count = (origin: string) =>
+      fresh.filter((entry) => new URL(entry.url).origin === origin).length;
+    expect(count("https://www.play-qa.com")).toBeGreaterThanOrEqual(25);
+    expect(count("https://dojo.upexgalaxy.com")).toBeGreaterThanOrEqual(25);
+    expect(
+      fresh.filter((entry) => entry.split === "train").length,
+    ).toBeGreaterThanOrEqual(60);
+    expect(count("https://www.syntaxprojects.com")).toBeGreaterThanOrEqual(20);
+    for (const origin of [
+      "https://automationexercise.com",
+      "https://www.demoblaze.com",
+      "https://parabank.parasoft.com",
+    ])
+      expect(count(origin)).toBeGreaterThanOrEqual(10);
+    expect(
+      fresh.filter((entry) => entry.split === "test").length,
+    ).toBeGreaterThanOrEqual(30);
+    for (const mode of [
+      "search_field_button_conflict",
+      "duplicate_nearby_labels",
+      "post_transition_control",
+    ] as const)
+      expect(
+        fresh.filter(
+          (entry) =>
+            entry.split !== "test" && entry.failureModes?.includes(mode),
+        ).length,
+      ).toBeGreaterThanOrEqual(6);
+    expect(researchMultistepFlowsV9).toHaveLength(9);
+    for (const origin of [
+      "https://automationexercise.com",
+      "https://www.demoblaze.com",
+      "https://parabank.parasoft.com",
+    ])
+      expect(
+        researchMultistepFlowsV9.filter(
+          (flow) =>
+            new URL(flow.url).origin === origin && flow.labels.length >= 3,
+        ),
+      ).toHaveLength(3);
+    const testLabels = fresh
+      .filter((entry) => entry.split === "test")
+      .map(
+        (entry) =>
+          `${entry.site}:${entry.goal}:${entry.action}:${entry.target}`,
+      );
+    for (const flow of researchMultistepFlowsV9)
+      for (const label of flow.labels)
+        expect(testLabels).toContain(
+          `${flow.site}:${label.goal}:${label.action}:${label.target}`,
+        );
   });
 });

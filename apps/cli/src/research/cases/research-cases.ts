@@ -5,7 +5,16 @@ import {
 } from "../../../benchmarks/public-site-flows.ts";
 
 export type ResearchSplit = "train" | "validation" | "test";
-export type ResearchCase = Flow & { split: ResearchSplit };
+export type ResearchCase = Flow & {
+  split: ResearchSplit;
+  failureModes?: readonly (
+    | "search_field_button_conflict"
+    | "duplicate_nearby_labels"
+    | "post_transition_control"
+    | "modal_control"
+    | "dense_page"
+  )[];
+};
 
 const evil = "https://testpages.eviltester.com";
 const qa = "https://qa-automation-practice.netlify.app";

@@ -121,4 +121,18 @@ The 2026-09-24 collection validated all 166 cases with digest `aa9d1e4b8827547e4
 
 The readiness gate passed, and no training label was excluded. All ten test targets appeared in Top-10 and passed deterministic execution and validation before model fitting. These test outcomes have now been scored and must remain outside future training and calibration. The [v8 experiment](frozen-encoder-experiment.md#corpus-v8-frozen-head-iteration) reports the model comparison and the inspected multistep diagnostic.
 
-The [PEFT experiment protocol](peft-experiment.md) reserves six further origins and sets hard-case, split, and promotion gates before new labels are authored. No PEFT corpus or weights have been created yet.
+## Corpus v9: PEFT experiment admission
+
+Run `pnpm research collect --version 9` to recreate `artifacts/research-corpus-v9.json`. V9 retains the v8 train and validation cases, excludes the inspected v8 test cases, and adds 67 train decisions on Play QA (31) and UPEX Dojo (36), 24 validation decisions on Syntax, and 40 untouched test decisions on Automation Exercise (15), DemoBlaze (13), and ParaBank (12). Every new decision has an independent postcondition and its target appeared in the main-document Top-10 during collection. The test decisions have not been scored by a model. The [PEFT experiment protocol](peft-experiment.md) fixes the fitting and evaluation rules.
+
+The 2026-09-24 collection validated 287/287 labels with digest `067e957e44c7d33e39f03527da2b754323ff31429d52e164921b08e9ad40914c`; the corpus reader verified its checksum and the engineering admission gate passed:
+
+| Split | New decisions | Total distinct labels | Click | Select | Type |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Train | 67 | 171 | 61 | 17 | 93 |
+| Validation | 24 | 76 | 32 | 8 | 36 |
+| Test | 40 | 40 | 8 | 0 | 32 |
+
+Across train and validation, the persisted failure-mode tags cover 11 search-field/button conflicts, 45 duplicate or nearby labels, and 11 post-transition controls. Nine new test flows contain three steps each, with three flows per test origin. The curated reference completed all 27/27 executions in three fresh contexts per flow; 81/81 steps passed their validators and postconditions, and all 81 targets appeared in Top-10. This verifies the authored flows, not model performance.
+
+GlobalSQA was replaced by Syntax before label authoring because its widgets use frames outside the main-document contract. Cases requiring targets outside Top-10, query-bearing URLs rejected by the privacy guard, or unsupported postconditions were excluded or revised before model scoring. These are live public pages and can change between collections. No PEFT weights have been fitted yet, and Milestone 13 remains open.

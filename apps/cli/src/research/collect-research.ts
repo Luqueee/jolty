@@ -122,6 +122,7 @@ try {
         sample_id: entry.id,
         split: entry.split,
         split_group: projected.origin,
+        failure_modes: entry.failureModes ?? [],
         goal: safeResearchText(entry.goal),
         browser_state: projected,
         candidates: retrieved.topCandidates.map(

@@ -20,6 +20,7 @@ export interface ResearchSample {
   sample_id: string;
   split: "train" | "validation" | "test";
   split_group: string;
+  failure_modes?: readonly string[];
   goal: string;
   browser_state: {
     origin: string;
@@ -58,6 +59,12 @@ export async function readResearchCorpus(path: string): Promise<{
     if (ids.has(sample.sample_id))
       throw new Error(`Duplicate research sample: ${sample.sample_id}`);
     ids.add(sample.sample_id);
+    if (
+      sample.failure_modes !== undefined &&
+      (!Array.isArray(sample.failure_modes) ||
+        !sample.failure_modes.every((mode) => typeof mode === "string"))
+    )
+      throw new Error(`Invalid failure modes: ${sample.sample_id}`);
     if (!sample.training_action)
       throw new Error(`Unvalidated research sample: ${sample.sample_id}`);
     if (

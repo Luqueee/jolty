@@ -37,7 +37,7 @@ export const splitByOrigin = new Map<string, ResearchSplit>([
   ["https://snippylab.com", "test"],
   ["https://www.play-qa.com", "train"],
   ["https://dojo.upexgalaxy.com", "train"],
-  ["https://www.globalsqa.com", "validation"],
+  ["https://www.syntaxprojects.com", "validation"],
   ["https://automationexercise.com", "test"],
   ["https://www.demoblaze.com", "test"],
   ["https://parabank.parasoft.com", "test"],

@@ -4,6 +4,7 @@ import { chromium } from "playwright";
 import { targetId } from "../../benchmarks/public-site-flows.ts";
 import { researchMultistepHeldout } from "./cases/research-multistep-heldout.ts";
 import { researchMultistepFlowsV6 } from "./cases/research-multistep-v6.ts";
+import { researchMultistepFlowsV9 } from "./cases/research-multistep-v9.ts";
 import {
   type ResearchSample,
   readResearchCorpus,
@@ -13,12 +14,20 @@ const policy = process.env.JOLTY_RESEARCH_MULTI_POLICY ?? "reference";
 if (!["reference", "laya", "zero", "biased"].includes(policy))
   throw new Error("Unknown research multistep policy");
 const suite = process.env.JOLTY_RESEARCH_MULTI_SUITE ?? "v6";
-if (suite !== "v6" && suite !== "heldout")
+if (suite !== "v6" && suite !== "heldout" && suite !== "peft")
   throw new Error("Unknown research multistep suite");
 if (suite === "heldout" && policy === "biased")
   throw new Error("The held-out suite has no fitted-intercept head");
+if (suite === "peft" && policy !== "reference")
+  throw new Error(
+    "The PEFT suite is reference-only until model selection is frozen",
+  );
 const flows =
-  suite === "v6" ? researchMultistepFlowsV6 : researchMultistepHeldout;
+  suite === "v6"
+    ? researchMultistepFlowsV6
+    : suite === "peft"
+      ? researchMultistepFlowsV9
+      : researchMultistepHeldout;
 const headVersion =
   process.env.JOLTY_RESEARCH_MULTI_HEAD_VERSION ?? (suite === "v6" ? "5" : "7");
 const runs = Number(process.env.JOLTY_RESEARCH_MULTI_RUNS ?? 3);

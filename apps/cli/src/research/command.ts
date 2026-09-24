@@ -31,7 +31,7 @@ Commands: collect, readiness, train, baseline, benchmark, multistep, public
 Corpus versions: 0-${latestResearchVersion} (default: 0)
 Options: --version N, --output PATH, --corpus PATH, --head PATH,
   --head-version N, --bias zero|fitted, --include-codex,
-  --dataset DIR, --policy reference|zero|biased|laya, --suite v6|heldout,
+  --dataset DIR, --policy reference|zero|biased|laya, --suite v6|heldout|peft,
   --runs N, --flows IDS, --policies NAMES`;
 
 export function parseResearchCommand(argv: readonly string[]): ResearchCommand {
@@ -121,10 +121,14 @@ export function parseResearchCommand(argv: readonly string[]): ResearchCommand {
       if (!["reference", "zero", "biased", "laya"].includes(policy))
         throw new Error("--policy must be reference, zero, biased, or laya");
       const suite = get("suite") ?? "v6";
-      if (suite !== "v6" && suite !== "heldout")
-        throw new Error("--suite must be v6 or heldout");
+      if (suite !== "v6" && suite !== "heldout" && suite !== "peft")
+        throw new Error("--suite must be v6, heldout, or peft");
       if (suite === "heldout" && policy === "biased")
         throw new Error("The held-out suite has no fitted-intercept head");
+      if (suite === "peft" && policy !== "reference")
+        throw new Error(
+          "The PEFT suite is reference-only until model selection is frozen",
+        );
       const headVersion = get("head-version");
       if (headVersion) {
         if (policy !== "zero")
