@@ -1,0 +1,299 @@
+{
+  "schema": 1,
+  "date_utc": "2026-09-24",
+  "blind_manifest_sha256": "2549be2ac350b31ac28d0f648c51b998d3177308e64bc478b4708229f5e1cef2",
+  "comparison_plan_sha256": "5b9a64b526ca2d83c2ebb5c97358b8f642e02ad4931f0f4262015cd41fc67e39",
+  "ignored_artifact_sha256": {
+    "observations": "acc86ab6f1e737f8ebad07e6993a118446ce03cc07cefa43f352ea8353b4710e",
+    "labels": "9da2aae6719732c3b7bbd17dbf6bd6978128e74f80ed1b3e8dc19fb6472e607e",
+    "report": "fdd5414735c35e05a6fa7fdacff14934bdebd5718e4e421259c9c3101331c32d",
+    "heuristic": "d60f506fe5258a8cafaacc5ac758ed2096bf84b724ff9f8fb5296636211b890d",
+    "laya-original": "bf016671a63e0c8d0dbb27110f0c5d24010a08aeb14c90612c08dd726657ad36",
+    "laya-browser-v10s": "119deff6fc84ed1f81482aeb90f23f83324d1519af40e229dc7964fcb80c7069",
+    "minilm-frozen-v9": "e31b3291408c4bb6c11d6b0df0b741877df7fd25fbd87492279837978f8efda6",
+    "minilm-lora-v9": "c346c0bb336adbdff55ae0c446a4461c442452223f8f0c82062b9505ed1a2c86",
+    "teacher": "d1592c3136384a80768b0a8eab031ef76d8162d1a7806171a04eb053a981ee48"
+  },
+  "decision_count": 72,
+  "reference_flow_count": 12,
+  "model_results": [
+    {
+      "id": "heuristic",
+      "exact": 55,
+      "accepted": 22,
+      "accepted_correct": 22,
+      "accepted_wrong": 0,
+      "high_confidence_wrong": null,
+      "reference_flows_completed": 0,
+      "by_site": {
+        "dispatch": {
+          "total": 21,
+          "exact": 18,
+          "accepted": 12,
+          "accepted_wrong": 0
+        },
+        "ledger": {
+          "total": 14,
+          "exact": 9,
+          "accepted": 5,
+          "accepted_wrong": 0
+        },
+        "testmuai": {
+          "total": 10,
+          "exact": 10,
+          "accepted": 1,
+          "accepted_wrong": 0
+        },
+        "hyrtutorials": {
+          "total": 10,
+          "exact": 8,
+          "accepted": 1,
+          "accepted_wrong": 0
+        },
+        "automationtesting": {
+          "total": 10,
+          "exact": 9,
+          "accepted": 3,
+          "accepted_wrong": 0
+        },
+        "scrapingcourse": {
+          "total": 7,
+          "exact": 1,
+          "accepted": 0,
+          "accepted_wrong": 0
+        }
+      },
+      "model_process_p95_ms": 0.001100000000000989
+    },
+    {
+      "id": "laya-original",
+      "exact": 45,
+      "accepted": 5,
+      "accepted_correct": 5,
+      "accepted_wrong": 0,
+      "high_confidence_wrong": 0,
+      "reference_flows_completed": 0,
+      "by_site": {
+        "dispatch": {
+          "total": 21,
+          "exact": 15,
+          "accepted": 0,
+          "accepted_wrong": 0
+        },
+        "ledger": {
+          "total": 14,
+          "exact": 11,
+          "accepted": 2,
+          "accepted_wrong": 0
+        },
+        "testmuai": {
+          "total": 10,
+          "exact": 4,
+          "accepted": 0,
+          "accepted_wrong": 0
+        },
+        "hyrtutorials": {
+          "total": 10,
+          "exact": 6,
+          "accepted": 3,
+          "accepted_wrong": 0
+        },
+        "automationtesting": {
+          "total": 10,
+          "exact": 6,
+          "accepted": 0,
+          "accepted_wrong": 0
+        },
+        "scrapingcourse": {
+          "total": 7,
+          "exact": 3,
+          "accepted": 0,
+          "accepted_wrong": 0
+        }
+      },
+      "model_process_p95_ms": 187.9721759999993
+    },
+    {
+      "id": "laya-browser-v10s",
+      "exact": 53,
+      "accepted": 23,
+      "accepted_correct": 20,
+      "accepted_wrong": 3,
+      "high_confidence_wrong": 7,
+      "reference_flows_completed": 1,
+      "by_site": {
+        "dispatch": {
+          "total": 21,
+          "exact": 13,
+          "accepted": 7,
+          "accepted_wrong": 3
+        },
+        "ledger": {
+          "total": 14,
+          "exact": 9,
+          "accepted": 4,
+          "accepted_wrong": 0
+        },
+        "testmuai": {
+          "total": 10,
+          "exact": 10,
+          "accepted": 5,
+          "accepted_wrong": 0
+        },
+        "hyrtutorials": {
+          "total": 10,
+          "exact": 9,
+          "accepted": 2,
+          "accepted_wrong": 0
+        },
+        "automationtesting": {
+          "total": 10,
+          "exact": 8,
+          "accepted": 4,
+          "accepted_wrong": 0
+        },
+        "scrapingcourse": {
+          "total": 7,
+          "exact": 4,
+          "accepted": 1,
+          "accepted_wrong": 0
+        }
+      },
+      "model_process_p95_ms": 12.710956998489564
+    },
+    {
+      "id": "minilm-frozen-v9",
+      "exact": 62,
+      "accepted": 22,
+      "accepted_correct": 22,
+      "accepted_wrong": 0,
+      "high_confidence_wrong": 2,
+      "reference_flows_completed": 0,
+      "by_site": {
+        "dispatch": {
+          "total": 21,
+          "exact": 21,
+          "accepted": 12,
+          "accepted_wrong": 0
+        },
+        "ledger": {
+          "total": 14,
+          "exact": 10,
+          "accepted": 5,
+          "accepted_wrong": 0
+        },
+        "testmuai": {
+          "total": 10,
+          "exact": 10,
+          "accepted": 1,
+          "accepted_wrong": 0
+        },
+        "hyrtutorials": {
+          "total": 10,
+          "exact": 8,
+          "accepted": 1,
+          "accepted_wrong": 0
+        },
+        "automationtesting": {
+          "total": 10,
+          "exact": 9,
+          "accepted": 3,
+          "accepted_wrong": 0
+        },
+        "scrapingcourse": {
+          "total": 7,
+          "exact": 4,
+          "accepted": 0,
+          "accepted_wrong": 0
+        }
+      },
+      "model_process_p95_ms": 14.301196000000004
+    },
+    {
+      "id": "minilm-lora-v9",
+      "exact": 60,
+      "accepted": 22,
+      "accepted_correct": 22,
+      "accepted_wrong": 0,
+      "high_confidence_wrong": 2,
+      "reference_flows_completed": 0,
+      "by_site": {
+        "dispatch": {
+          "total": 21,
+          "exact": 21,
+          "accepted": 12,
+          "accepted_wrong": 0
+        },
+        "ledger": {
+          "total": 14,
+          "exact": 11,
+          "accepted": 5,
+          "accepted_wrong": 0
+        },
+        "testmuai": {
+          "total": 10,
+          "exact": 10,
+          "accepted": 1,
+          "accepted_wrong": 0
+        },
+        "hyrtutorials": {
+          "total": 10,
+          "exact": 8,
+          "accepted": 1,
+          "accepted_wrong": 0
+        },
+        "automationtesting": {
+          "total": 10,
+          "exact": 9,
+          "accepted": 3,
+          "accepted_wrong": 0
+        },
+        "scrapingcourse": {
+          "total": 7,
+          "exact": 1,
+          "accepted": 0,
+          "accepted_wrong": 0
+        }
+      },
+      "model_process_p95_ms": 3.0380790012713987
+    }
+  ],
+  "teacher": {
+    "model": "gpt-6-sol",
+    "role": "diagnostic reference only, outside the fast path",
+    "exact": 56,
+    "failures": 0,
+    "reference_flows_completed": 6,
+    "decision_ms": {
+      "p50": 4719.591598000028,
+      "p95": 6704.022326
+    }
+  },
+  "accepted_wrong_cases": [
+    {
+      "model": "laya-browser-v10s",
+      "id": "dispatch-seville:assign",
+      "site": "dispatch",
+      "confidence": 0.9857,
+      "selected_index": 0,
+      "expected_index": 1
+    },
+    {
+      "model": "laya-browser-v10s",
+      "id": "dispatch-seville:next-assign",
+      "site": "dispatch",
+      "confidence": 0.9798,
+      "selected_index": 0,
+      "expected_index": 1
+    },
+    {
+      "model": "laya-browser-v10s",
+      "id": "dispatch-bilbao:assign",
+      "site": "dispatch",
+      "confidence": 0.9844,
+      "selected_index": 0,
+      "expected_index": 1
+    }
+  ],
+  "interpretation": "Diagnostic comparison of the frozen compact input. The browser-Laya v10s serializer omitted the selected native-select value available in BrowserState; do not treat this run as a final model replacement decision. No model-driven live task execution or paired full-pipeline memory benchmark was performed."
+}

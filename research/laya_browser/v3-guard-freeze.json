@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "status": "development-frozen-not-blind-tested",
+  "purpose": "abstain before browser Laya v10s inference when Jolty retrieval has fewer than two candidates",
+  "base_validation_policy_sha256": "b160f4f877c307b578a39d4ae1578b609c6b2aa7a0bbcee70efb85b30aa6b977",
+  "validation_input_sha256": "5d71a7442cfd26820f0d82a822efd2bc70f688370ecf6edc9fa87cdb1a570604",
+  "validation_rows": 76,
+  "validation_rows_affected_by_guard": 0,
+  "minimum_validation_candidate_count": 9,
+  "temperature": 1,
+  "acceptance_threshold": 0.9791000000000003,
+  "guard_source_sha256": "5ad3a4c0f04dfc874c2bf60fd81d7a0c8e5e4f42327285e276b82bee92363973",
+  "blind_evidence_used_for_calibration": false,
+  "next_test_requirement": "new independent frozen site/template test; neither opened blind set may be reused"
+}

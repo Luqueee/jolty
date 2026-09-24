@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dispatch board</title>
+  </head>
+  <body>
+    <h1>Dispatch board</h1>
+    <nav aria-label="Workspace">
+      <button id="routes-tab" type="button">Routes</button>
+      <button id="drivers-tab" type="button">Drivers</button>
+    </nav>
+    <section id="routes-panel" aria-label="Routes">
+      <label for="destination">Destination</label>
+      <input id="destination" autocomplete="off" />
+      <button id="find-route" type="button">Find route</button>
+      <ul id="route-results"></ul>
+    </section>
+    <section id="drivers-panel" aria-label="Drivers" hidden>
+      <label for="driver">Driver</label>
+      <select id="driver">
+        <option value="">Choose a driver</option>
+        <option value="Mara">Mara</option>
+        <option value="Ivo">Ivo</option>
+      </select>
+      <button id="assign" type="button" disabled>Assign driver</button>
+    </section>
+    <p id="dispatch-status" role="status">No route selected</p>
+    <script>
+      const routes = document.querySelector("#routes-panel");
+      const drivers = document.querySelector("#drivers-panel");
+      const status = document.querySelector("#dispatch-status");
+      const assign = document.querySelector("#assign");
+      document.querySelector("#routes-tab").onclick = () => {
+        routes.hidden = false;
+        drivers.hidden = true;
+      };
+      document.querySelector("#drivers-tab").onclick = () => {
+        routes.hidden = true;
+        drivers.hidden = false;
+      };
+      document.querySelector("#find-route").onclick = () => {
+        const destination = document.querySelector("#destination").value.trim();
+        const results = document.querySelector("#route-results");
+        results.replaceChildren();
+        if (!destination) return;
+        const route = document.createElement("button");
+        route.type = "button";
+        route.textContent = `Route to ${destination}`;
+        route.onclick = () => {
+          status.textContent = `Selected route to ${destination}`;
+          assign.disabled = false;
+        };
+        results.append(route);
+      };
+      assign.onclick = () => {
+        const driver = document.querySelector("#driver").value;
+        if (driver && !assign.disabled)
+          status.textContent = `${driver} assigned to selected route`;
+      };
+    </script>
+  </body>
+</html>

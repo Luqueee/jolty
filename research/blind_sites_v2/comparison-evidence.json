@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "status": "opened-once-diagnostic-corrected",
+  "plan_sha256": "4c22e25b185f005052cd05c5697ed11016816bcd273808e81a8260dcb2a6f00d",
+  "observations_sha256": "2a7e3934c1a210632e6ad30ef2a5f50567e300e2aed0962e80756110553c2b65",
+  "labels_sha256": "5069f39007a3e7ccee54e8d20528682322e81c33d825a5af4892f6e4ea67d2ae",
+  "result_sha256": {
+    "heuristic": "662b56298b672775fc6ecb374ebc352bbd91b083c24f2aaed9dc70ddab7ec7b4",
+    "laya-original": "36c69dc5c39ebeeb54ae283dffdf31a3b850a70004c00286a92dd6cd01f735c5",
+    "laya-browser-v10s-incorrect-status-superseded": "eebfbe7a8452e52cccbaa46d1c17f624bf5509f108814b2c3a394bc29169b240",
+    "laya-browser-v10s-corrected-status": "5eebfee2e09f687a01356dc229744446118524ab02d0ee814ac7c8711090a2b4",
+    "minilm-frozen-v9": "f4465893896e5a4f2ec4c940c8b12ca290828b22c4e5d750b315d87baeb75069",
+    "minilm-lora-v9": "64ac60cade6144a504b444aa18fe0a50a18b2457c340403edfa22891a189b293",
+    "teacher": "1378ddb1edd28e774e4473f8964e7c5ee53219956b1a8c6c427a3df1562fd1f6"
+  },
+  "superseded_comparison_sha256": "5f3098b619abf703a3025d6fac781049a2f41a4e5228a10facb9265a440aae66",
+  "superseded_comparison_source_sha256": "0c3923454e34df972582c5012275ff9d8a7ac319646ebd3154def6c588922b7b",
+  "intermediate_corrected_comparison_sha256": "55ffa83d59eb042285f99498f6e20e70357f01a0f6e12d314b9f69d8dce0f9ad",
+  "final_comparison_sha256": "29884e656bfc8118ad806da0c50432138e78e44b51df8be45820db25f843aaa4",
+  "final_comparison_source_sha256": "cdc2caabec9bc531d8d7a46a7f5a1d1335efc9dfdd3aac8361debe1ce7dfcc5c",
+  "incident": {
+    "stage": "browser Laya v10s scoring before any output was written",
+    "exception": "RuntimeError: selected index k out of range",
+    "cause": "p.topk(2) in the pinned runtime receives an all-singleton batch for the final west-service:open observation",
+    "labels_inspected_before_initial_failure": false,
+    "scores_persisted_before_failure": 0,
+    "in_memory_scores_lost": 16,
+    "structurally_unscorable_rows": 1,
+    "resolution": "The first status record incorrectly treated any singleton question as fatal. The corrected record distinguishes one all-singleton failure from 16 lost scores. No model inference was repeated after the labels were opened. The frozen serializer and threshold were not changed.",
+    "superseded_recorder_source_sha256": "1e2a1fb7ff56318a05595ec35320a1338da8f49d8e0957e807a321e5d995a194",
+    "corrected_recorder_source_sha256": "95e3f5a6845978d142ab04bc0ac69fcb115e55161129a1dc427d12893ceb35fc"
+  },
+  "summary": {
+    "flows": 6,
+    "decisions": 17,
+    "top10_present": 17,
+    "heuristic": { "exact": 13, "accepted_correct": 4, "accepted_wrong": 0 },
+    "laya-original": {
+      "exact": 13,
+      "accepted_correct": 0,
+      "accepted_wrong": 0,
+      "unscorable": 1
+    },
+    "laya-browser-v10s": {
+      "exact": null,
+      "accepted_correct": null,
+      "accepted_wrong": null,
+      "unscorable": 1,
+      "scores_lost": 16
+    },
+    "minilm-frozen-v9": {
+      "exact": 14,
+      "accepted_correct": 6,
+      "accepted_wrong": 2
+    },
+    "minilm-lora-v9": {
+      "exact": 14,
+      "accepted_correct": 6,
+      "accepted_wrong": 2
+    },
+    "teacher": { "exact": 12, "abstention_policy": null }
+  }
+}

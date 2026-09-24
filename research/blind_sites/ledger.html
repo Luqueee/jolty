@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ledger review</title>
+  </head>
+  <body>
+    <h1>Ledger review</h1>
+    <table>
+      <caption>Pending entries</caption>
+      <thead><tr><th scope="col">Entry</th><th scope="col">Amount</th><th scope="col">Review</th></tr></thead>
+      <tbody>
+        <tr data-entry="A17"><th scope="row">Office supplies</th><td>24</td><td><button type="button">Review A17</button></td></tr>
+        <tr data-entry="B28"><th scope="row">Travel</th><td>56</td><td><button type="button">Review B28</button></td></tr>
+      </tbody>
+    </table>
+    <dialog id="review-dialog" aria-label="Entry review">
+      <p id="entry-detail"></p>
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="">Choose a category</option>
+        <option value="operations">Operations</option>
+        <option value="travel">Travel</option>
+      </select>
+      <label for="review-note">Review note</label>
+      <input id="review-note" />
+      <button id="approve" type="button">Approve entry</button>
+      <button id="close-review" type="button">Close review</button>
+    </dialog>
+    <p id="ledger-status" role="status">No entry approved</p>
+    <script>
+      const dialog = document.querySelector("#review-dialog");
+      let selectedEntry = "";
+      for (const button of document.querySelectorAll("tbody button")) {
+        button.onclick = () => {
+          selectedEntry = button.closest("tr").dataset.entry;
+          document.querySelector("#entry-detail").textContent = `Entry ${selectedEntry}`;
+          dialog.showModal();
+        };
+      }
+      document.querySelector("#close-review").onclick = () => dialog.close();
+      document.querySelector("#approve").onclick = () => {
+        const category = document.querySelector("#category").value;
+        const note = document.querySelector("#review-note").value.trim();
+        if (!category || !note) return;
+        document.querySelector("#ledger-status").textContent =
+          `Approved ${selectedEntry} as ${category}: ${note}`;
+        dialog.close();
+      };
+    </script>
+  </body>
+</html>

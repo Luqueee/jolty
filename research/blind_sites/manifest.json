@@ -1,0 +1,1029 @@
+{
+  "schema": 1,
+  "status": "frozen",
+  "date_utc": "2026-09-24",
+  "revision": "working-tree source digests below; record commit after landing",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "browser": {
+    "engine": "Chromium",
+    "version": "153.0.8010.12",
+    "playwright": "1.63.0"
+  },
+  "case_sources_sha256": {
+    "apps/cli/src/research/blind-cases.ts": "d75df28591094232fd63bd559054465b80425c4fe776278140222c8e19b6d6f1",
+    "apps/cli/src/research/blind-public-cases.ts": "f2e833d123658f870e65acaaffa4e12e9402ada0e814de2101a60e8b117ce41f",
+    "apps/cli/src/research/blind-reference.ts": "0da3252b799ae8d7d160f8efcf8ec6b04a56ae49c369969cac069eaa0ae79b5f",
+    "research/blind_sites/dispatch.html": "7fc17cc8d21a3566f9d5186a14347a6291950b6a4a56ca7945b04cdaa135d92c",
+    "research/blind_sites/ledger.html": "67e52f272a6eb7b2240374c097001aa4f21321945c7a72bda7133cfd099b8570"
+  },
+  "reference_artifact_sha256": "62db485d0371661d0355f1ac61d0b8e5b29d8a42742267a00c0b8915e3b286c9",
+  "reference_runs": 3,
+  "flow_count": 12,
+  "decision_count": 72,
+  "distinct_goal_state_sha256": 72,
+  "reference_passes": 36,
+  "reference_target_top10": 216,
+  "sites": [
+    {
+      "id": "dispatch",
+      "origin": "http://dispatch.blind.jolty.test/",
+      "family": "dispatch-board",
+      "provenance": "repository-authored after pinned v10s revision",
+      "exposure": "excluded by creation date and source provenance",
+      "start": "fresh context; local dispatch.html route; no route selected",
+      "actions": ["type", "click", "select"],
+      "validator": "route and driver status text; panel visibility",
+      "flows": [
+        {
+          "id": "dispatch-seville",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "dispatch-seville:destination",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#destination",
+                "expected": "Seville"
+              },
+              "state_sha256": "39b51c25fd5f09bab2ef6bde7782b4c1adc9eba9fb4fe29a2f03d3ca3c209949",
+              "browser_state_sha256": "8a1585d41e7faef40a87d4d95c61db34c5f39df332a2a9791e0b045cd24396c4",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:find",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#route-results button"
+              },
+              "state_sha256": "3646e6383cf5d893f5d39be6f07e4a6590fc919b6943c08462414b9b5b63915c",
+              "browser_state_sha256": "3899f948a9a029bdd6f133ff489ecaf83b7eac95348ca564afab3e2d0c15a42b",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:choose",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#dispatch-status",
+                "expected": "Selected route to Seville"
+              },
+              "state_sha256": "5e393b6aebba3d3303008f48284e6e69db646f99a0f8c4a9deed17ae957e9bd6",
+              "browser_state_sha256": "a1011326295797bd5dd53f0a07d0c0fed6eb8a948ae86a12526dbe7b1df7c853",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:drivers",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#drivers-panel"
+              },
+              "state_sha256": "e79b4b87ef21809ed6d52a3522ab5059a29d2522febd195658753053b1dd5f3b",
+              "browser_state_sha256": "6a379fc4cf1387a7495e9d6078ccf9d82b1dcbccf51b393b7ddce400bf1062e0",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:driver",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#driver",
+                "expected": "Mara"
+              },
+              "state_sha256": "10560c900bce2bb53cf9f657ef0777d9a3971293f14f219c30046a115dd33217",
+              "browser_state_sha256": "4dcc2e35391b663f355ae7823692c9d53db50f272404f3dfab83a0adecf27495",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:assign",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#dispatch-status",
+                "expected": "Mara assigned to selected route"
+              },
+              "state_sha256": "d7c951fd92c958055e7e515b719a6832e138337ea0da8511786b5ca0217a2f9f",
+              "browser_state_sha256": "c9f9ea1466a36ce77908ab70dfd6de0e3c8bce8a2ee0b84a6ac3ade1fe1fc8dd",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "dispatch-seville:return-routes",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#routes-panel"
+              },
+              "state_sha256": "3de0f8f8bf31d128da412c3bdd2fc12957f377d187a0b183b93f2554affd34a5",
+              "browser_state_sha256": "c9f9ea1466a36ce77908ab70dfd6de0e3c8bce8a2ee0b84a6ac3ade1fe1fc8dd",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:next-destination",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#destination",
+                "expected": "Porto"
+              },
+              "state_sha256": "4da7c6962f515ed58c360fb299ac19c3946b505ac287789dd009b5844731af64",
+              "browser_state_sha256": "76b3b9dc8155fcf6f5ffa6cf6162feee90de3196dfc13bc6ab96358316de3331",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:find-next",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#route-results button"
+              },
+              "state_sha256": "58135395a9a5b008403134bcb6bb0dfc063c87671a105741092ecf6d92608cba",
+              "browser_state_sha256": "76b3b9dc8155fcf6f5ffa6cf6162feee90de3196dfc13bc6ab96358316de3331",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:choose-next",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#dispatch-status",
+                "expected": "Selected route to Porto"
+              },
+              "state_sha256": "1897f56df57a86a0843ae672733d93895647c092ab46f59f189884e5e2c9c4a2",
+              "browser_state_sha256": "bcbe1d26a841a14f9b34332abceed8d94ce7d142535ca42afadbee13f301c6ee",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:next-drivers",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#drivers-panel"
+              },
+              "state_sha256": "065ab2607e42640cf84098186d2734b921b69d422add1b368c1cf4f27bf08da5",
+              "browser_state_sha256": "bcbe1d26a841a14f9b34332abceed8d94ce7d142535ca42afadbee13f301c6ee",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:next-driver",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#driver",
+                "expected": "Ivo"
+              },
+              "state_sha256": "621fc27ea9566bf4a8e82aff17c43fbfbea10ee635603dfedcb8cbf2aa80b387",
+              "browser_state_sha256": "cb11c9e828302fb4af893a520ec402de332e1f1e0af97e3b33376e5730d52759",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-seville:next-assign",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#dispatch-status",
+                "expected": "Ivo assigned to selected route"
+              },
+              "state_sha256": "018bd2ca5a217c9660ff68d279a9c15a2a7def03c127588a155f26ba55eb17fc",
+              "browser_state_sha256": "2eced9f9b9b5df9301e75ad9d8b678ee08ff76819dcaf2ee9f94e793993585d8",
+              "reference_candidate_rank": 2
+            }
+          ]
+        },
+        {
+          "id": "dispatch-bilbao",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "dispatch-bilbao:drivers-first",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#drivers-panel"
+              },
+              "state_sha256": "6dbcd7511e72a90138f693d0286e04f6fef3011d41c17d79e2df63471780830f",
+              "browser_state_sha256": "8a1585d41e7faef40a87d4d95c61db34c5f39df332a2a9791e0b045cd24396c4",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-bilbao:routes",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#routes-panel"
+              },
+              "state_sha256": "3bbba9407111862fff4079a9bfe230d1aa0ccc6cce1632e65d009fcacc57a109",
+              "browser_state_sha256": "39ac3bb8de2164bb9479cb46b1578d8fe7341a7329d442a7ace1e83f30a8a3f7",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-bilbao:destination",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#destination",
+                "expected": "Bilbao"
+              },
+              "state_sha256": "60600a6baf31e20e6ebe6e96fd25be0b1a3ba74588e7f07735ee257c8abb1294",
+              "browser_state_sha256": "8a1585d41e7faef40a87d4d95c61db34c5f39df332a2a9791e0b045cd24396c4",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-bilbao:find",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#route-results button"
+              },
+              "state_sha256": "112e73058e309e82f956cc8eb3ffeb468a104956abb735c843b3ef9530649672",
+              "browser_state_sha256": "3899f948a9a029bdd6f133ff489ecaf83b7eac95348ca564afab3e2d0c15a42b",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-bilbao:choose",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#dispatch-status",
+                "expected": "Selected route to Bilbao"
+              },
+              "state_sha256": "9593e81bd38caf7bd50609c274b3e2c60e43512d0c42e7c837121e1908dc535c",
+              "browser_state_sha256": "5d5c14d51c9517311075554a7a9776378e6fb7f53a96e88009bed72088165986",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-bilbao:drivers",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#drivers-panel"
+              },
+              "state_sha256": "b78d59c27d09b5b4bdcb6386568bf6d5aedbdee805d9e0d75433dff053cf8643",
+              "browser_state_sha256": "27f5980cbbaed78642b00896045274ba9deb5ed1101e8b299afc9b82a764f916",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-bilbao:driver",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#driver",
+                "expected": "Ivo"
+              },
+              "state_sha256": "5e38d1a198b63e58bd37219361d02884c8e64bf097ab61e5d83c4074ce1a72c5",
+              "browser_state_sha256": "a076e58b7a64fc0b8d7bc239716a4b8b7fdb0e467f908b9f77e51a3347430355",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "dispatch-bilbao:assign",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#dispatch-status",
+                "expected": "Ivo assigned to selected route"
+              },
+              "state_sha256": "92ba0bc3fa72157510e9c4bdf5cc7bfcc1f510e18ad041c7e82c471e721b16e2",
+              "browser_state_sha256": "e693069663619f34d5906f0c03b89410c5b175171dcc0675f391582202e0fa30",
+              "reference_candidate_rank": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ledger",
+      "origin": "http://ledger.blind.jolty.test/",
+      "family": "ledger-table-dialog",
+      "provenance": "repository-authored after pinned v10s revision",
+      "exposure": "excluded by creation date and source provenance",
+      "start": "fresh context; local ledger.html route; no entry approved",
+      "actions": ["click", "select", "type"],
+      "validator": "entry ID, category and note status; dialog visibility",
+      "flows": [
+        {
+          "id": "ledger-operations",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "ledger-operations:review",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#review-dialog"
+              },
+              "state_sha256": "4e85f564cdbd1c59f39612531041ec8a031e9ee860270da249b34de659459c92",
+              "browser_state_sha256": "d424f11275cd21c2348bd848f19fb909a3947e6fa004a52af98df122e821b215",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-operations:category",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#category",
+                "expected": "operations"
+              },
+              "state_sha256": "29fe07af0f391fe86623e5aea75771f7b6393011799674124123035a2b2cdde4",
+              "browser_state_sha256": "5296a6de00f2318ba110b59a5d5ffb0ac60f20eb05abb9921155271f0f6946f8",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "ledger-operations:note",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#review-note",
+                "expected": "Receipt checked"
+              },
+              "state_sha256": "3dc9126ad5ac64bd970f1a21336aec6280499742cb41164e4ffce4e3062aca0d",
+              "browser_state_sha256": "abe03cfd0ac89b4ff589843e795a1f73ed350881a093a545e6a595881c23515a",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-operations:approve",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#ledger-status",
+                "expected": "Approved A17 as operations: Receipt checked"
+              },
+              "state_sha256": "0fb754fea7656cdc51cbab41c245b8f37b320f0d414415129f9070f4880b1e33",
+              "browser_state_sha256": "f29f283990929a236782479cdf9813b794d73bd96f8d3636b627064a159d7fa0",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-operations:review-next",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#review-dialog"
+              },
+              "state_sha256": "a6382b62f2eb5a18ae0e649c591eb2b59b1a4d8656875ef80dd1df03129b3f09",
+              "browser_state_sha256": "d82bda6690075770a0c6dc12597185b14dc08c81b4783ec5a7ab20a340d76738",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "ledger-operations:next-category",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#category",
+                "expected": "travel"
+              },
+              "state_sha256": "4e97df7d8302ff23e9f652eebf1824d3a765fd3062baf45400e868c3490901c8",
+              "browser_state_sha256": "f29f283990929a236782479cdf9813b794d73bd96f8d3636b627064a159d7fa0",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "ledger-operations:next-note",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#review-note",
+                "expected": "Ticket checked"
+              },
+              "state_sha256": "9e31d69b117965e3a00a6ea56b145cad4694878ce1bcfab183a869d1f6241347",
+              "browser_state_sha256": "a1df5801e04596e9b0716ac1c38850e72e86c10f8b813e34fcc13d79585a3308",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-operations:next-approve",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#ledger-status",
+                "expected": "Approved B28 as travel: Ticket checked"
+              },
+              "state_sha256": "36b5c7e63381a5798dd231aebeb9d8021262f5816d181b85ffecead444d8fd21",
+              "browser_state_sha256": "a1df5801e04596e9b0716ac1c38850e72e86c10f8b813e34fcc13d79585a3308",
+              "reference_candidate_rank": 3
+            }
+          ]
+        },
+        {
+          "id": "ledger-travel",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "ledger-travel:review",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#review-dialog"
+              },
+              "state_sha256": "e9098a49ed377a059685f92b3660644c1974ed3c5d46d51a169570113231ac63",
+              "browser_state_sha256": "d424f11275cd21c2348bd848f19fb909a3947e6fa004a52af98df122e821b215",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-travel:close",
+              "action": "click",
+              "check": {
+                "kind": "hidden",
+                "selector": "#review-dialog"
+              },
+              "state_sha256": "ffaac1d8b840e517672eff108870a69ea53a7eb63157b92a84924f91a926a2d6",
+              "browser_state_sha256": "5296a6de00f2318ba110b59a5d5ffb0ac60f20eb05abb9921155271f0f6946f8",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-travel:reopen",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": "#review-dialog"
+              },
+              "state_sha256": "06467c983f3b5a3ff1265337f656e29d04c1f0ff387c340c7d44e58244fe9d1b",
+              "browser_state_sha256": "d424f11275cd21c2348bd848f19fb909a3947e6fa004a52af98df122e821b215",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-travel:category",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#category",
+                "expected": "travel"
+              },
+              "state_sha256": "4452a92c813f839191608f6d19cd6ec31d2ec748f08b604b0bd6a20e3359a4e1",
+              "browser_state_sha256": "5296a6de00f2318ba110b59a5d5ffb0ac60f20eb05abb9921155271f0f6946f8",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "ledger-travel:note",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#review-note",
+                "expected": "Itinerary checked"
+              },
+              "state_sha256": "81a1ae9de503f3512caf2b6117ed5966ce27cd8f1e3f750faab855a5dfa0f211",
+              "browser_state_sha256": "2a9f404e088111d964fb7d11df2e2f85648df47accd34cc8b6fe7647f544afea",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "ledger-travel:approve",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#ledger-status",
+                "expected": "Approved B28 as travel: Itinerary checked"
+              },
+              "state_sha256": "038b3c8592cbc74a38ef4f948d5130df973a7e8d58bddf56b063a179b85e8e81",
+              "browser_state_sha256": "a1df5801e04596e9b0716ac1c38850e72e86c10f8b813e34fcc13d79585a3308",
+              "reference_candidate_rank": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "testmuai",
+      "origin": "https://www.testmuai.com/",
+      "family": "test-widget",
+      "provenance": "public Selenium Playground pages",
+      "exposure": "unknown",
+      "start": "fresh context; query-free direct page; wait for network idle",
+      "actions": ["type", "click", "select"],
+      "validator": "exact form result text and native select value",
+      "flows": [
+        {
+          "id": "testmu-message-sum",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "testmu-message-sum:message",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input#user-message",
+                "expected": "Jolty route check"
+              },
+              "state_sha256": "c880fdbf5ab657a18d5575af243bca44d4186efa0d235ce7e36690ef3d6963c5",
+              "browser_state_sha256": "ffb526855bfcedc35dce030f7d13b3aac9c293625ac507902337fc242dbf3787",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-message-sum:show",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#message",
+                "expected": "Jolty route check"
+              },
+              "state_sha256": "d79e4b3b301ebb1cdace8baf0dc2b64c38cd7ad9197b385ee0319043951c90aa",
+              "browser_state_sha256": "2819c454f287118ae74ec7af30e9e245646485e7973bfdf8bc5f73b4e9f0592c",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-message-sum:first",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input#sum1",
+                "expected": "7"
+              },
+              "state_sha256": "c2a5caf0e91c0da274173ee383a0ed40bdcaa1170abf5d9d38378e2b0258be65",
+              "browser_state_sha256": "2819c454f287118ae74ec7af30e9e245646485e7973bfdf8bc5f73b4e9f0592c",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-message-sum:second",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input#sum2",
+                "expected": "5"
+              },
+              "state_sha256": "80f9682505fa4b5a3b9b7ccbd9f26f5fdf1cb33afa047b1860f738679511323e",
+              "browser_state_sha256": "520f8b28ecc506c4b62701b8f811fcac56b133969ae67466009377cb6b4fd0eb",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-message-sum:sum",
+              "action": "click",
+              "check": {
+                "kind": "text",
+                "selector": "#addmessage",
+                "expected": "12"
+              },
+              "state_sha256": "46c04ace818749871d7d18db0b848c9d89184412800deb1191a3f49badde4d10",
+              "browser_state_sha256": "40fa947085188bfded99f7f9af558e6d9f610b095b4afaf9aa82f76eb51fc8af",
+              "reference_candidate_rank": 1
+            }
+          ]
+        },
+        {
+          "id": "testmu-dropdown",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "testmu-dropdown:monday",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#select-demo",
+                "expected": "Monday"
+              },
+              "state_sha256": "09b7e26192c3a3ec335da8d7c6badd1dc567105fee317b26b570c987e9b590d3",
+              "browser_state_sha256": "a367a017ea0597fd6e9b05997fba4b6f7eeeb18de1a824906f7a1d5af152b685",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-dropdown:friday",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#select-demo",
+                "expected": "Friday"
+              },
+              "state_sha256": "8048f5e8fb0b491fad3317dbee123aebb18f65034f8e99ba0f6883d892b344ba",
+              "browser_state_sha256": "b910771f762c78b7bfc0c8e3efae74de991aef34003ffcca897b95a22ecffb92",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-dropdown:tuesday",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#select-demo",
+                "expected": "Tuesday"
+              },
+              "state_sha256": "d3654d31093281a1ed1dccfd9781fc906808955a9b8bf514bfde0a3b0e2a5ac1",
+              "browser_state_sha256": "aebdaba9c6c44591d9bb01980227d2f56ff5de9ebabc501437c145e5434c1b1e",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-dropdown:saturday",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#select-demo",
+                "expected": "Saturday"
+              },
+              "state_sha256": "d328ffad20d2fb10438feb37e11a18e2e80b59c993252375a128608520aab89f",
+              "browser_state_sha256": "6283c2eff77e9043ef9bb6c64329839b0f549951d8adb35b2c02972266282220",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "testmu-dropdown:wednesday",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#select-demo",
+                "expected": "Wednesday"
+              },
+              "state_sha256": "c8b76c1e6bde47acce9fd6228303d4bae419b38bc6dcd8e3a228ab8ce166d12e",
+              "browser_state_sha256": "8be0193e743ed34e805fb4be1541c0f6ad85377df4be0690ca9098dafea16d85",
+              "reference_candidate_rank": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hyrtutorials",
+      "origin": "https://www.hyrtutorials.com/",
+      "family": "tutorial-controls",
+      "provenance": "public tutorial controls and dropdown pages",
+      "exposure": "unknown",
+      "start": "fresh context; query-free direct page; third-party requests blocked",
+      "actions": ["type", "click", "select"],
+      "validator": "exact control value and reset outcome",
+      "flows": [
+        {
+          "id": "hyr-controls",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "hyr-controls:first",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#firstName",
+                "expected": "Mara"
+              },
+              "state_sha256": "0333ba893f18f746148705625613c9a929dd38df666836512b99d2f584584997",
+              "browser_state_sha256": "dc41581c0c67f4554c31076557ab08cd2428d34a86e3886ea96027b847c42b07",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "hyr-controls:last",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#lastName",
+                "expected": "Vega"
+              },
+              "state_sha256": "b0531cfa297b885d991f304f4945d5b134a336f264daabb3214a439d6d9d8922",
+              "browser_state_sha256": "728d728fbbcf28a734c2343fa97184680c1b36d0a3cabdeeb9d83ffbc132f106",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "hyr-controls:email",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#email",
+                "expected": "mara@example.test"
+              },
+              "state_sha256": "a463cfa154072584128c7ee2ed7a4907254d96941109aebf2acdf2556bcd0b5c",
+              "browser_state_sha256": "479b93ebbe640d1693d1ff0d4436ade5fde9ec73bf741a0b788be5a13eab2ee5",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "hyr-controls:password",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "#password",
+                "expected": "sample-pass-13"
+              },
+              "state_sha256": "6f8d6f2d26b541ab85252b3406f8209fb6e609539a233b8fcf314b76f84c646e",
+              "browser_state_sha256": "56a28720701af35c5bc35ffa8cbf714f0f22245f0e27e0defc1ca2ed5528da21",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "hyr-controls:clear",
+              "action": "click",
+              "check": {
+                "kind": "value",
+                "selector": "#firstName",
+                "expected": ""
+              },
+              "state_sha256": "5e6ca3749f77a332f0a086a1ab12e5e0dd135920871728ef89de8f940bf7d9d7",
+              "browser_state_sha256": "c84842a5bf2061cef7e9229e1d76cfb2199f037ee352e2eb060fc78006117905",
+              "reference_candidate_rank": 1
+            }
+          ]
+        },
+        {
+          "id": "hyr-dropdown",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "hyr-dropdown:course",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#course",
+                "expected": "java"
+              },
+              "state_sha256": "f36826543b2993ba3167440e1591193e04df806aa5dfcb26db7bc63b69e16135",
+              "browser_state_sha256": "4f786de1a39c8b00c7050795ec952163a97481a01f4f5ed9d30fb341b8f7e30f",
+              "reference_candidate_rank": 3
+            },
+            {
+              "id": "hyr-dropdown:ide",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#ide",
+                "expected": "ij"
+              },
+              "state_sha256": "bdea9a86a5d660bb2988408f5d1ffb8736b2364550e749158df71e5cd46c38e0",
+              "browser_state_sha256": "cd43d54bd582b71abcdfaaa74bc005ccf075a49497a2eacd1af0a915b8c2ffa2",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "hyr-dropdown:python",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#course",
+                "expected": "python"
+              },
+              "state_sha256": "abd7ffc0369123de01f4ecbf2a2eea23eafdd833c7d7d77d2eb65036b099c788",
+              "browser_state_sha256": "eb4466c4fae040ed0767dc03fa3e7cf629df526214650da4aa9f4d8526f148d4",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "hyr-dropdown:vscode",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#ide",
+                "expected": "vs"
+              },
+              "state_sha256": "ab1f01d3dbb8cc8ac0634caaa226a851bd3b9226f56ec6564ff20042e5739844",
+              "browser_state_sha256": "d159c8deccfa2857aa8ad9a4ec9e5cc996b58349eff1b5138ce029a89500e396",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "hyr-dropdown:js",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#course",
+                "expected": "js"
+              },
+              "state_sha256": "0daa08b51d9a18387ebb81bd98f44de49e9355ecf93af55ef811c6f73ac87618",
+              "browser_state_sha256": "5459dff26e2d551984d267e97f1e7a1b4717b550d5050b63e2c7939aa78fe127",
+              "reference_candidate_rank": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "automationtesting",
+      "origin": "https://www.automationtesting.co.uk/",
+      "family": "practice-form",
+      "provenance": "public practice form and dropdown pages",
+      "exposure": "unknown",
+      "start": "fresh context; query-free direct page",
+      "actions": ["type", "click", "select"],
+      "validator": "exact control value and reset outcome",
+      "flows": [
+        {
+          "id": "automation-contact",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "automation-contact:first",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input[name='first_name']",
+                "expected": "Ivo"
+              },
+              "state_sha256": "b75fb296e7a1c287fdadb338f5a8aa4a893ae07ebecc0ffae7a2dd027c2c06cb",
+              "browser_state_sha256": "cb21b725c96ae12419155d7147a18a88b7c6f9a2930e8381b2dfb0543a89c250",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "automation-contact:last",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input[name='last_name']",
+                "expected": "Reed"
+              },
+              "state_sha256": "35a26f1799223f078918e3f002fb262fbef0d35eafc67c402ae0b67bd6cb4213",
+              "browser_state_sha256": "5a65bff9228789d9fcc90c172b3cba89a72bb4b5c2426a2a98709e675812f8c5",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "automation-contact:email",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input[name='email']",
+                "expected": "ivo@example.test"
+              },
+              "state_sha256": "01c1f7465cb1ae09ff889f9a7bf43cd29a21d245cd6ab73e13948300aa3a6f2b",
+              "browser_state_sha256": "fa4e9640f021c7669fd0f1974ca0c262e7cc398e3cbd6518fd704ec42a40889a",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "automation-contact:message",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "textarea[name='message']",
+                "expected": "Reference flow check"
+              },
+              "state_sha256": "39d3cc35d84d6128b65f7936573f7f700e40ea97fc0e6dc894f701cbf846357a",
+              "browser_state_sha256": "02b0fce61c98bc9e767ab6c7ca915aa583e0c0128645fac57c44cdc8a7ab6b3e",
+              "reference_candidate_rank": 4
+            },
+            {
+              "id": "automation-contact:reset",
+              "action": "click",
+              "check": {
+                "kind": "value",
+                "selector": "input[name='first_name']",
+                "expected": ""
+              },
+              "state_sha256": "5411e3da04d59ceb683e67885e831c47463c2529eee3516a816ae160baab66bf",
+              "browser_state_sha256": "27eb76f62b22298851d7c1bfc28446742664ee26d59987b521b9f5dea7bf0088",
+              "reference_candidate_rank": 1
+            }
+          ]
+        },
+        {
+          "id": "automation-dropdown-contact",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "automation-dropdown-contact:audi",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#cars",
+                "expected": "audi"
+              },
+              "state_sha256": "3efee335841b625f855d7e8cdd2e780815a58cec30278d72e19a704b69bb558d",
+              "browser_state_sha256": "9c964aba0ec811770642e92d69d7478f677e8d53427f3a2819f4262754ffad9b",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "automation-dropdown-contact:bmw",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#cars",
+                "expected": "bmw"
+              },
+              "state_sha256": "d859739de389d83a282427b0371076cc647fe921a050ae1a335e7ecb748a8c34",
+              "browser_state_sha256": "9c964aba0ec811770642e92d69d7478f677e8d53427f3a2819f4262754ffad9b",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "automation-dropdown-contact:ford",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#cars",
+                "expected": "ford"
+              },
+              "state_sha256": "a1fe5cbb66da924a346cb19a6a27bff61397664d2af6d6a63b5544e2dd72f66a",
+              "browser_state_sha256": "6432f363541e0af92d7275a93332c71f6bd0610a22f289e3a7af160ef4e18456",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "automation-dropdown-contact:honda",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#cars",
+                "expected": "honda"
+              },
+              "state_sha256": "527d07e4b3bb477337069386b013a0919024ee7d1f4567f7233539139ec060c1",
+              "browser_state_sha256": "81ba8a0893053742c16d4de4850713b455cfdc4a6e0641e75aee1831d9133a30",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "automation-dropdown-contact:jeep",
+              "action": "select",
+              "check": {
+                "kind": "value",
+                "selector": "#cars",
+                "expected": "jeep"
+              },
+              "state_sha256": "3bca5aa543e6a6c71a2516eaf585c46287943401f5abd3be910ed06fd7260988",
+              "browser_state_sha256": "d80a3455d743cb8d89c9a58a8b14f2538f6df133dba1c03bc5da567c0cebf634",
+              "reference_candidate_rank": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scrapingcourse",
+      "origin": "https://www.scrapingcourse.com/",
+      "family": "woocommerce-storefront",
+      "provenance": "public WooCommerce product pages",
+      "exposure": "unknown",
+      "start": "fresh context; query-free product page; third-party requests blocked; JavaScript disabled",
+      "actions": ["click", "type"],
+      "validator": "URL fragment, exact quantity, add-to-cart notice visibility",
+      "flows": [
+        {
+          "id": "scrapingcourse-bottle",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "scrapingcourse-bottle:additional",
+              "action": "click",
+              "check": {
+                "kind": "hash",
+                "expected": "#tab-additional_information"
+              },
+              "state_sha256": "d14939fdabaca5445ee07a5b9106b3bbc314f5ecf186d32d1eed19ac1ecff149",
+              "browser_state_sha256": "5f890a1da55e5f15268c14dfd00f5f5ca8bfe88a8d32f14aa87ae75b8abc75a4",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "scrapingcourse-bottle:description",
+              "action": "click",
+              "check": {
+                "kind": "hash",
+                "expected": "#tab-description"
+              },
+              "state_sha256": "51c3537418d2020d2b0391d3c7c8fc0ac7c060c8bfce248174b0c4432cbff5f0",
+              "browser_state_sha256": "ebf6f99ecbb1a9fba7735b0a5b6aaf109c868721a7e808f96309a199bcdc7368",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "scrapingcourse-bottle:quantity",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input[name='quantity']",
+                "expected": "2"
+              },
+              "state_sha256": "92cc43c9e559423f50387fb1d85401d7a2909a902a98b806dc0c57512ebea3e8",
+              "browser_state_sha256": "ed099f0e169a021a87204e619dd5a39285f0f2d438757e2c76b541d659abdc3b",
+              "reference_candidate_rank": 1
+            },
+            {
+              "id": "scrapingcourse-bottle:add",
+              "action": "click",
+              "check": {
+                "kind": "visible",
+                "selector": ".woocommerce-message"
+              },
+              "state_sha256": "a0e6ddb7c9b9f70fa483bf7c675f5708a338884c3a214844f61ffc28a914fb94",
+              "browser_state_sha256": "ed099f0e169a021a87204e619dd5a39285f0f2d438757e2c76b541d659abdc3b",
+              "reference_candidate_rank": 2
+            }
+          ]
+        },
+        {
+          "id": "scrapingcourse-watch",
+          "reference_runs": 3,
+          "steps": [
+            {
+              "id": "scrapingcourse-watch:additional",
+              "action": "click",
+              "check": {
+                "kind": "hash",
+                "expected": "#tab-additional_information"
+              },
+              "state_sha256": "5aba694dd944585f39feceb79e450bbb7e8367cf5d0e239e0a7d2cfe2c056e71",
+              "browser_state_sha256": "50c8d808f1ff371ee020dbcbfe73fde9fb87bf506a9a72876fc637df801e837b",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "scrapingcourse-watch:description",
+              "action": "click",
+              "check": {
+                "kind": "hash",
+                "expected": "#tab-description"
+              },
+              "state_sha256": "b563fa37da14cb7cc3e4f1e706480ffdbd2ba5b586a056f40b4095aa199ee086",
+              "browser_state_sha256": "46b4394df4ea49c241b856a6906b6bff4ba8c0278703474e8f39d38ec2e89dba",
+              "reference_candidate_rank": 2
+            },
+            {
+              "id": "scrapingcourse-watch:quantity",
+              "action": "type",
+              "check": {
+                "kind": "value",
+                "selector": "input[name='quantity']",
+                "expected": "3"
+              },
+              "state_sha256": "fc087c3ad9689fd32a507ef5b3d36830258363077a74f01b1735c2e2c422672b",
+              "browser_state_sha256": "87a6af20d835d7f6e54d45e4aae8fa5881934318b3ecb98a864ecb4f77813ca1",
+              "reference_candidate_rank": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "rules": [
+    "Do not modify cases, goals, selectors, validation, or start policy after model results are inspected.",
+    "Fit thresholds and temperatures only on development/validation data.",
+    "Score every candidate on identical cases once.",
+    "Keep v9 test sealed during this preparation.",
+    "Public-site Laya v10s exposure remains unknown."
+  ],
+  "node": "v25.9.0",
+  "distinct_browser_state_sha256": 56
+}

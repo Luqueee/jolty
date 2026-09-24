@@ -1,0 +1,5 @@
+<!doctype html><title>Harbor stock</title>
+<h1>Harbor stock</h1><label>Section <select id="section"><option>All</option><option>Hardware</option><option>Office</option></select></label>
+<button type="button" id="filter">Apply section</button><table><tr><th>Item</th><th>Section</th></tr><tr><td>Bracket</td><td>Hardware</td></tr><tr><td>Notebook</td><td>Office</td></tr></table>
+<p id="result">Showing all sections</p>
+<script>document.querySelector('#filter').onclick=()=>{document.querySelector('#result').textContent='Showing '+document.querySelector('#section').value;};</script>

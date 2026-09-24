@@ -1,0 +1,5 @@
+<!doctype html><title>Orchard catalog</title>
+<h1>Orchard catalog</h1><div class="cards"><article><h2>Apples</h2><p>Fruit</p></article><article><h2>Carrots</h2><p>Vegetables</p></article></div>
+<label>Department <select id="department"><option>All</option><option>Fruit</option><option>Vegetables</option></select></label>
+<button type="button" id="show">Show department</button><output id="summary">All products</output>
+<script>document.querySelector('#show').onclick=()=>{document.querySelector('#summary').textContent='Department: '+document.querySelector('#department').value;};</script>
