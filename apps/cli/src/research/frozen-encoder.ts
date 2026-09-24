@@ -22,6 +22,25 @@ export function actionFor(element: ResearchElement): Action {
   return "click";
 }
 
+export function selectTrainableSamples(samples: readonly ResearchSample[]) {
+  const excludedTrainIds: string[] = [];
+  const selected = samples.filter((sample) => {
+    const label = sample.training_action;
+    if (!label) throw new Error(`Missing label for ${sample.sample_id}`);
+    const target = sample.browser_state.elements.find(
+      (element) => element.id === label.target_id,
+    );
+    if (!target)
+      throw new Error(`Missing label target for ${sample.sample_id}`);
+    if (actionFor(target) === label.action) return true;
+    if (sample.split !== "train")
+      throw new Error(`Unsupported evaluation label for ${sample.sample_id}`);
+    excludedTrainIds.push(sample.sample_id);
+    return false;
+  });
+  return { selected, excludedTrainIds };
+}
+
 export function candidateText(element: ResearchElement): string {
   return `${actionFor(element)} ${element.role}: ${(element.name || element.text || element.role).slice(0, 160)}`;
 }

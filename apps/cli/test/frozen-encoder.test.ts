@@ -7,9 +7,13 @@ import {
   type EncodedSample,
   probabilities,
   selectThreshold,
+  selectTrainableSamples,
   trainHead,
 } from "../src/research/frozen-encoder.ts";
-import { readResearchCorpus } from "../src/research/research-corpus-reader.ts";
+import {
+  type ResearchSample,
+  readResearchCorpus,
+} from "../src/research/research-corpus-reader.ts";
 
 test("rejects a changed research corpus digest", async () => {
   const directory = await mkdtemp(join(tmpdir(), "jolty-research-"));
@@ -69,4 +73,63 @@ test("can freeze global action intercepts without freezing candidate features", 
   expect(weights[0]).toBeGreaterThan(0);
   expect(weights.slice(-3)).toEqual([0, 0, 0]);
   expect(trainHead([sample]).slice(-3)).not.toEqual([0, 0, 0]);
+});
+
+test("excludes unsupported training actions without hiding evaluation mismatches", () => {
+  const makeSample = (
+    sampleId: string,
+    split: ResearchSample["split"],
+    role: string,
+    action: "select" | "click",
+  ): ResearchSample => ({
+    sample_id: sampleId,
+    split,
+    split_group: "example",
+    goal: "Select an option",
+    browser_state: {
+      origin: "https://example.test",
+      pathname: "/",
+      title: "Example",
+      elements: [
+        {
+          id: "e1",
+          role,
+          name: "Options",
+          text: "",
+          editable: false,
+          visible: true,
+          enabled: true,
+          has_value: false,
+          selected: false,
+        },
+      ],
+    },
+    candidates: [
+      {
+        id: "e1",
+        score: 1,
+        signals: {
+          exactMatch: 0,
+          normalizedMatch: 0,
+          labelMatch: 0,
+          textMatch: 0,
+          keywordOverlap: 0,
+          roleCompatibility: 0,
+          elementState: 0,
+        },
+      },
+    ],
+    training_action: { action, target_id: "e1" },
+  });
+  const supported = makeSample("native", "train", "combobox", "select");
+  const unsupported = makeSample("multiple", "train", "listbox", "select");
+  expect(selectTrainableSamples([supported, unsupported])).toEqual({
+    selected: [supported],
+    excludedTrainIds: ["multiple"],
+  });
+  expect(() =>
+    selectTrainableSamples([
+      makeSample("held-out", "test", "listbox", "select"),
+    ]),
+  ).toThrow(/Unsupported evaluation label for held-out/);
 });

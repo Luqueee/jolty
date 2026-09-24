@@ -8,6 +8,7 @@ import {
   encodeSamples,
   FEATURE_VERSION,
   selectThreshold,
+  selectTrainableSamples,
   summarize,
   trainHead,
 } from "./frozen-encoder.ts";
@@ -17,8 +18,9 @@ const corpusPath = process.argv[2] ?? "artifacts/research-corpus-v0.json";
 const outputPath = process.argv[3] ?? "artifacts/frozen-encoder-v0.json";
 const fitActionBias = process.env.JOLTY_FROZEN_ACTION_BIAS !== "0";
 const { digest, samples } = await readResearchCorpus(corpusPath);
+const { selected, excludedTrainIds } = selectTrainableSamples(samples);
 const start = performance.now();
-const { encoded, uniqueTexts } = await encodeSamples(samples);
+const { encoded, uniqueTexts } = await encodeSamples(selected);
 const encodingMs = performance.now() - start;
 const train = encoded.filter((row) => row.split === "train");
 const validation = encoded.filter((row) => row.split === "validation");
@@ -38,6 +40,7 @@ const head = {
   train_ids_sha256: createHash("sha256")
     .update(train.map((row) => row.sample_id).join("\n"))
     .digest("hex"),
+  excluded_train_ids: excludedTrainIds,
   epochs: 400,
   learning_rate: 0.5,
   l2: 0.01,
@@ -55,6 +58,7 @@ const report = {
   encoder_model: ENCODER_MODEL,
   encoder_revision: ENCODER_REVISION,
   unique_texts: uniqueTexts,
+  excluded_train_ids: excludedTrainIds,
   encoding_ms: encodingMs,
   fit_ms: fitMs,
   fit_action_bias: fitActionBias,
