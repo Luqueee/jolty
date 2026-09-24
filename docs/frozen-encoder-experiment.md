@@ -128,3 +128,21 @@ Run `pnpm research train --version 7 --bias zero`, `pnpm research baseline --ver
 The head matched 69/89 training labels and 44/47 validation labels. Validation selected temperature 0.25 and threshold 0.916915, covering 36/47 validation decisions with all covered decisions correct. On the held-out observations, it covered 17/21 but only 16 covered decisions were correct; its Brier score was 0.0573. It selected the wrong control for LearnAQA's Create Shadow case with confidence 0.998595, so neither the selected threshold nor a 0.9 diagnostic threshold is safe for unattended execution. On fresh pages, the same decision failed. The head selected the correct target for Keyboard Search but the action failed, making task completion 19/21 rather than 20/21. Laya also had action or validation failures on fresh pages, including cases with correct selected targets.
 
 All 21 targets appeared in Laya's retrieved Top-10 on the fresh pages. The live head process peaked at 466,251,776 bytes RSS. Each head flow had one measured run without per-flow warmup; Laya had one warmup and one measured run per flow. Both runs used Node 25.9.0 and Chromium 153.0.8010.12. Decision timings exclude model load and page setup, and the teacher's saved-observation decision p50 was 4.11 seconds including Codex CLI overhead. These authored one-step flows on two public sites do not establish a stable general-site gain, calibrated fast-path coverage, throughput, or multistep recovery. The test cases are now inspected and cannot be reused as untouched evaluation for further tuning. The head remains outside the runtime and Milestone 13 remains open.
+
+## V7 head on two new multistep sites
+
+The fixed v7 zero-intercept head was tested without fitting or calibration changes on two further origins absent from every research corpus: [Test Automation TV's product catalog](https://demo.testautomationtv.com/products) and [Software Testing Mentor's form validation page](https://practice.softwaretestingmentor.com/form-validation). The catalog flow types a product query, searches, then adds the named product to the cart. The form flow types two fields, selects a priority, then resets the form without submitting it. Goals, target selectors, values, step checks, and final postconditions were authored before model scoring. The curated reference completed both flows and validated all seven steps; every labeled target appeared in the retrieved Top-10.
+
+Run `pnpm research multistep --suite heldout --policy reference --runs 3`, then the same command with `--policy zero` or `--policy laya`. Each policy gets one warmup and three measured runs per flow in fresh Chromium contexts. The zero policy loads the frozen v7 head; the older v6 suite continues to load the v5 head.
+
+| Measure across measured runs | Curated reference | Frozen v7 head | Laya |
+| --- | ---: | ---: | ---: |
+| Completed tasks | 6/6 | 3/6 | 0/6 |
+| Exact decisions / attempted | 21/21 | 12/15 | 3/9 |
+| Validated steps / attempted | 21/21 | 12/15 | 3/9 |
+| Target recall in Top-10 / attempted | 21/21 | 15/15 | 9/9 |
+| Decision latency p50 / p95 | — | 8.79 / 16.02 ms | 172.01 / 194.58 ms |
+
+The v7 head completed all three form runs. It failed the catalog's first step in every run by clicking Search instead of typing in the search box, with confidence 0.8911. Laya failed the same first step by clicking another control with confidence 1.0; on the form it entered the first field correctly, then chose that field again for the second step with confidence about 0.9998. Later steps were not attempted after each failure, so the step-accuracy denominators differ. The head process peaked at 490,852,352 bytes RSS and the Laya process at 1,869,615,104 bytes RSS; these figures include separate model runtimes and are not isolated model-memory measurements. Model loading and page setup are outside decision timing.
+
+The head's catalog error falls below its v7 validation-selected threshold of 0.916915, but this benchmark executes every decision and does not test fallback. These six repeated tasks cover only two authored flows and cannot establish representative throughput, a calibrated autonomous policy, or broad cross-site value. Both new origins are now inspected evaluation sites, and the head remains outside the runtime.

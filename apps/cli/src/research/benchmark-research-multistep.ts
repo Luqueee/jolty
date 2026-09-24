@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { type DecisionProvider, runControlledTask } from "@jolty/core";
 import { chromium } from "playwright";
 import { targetId } from "../../benchmarks/public-site-flows.ts";
+import { researchMultistepHeldout } from "./cases/research-multistep-heldout.ts";
 import { researchMultistepFlowsV6 } from "./cases/research-multistep-v6.ts";
 import {
   type ResearchSample,
@@ -11,16 +12,25 @@ import {
 const policy = process.env.JOLTY_RESEARCH_MULTI_POLICY ?? "reference";
 if (!["reference", "laya", "zero", "biased"].includes(policy))
   throw new Error("Unknown research multistep policy");
+const suite = process.env.JOLTY_RESEARCH_MULTI_SUITE ?? "v6";
+if (suite !== "v6" && suite !== "heldout")
+  throw new Error("Unknown research multistep suite");
+if (suite === "heldout" && policy === "biased")
+  throw new Error("The held-out suite has no fitted-intercept head");
+const flows =
+  suite === "v6" ? researchMultistepFlowsV6 : researchMultistepHeldout;
+const headVersion = suite === "v6" ? "5" : "7";
 const runs = Number(process.env.JOLTY_RESEARCH_MULTI_RUNS ?? 3);
 if (!Number.isInteger(runs) || runs < 1)
   throw new Error("JOLTY_RESEARCH_MULTI_RUNS must be a positive integer");
 const outputPath =
-  process.argv[2] ?? `artifacts/research-multistep-v6-${policy}.json`;
+  process.argv[2] ?? `artifacts/research-multistep-${suite}-${policy}.json`;
 
 type DecisionInput = Parameters<DecisionProvider["decide"]>[0];
 type LoadedPolicy = {
   name: string;
   version: string;
+  headCorpusSha256?: string;
   decide(input: DecisionInput): ReturnType<DecisionProvider["decide"]>;
   close(): Promise<void>;
 };
@@ -48,11 +58,11 @@ async function loadPolicy(): Promise<LoadedPolicy | null> {
   } = await import("./frozen-encoder.ts");
   const headPath =
     policy === "zero"
-      ? "artifacts/frozen-encoder-v5.json"
+      ? `artifacts/frozen-encoder-v${headVersion}.json`
       : "artifacts/frozen-encoder-v5-biased.json";
   const head = JSON.parse(await readFile(headPath, "utf8"));
   const { digest } = await readResearchCorpus(
-    "artifacts/research-corpus-v5.json",
+    `artifacts/research-corpus-v${headVersion}.json`,
   );
   if (
     head.schema_version !== 0 ||
@@ -78,6 +88,7 @@ async function loadPolicy(): Promise<LoadedPolicy | null> {
         ? "Frozen zero-intercept head"
         : "Frozen fitted-intercept head",
     version: ENCODER_REVISION,
+    headCorpusSha256: digest,
     async decide(input) {
       const url = new URL(input.state.url);
       const sample: ResearchSample = {
@@ -140,7 +151,7 @@ const chromiumVersion = browser.version();
 const results = [];
 let peakRss = process.memoryUsage().rss;
 try {
-  for (const flow of researchMultistepFlowsV6) {
+  for (const flow of flows) {
     for (let iteration = 0; iteration <= runs; iteration++) {
       const context = await browser.newContext();
       try {
@@ -249,15 +260,16 @@ try {
 }
 
 const report = {
-  benchmark: "public-site-multistep-v6",
+  benchmark: `public-site-multistep-${suite}`,
   policy,
   model_revision: loaded?.version ?? "curated-reference-v0",
+  head_corpus_sha256: loaded?.headCorpusSha256 ?? null,
   node_version: process.version,
   chromium_version: chromiumVersion,
   warmup_runs_per_flow: 1,
   measured_runs_per_flow: runs,
   timing_scope: "Model decision only; page setup and model loading excluded",
-  flows: researchMultistepFlowsV6.map(({ id, site }) => ({ id, site })),
+  flows: flows.map(({ id, site }) => ({ id, site })),
   completed_tasks: results.filter((result) => result.completed).length,
   attempted_steps: results.reduce(
     (sum, result) => sum + result.attempted_steps,

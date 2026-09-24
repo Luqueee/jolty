@@ -22,7 +22,7 @@ const allowedOptions: Record<Operation, readonly string[]> = {
   train: ["version", "corpus", "output", "bias"],
   baseline: ["version", "corpus", "output", "include-codex"],
   benchmark: ["version", "head", "head-version", "corpus", "output", "bias"],
-  multistep: ["policy", "runs", "output"],
+  multistep: ["policy", "suite", "runs", "output"],
   public: ["version", "runs", "flows", "policies"],
 };
 
@@ -31,7 +31,7 @@ Commands: collect, readiness, train, baseline, benchmark, multistep, public
 Corpus versions: 0-${latestResearchVersion} (default: 0)
 Options: --version N, --output PATH, --corpus PATH, --head PATH,
   --head-version N, --bias zero|fitted, --include-codex,
-  --dataset DIR, --policy reference|zero|biased|laya,
+  --dataset DIR, --policy reference|zero|biased|laya, --suite v6|heldout,
   --runs N, --flows IDS, --policies NAMES`;
 
 export function parseResearchCommand(argv: readonly string[]): ResearchCommand {
@@ -120,10 +120,16 @@ export function parseResearchCommand(argv: readonly string[]): ResearchCommand {
       const policy = get("policy") ?? "reference";
       if (!["reference", "zero", "biased", "laya"].includes(policy))
         throw new Error("--policy must be reference, zero, biased, or laya");
+      const suite = get("suite") ?? "v6";
+      if (suite !== "v6" && suite !== "heldout")
+        throw new Error("--suite must be v6 or heldout");
+      if (suite === "heldout" && policy === "biased")
+        throw new Error("The held-out suite has no fitted-intercept head");
       env.JOLTY_RESEARCH_MULTI_POLICY = policy;
+      env.JOLTY_RESEARCH_MULTI_SUITE = suite;
       if (runs) env.JOLTY_RESEARCH_MULTI_RUNS = runs;
       args = [
-        get("output") ?? `artifacts/research-multistep-v6-${policy}.json`,
+        get("output") ?? `artifacts/research-multistep-${suite}-${policy}.json`,
       ];
       break;
     }

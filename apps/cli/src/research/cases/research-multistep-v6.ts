@@ -1,20 +1,5 @@
-import type { ControlledTask } from "@jolty/core";
-import type { Page } from "playwright";
 import { targetId } from "../../../benchmarks/public-site-flows.ts";
-
-export interface ResearchMultistepFlow {
-  id: string;
-  site: string;
-  url: string;
-  labels: readonly {
-    goal: string;
-    action: "click" | "type";
-    target: string;
-  }[];
-  prepare?(page: Page): Promise<void>;
-  buildTask(page: Page): Promise<ControlledTask>;
-  postcondition(page: Page): Promise<boolean>;
-}
+import type { ResearchMultistepFlow } from "./research-multistep-flow.ts";
 
 export const researchMultistepFlowsV6: ResearchMultistepFlow[] = [
   {

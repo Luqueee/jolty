@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { researchMultistepHeldout } from "../src/research/cases/research-multistep-heldout.ts";
 import {
   researchCasesForVersion,
   testFlowsForVersion,
@@ -60,6 +61,37 @@ describe("research command", () => {
     ).toThrow();
     expect(() => parseResearchCommand(["public", "--runs", "0"])).toThrow();
     expect(() => parseResearchCommand(["train", "--bias", "maybe"])).toThrow();
+    expect(() =>
+      parseResearchCommand([
+        "multistep",
+        "--suite",
+        "heldout",
+        "--policy",
+        "biased",
+      ]),
+    ).toThrow();
+  });
+
+  it("routes the held-out multistep suite to its own artifact", () => {
+    expect(
+      parseResearchCommand([
+        "multistep",
+        "--suite",
+        "heldout",
+        "--policy",
+        "zero",
+        "--runs",
+        "3",
+      ]),
+    ).toEqual({
+      script: "benchmark-research-multistep.ts",
+      args: ["artifacts/research-multistep-heldout-zero.json"],
+      env: {
+        JOLTY_RESEARCH_MULTI_POLICY: "zero",
+        JOLTY_RESEARCH_MULTI_SUITE: "heldout",
+        JOLTY_RESEARCH_MULTI_RUNS: "3",
+      },
+    });
   });
 });
 
@@ -74,6 +106,17 @@ describe("research catalog", () => {
         expect(splitByOrigin.get(new URL(entry.url).origin)).toBe(entry.split);
       for (const flow of flows)
         expect(reservedTestOrigins.has(new URL(flow.url).origin)).toBe(true);
+    }
+  });
+
+  it("keeps the held-out multistep origins outside every corpus split", () => {
+    expect(researchMultistepHeldout).toHaveLength(2);
+    for (const flow of researchMultistepHeldout) {
+      expect(splitByOrigin.has(new URL(flow.url).origin)).toBe(false);
+      expect(flow.labels.length).toBeGreaterThan(1);
+      expect(new Set(flow.labels.map((label) => label.goal)).size).toBe(
+        flow.labels.length,
+      );
     }
   });
 });
