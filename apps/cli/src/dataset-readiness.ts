@@ -9,6 +9,8 @@ const reservedTestOrigins = new Set([
   "https://playground.go-bigger.de",
   "https://www.testtrack.org",
   "https://webdriveruniversity.com",
+  "https://lastest.cloud",
+  "https://qaplayground.com",
 ]);
 
 export interface ReadinessSample {

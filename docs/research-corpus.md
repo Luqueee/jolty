@@ -43,3 +43,9 @@ The 2026-09-23 collection produced 70/70 validated labels with digest `d23d9fb65
 | Test | 2 | 10 | 4 | 0 | 6 |
 
 The engineering admission gate passes. The two test origins are disjoint from earlier evaluated origins and from v2 training and calibration. The cases are still authored on public practice pages; six test decisions are simple fields, so the set cannot establish broad generalization. Its test outcomes are now inspected and cannot be treated as untouched for future tuning.
+
+## Corpus v3: fixed-head abstention probe
+
+Run `pnpm run research:collect-v3` to create `artifacts/research-corpus-v3.json`. It retains the v2 training and calibration cases and substitutes ten newly authored test decisions on [Lastest Playground](https://lastest.cloud/playground) and [QA Playground](https://qaplayground.com/). The test actions and deterministic outcomes were checked before scoring the frozen v2 head. The final 2026-09-24 collection produced 70/70 validated labels: 36 training, 24 calibration, and ten test, across disjoint origin splits. Its digest was `cf544117ee150a30e7ac7bd9af411aa0c0b9871d1efed416757522731475be0f`; the engineering admission gate passes. Two repeat captures also validated 70/70 but had different digests because QA Playground inserted an optional feedback button into one observed page at different times. Its goal, retrieved candidates, and label were unchanged. Keep each report tied to its collected digest; live public pages are not byte-for-byte pinned fixtures.
+
+The v3 corpus is used to score the unchanged head trained on v2, not to fit or calibrate a new head. Its new test split contains six clicks, one select, and three type actions. These outcomes are now inspected and cannot serve as untouched evaluation for another tuned variant. See the [fixed-head probe](frozen-encoder-experiment.md#fixed-head-abstention-probe-on-v3).
