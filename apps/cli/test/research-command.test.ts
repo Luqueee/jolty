@@ -52,6 +52,28 @@ describe("research command", () => {
     });
   });
 
+  it("keeps v9 test predictions out of matched-head fitting", () => {
+    expect(
+      parseResearchCommand(["train", "--version", "9", "--bias", "zero"]),
+    ).toEqual({
+      script: "train-frozen-encoder.ts",
+      args: [
+        "artifacts/research-corpus-v9.json",
+        "artifacts/frozen-encoder-v9.json",
+      ],
+      env: { JOLTY_FROZEN_ACTION_BIAS: "0", JOLTY_FROZEN_HOLDOUT: "1" },
+    });
+  });
+
+  it("routes the PEFT experiment through the research command", () => {
+    expect(parseResearchCommand(["peft", "--stage", "smoke"])).toEqual({
+      script: "peft-experiment.ts",
+      args: ["smoke"],
+      env: {},
+    });
+    expect(() => parseResearchCommand(["peft", "--stage", "score"])).toThrow();
+  });
+
   it("rejects invalid versions, options, and measurements", () => {
     expect(() =>
       parseResearchCommand(["collect", "--version", "10"]),

@@ -10,6 +10,7 @@ const scripts = {
   collect: "collect-research.ts",
   readiness: "research-readiness.ts",
   train: "train-frozen-encoder.ts",
+  peft: "peft-experiment.ts",
   baseline: "evaluate-laya-corpus.ts",
   benchmark: "benchmark-frozen-encoder.ts",
   multistep: "benchmark-research-multistep.ts",
@@ -20,6 +21,7 @@ const allowedOptions: Record<Operation, readonly string[]> = {
   collect: ["version", "output"],
   readiness: ["dataset"],
   train: ["version", "corpus", "output", "bias"],
+  peft: ["stage"],
   baseline: ["version", "corpus", "output", "include-codex"],
   benchmark: ["version", "head", "head-version", "corpus", "output", "bias"],
   multistep: ["policy", "suite", "runs", "output", "head-version"],
@@ -27,12 +29,12 @@ const allowedOptions: Record<Operation, readonly string[]> = {
 };
 
 export const researchHelp = `Usage: pnpm research <command> [options]
-Commands: collect, readiness, train, baseline, benchmark, multistep, public
+Commands: collect, readiness, train, peft, baseline, benchmark, multistep, public
 Corpus versions: 0-${latestResearchVersion} (default: 0)
 Options: --version N, --output PATH, --corpus PATH, --head PATH,
   --head-version N, --bias zero|fitted, --include-codex,
   --dataset DIR, --policy reference|zero|biased|laya, --suite v6|heldout|peft,
-  --runs N, --flows IDS, --policies NAMES`;
+  --runs N, --flows IDS, --policies NAMES, --stage setup|parity|smoke|train`;
 
 export function parseResearchCommand(argv: readonly string[]): ResearchCommand {
   const [operation, ...tokens] = argv;
@@ -84,10 +86,18 @@ export function parseResearchCommand(argv: readonly string[]): ResearchCommand {
       if (bias !== "zero" && bias !== "fitted")
         throw new Error("--bias must be zero or fitted");
       env.JOLTY_FROZEN_ACTION_BIAS = bias === "zero" ? "0" : "1";
+      if (version === "9") env.JOLTY_FROZEN_HOLDOUT = "1";
       args = [
         get("corpus") ?? artifact("research-corpus"),
         get("output") ?? artifact("frozen-encoder"),
       ];
+      break;
+    }
+    case "peft": {
+      const stage = get("stage") ?? "parity";
+      if (!["setup", "parity", "smoke", "train"].includes(stage))
+        throw new Error("--stage must be setup, parity, smoke, or train");
+      args = [stage];
       break;
     }
     case "baseline":

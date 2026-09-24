@@ -64,7 +64,28 @@ export async function loadFrozenEncoder() {
     dtype: "fp32",
     device: "cpu",
   });
+  async function embedTexts(texts: readonly string[]) {
+    const embeddings = new Map<string, Float32Array>();
+    for (let start = 0; start < texts.length; start += 32) {
+      const batch = texts.slice(start, start + 32);
+      const output = await embedder(batch, {
+        pooling: "mean",
+        normalize: true,
+      });
+      const width = output.dims.at(-1);
+      if (width !== 384) throw new Error("Unexpected encoder dimension");
+      for (let index = 0; index < batch.length; index++)
+        embeddings.set(
+          batch[index] as string,
+          Float32Array.from(
+            output.data.slice(index * width, (index + 1) * width),
+          ),
+        );
+    }
+    return embeddings;
+  }
   return {
+    embedTexts,
     async encode(samples: readonly ResearchSample[]) {
       const texts = [
         ...new Set(
@@ -80,23 +101,7 @@ export async function loadFrozenEncoder() {
           ]),
         ),
       ];
-      const embeddings = new Map<string, Float32Array>();
-      for (let start = 0; start < texts.length; start += 32) {
-        const batch = texts.slice(start, start + 32);
-        const output = await embedder(batch, {
-          pooling: "mean",
-          normalize: true,
-        });
-        const width = output.dims.at(-1);
-        if (width !== 384) throw new Error("Unexpected encoder dimension");
-        for (let index = 0; index < batch.length; index++)
-          embeddings.set(
-            batch[index] as string,
-            Float32Array.from(
-              output.data.slice(index * width, (index + 1) * width),
-            ),
-          );
-      }
+      const embeddings = await embedTexts(texts);
       const encoded = samples.map((sample): EncodedSample => {
         const goal = embeddings.get(sample.goal);
         if (!goal) throw new Error("Goal embedding missing");

@@ -1,6 +1,6 @@
 # Milestone 13 PEFT experiment protocol
 
-Status: site allocation, evaluation rules, and the v9 case list are fixed before fitting PEFT weights or scoring test predictions. The corpus and reference flows have been authored; no PEFT result or runtime provider exists yet.
+Status: the v9 corpus, fitting recipe, and model-selection rule were fixed before fitting. The matched frozen head and LoRA candidate have been fitted on train and calibrated on validation. No v9 test prediction has been scored, and no runtime provider exists yet.
 
 ## Question and scope
 
@@ -35,3 +35,17 @@ Training belongs in a separate Python process launched by `pnpm research`; no Py
 Choose the calibration temperature and abstention threshold without test labels. Score the untouched test once after the corpus, fitting recipe, and model-selection rule are frozen. Run the matched frozen head, PEFT candidate, Laya, and subscription-backed `gpt-6-sol` teacher on the same saved decision states; run the executable policies on the same live flows. The teacher scores saved observations only. Report per-origin and per-failure-mode exact action-and-target accuracy, task completion, target Recall@10, covered correct/incorrect decisions, confidence buckets and Brier score, p50/p95 decision latency, peak RSS/VRAM, and throughput. Distinguish model errors from retrieval, execution, validation, and site failures.
 
 The engineering promotion gate requires PEFT to gain at least five exact decisions among the 30 held-out states **and** two completed flows among the nine minimum flows over the matched frozen baseline, exceed Laya in held-out task completion, and make no wrong decision at confidence 0.9 or above. It must also select the catalog search field correctly and either correct the historical `learn-create-shadow` decision or abstain below the calibration threshold; these historical cases are regression checks, not part of the untouched gain count. A passing result still needs ONNX export and measured Node inference before runtime integration. If the gate fails, record the negative result and stop rather than changing the adapter or case list after seeing test outcomes. Thirty states on three sites are an engineering gate, not a population-level accuracy claim.
+
+## Fitting run before held-out scoring
+
+Use `pnpm research peft --stage setup` to create the ignored Python environment and install the pinned top-level dependencies in `research/peft/requirements.txt`. Run `pnpm research train --version 9 --bias zero` for the matched frozen head, then `pnpm research peft --stage parity`, `pnpm research peft --stage smoke`, and `pnpm research peft --stage train`. The last three commands verify the same 20 saved train/validation states against the pinned TypeScript encoder before touching the GPU. The training input contains only train and validation samples; both the frozen-head report and PEFT report omit the test split. Python remains in a separate research process and its artifacts are ignored under `artifacts/`.
+
+The 2026-09-24 fitting run used corpus digest `067e957e44c7d33e39f03527da2b754323ff31429d52e164921b08e9ad40914c`. The existing action contract excluded three UPEX custom-select training labels from **both** candidates; 168 training and 76 validation states entered fitting and calibration. No validation or test label was excluded. Parity compared 96 normalized embeddings across 20 states spanning both new training origins and Syntax: minimum cosine 0.99999988, with identical action options and top choices. The one-batch GPU smoke allocated at most 122,979,840 bytes on an 8 GB RTX 4060 Ti. Four LoRA epochs took 3.33 seconds and peaked at 165,925,888 allocated GPU bytes. These are PyTorch allocation measurements, not total device occupancy or inference benchmarks.
+
+| Validation measure | Matched frozen head | LoRA candidate |
+| --- | ---: | ---: |
+| Exact decisions | 68/76 | 69/76 |
+| Correct decisions covered by the validation-selected threshold | 41/41 | 42/42 |
+| Temperature | 0.25 | 0.25 |
+
+The LoRA adapter, 388-weight head with zero action intercepts, calibration, dependency versions, revision, digest, and recipe are saved in ignored `artifacts/peft-v9/`. The small validation difference does not establish generalization or promotion. The next step is the one-time frozen comparison on the reserved test states and executable flows, followed by Laya and the subscription-backed teacher on the same saved observations.

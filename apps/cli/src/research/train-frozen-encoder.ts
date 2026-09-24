@@ -17,8 +17,11 @@ import { readResearchCorpus } from "./research-corpus-reader.ts";
 const corpusPath = process.argv[2] ?? "artifacts/research-corpus-v0.json";
 const outputPath = process.argv[3] ?? "artifacts/frozen-encoder-v0.json";
 const fitActionBias = process.env.JOLTY_FROZEN_ACTION_BIAS !== "0";
+const holdout = process.env.JOLTY_FROZEN_HOLDOUT === "1";
 const { digest, samples } = await readResearchCorpus(corpusPath);
-const { selected, excludedTrainIds } = selectTrainableSamples(samples);
+const { selected, excludedTrainIds } = selectTrainableSamples(
+  holdout ? samples.filter((sample) => sample.split !== "test") : samples,
+);
 const start = performance.now();
 const { encoded, uniqueTexts } = await encodeSamples(selected);
 const encodingMs = performance.now() - start;
@@ -66,7 +69,9 @@ const report = {
   threshold,
   train: summarize(train, weights),
   validation: summarize(validation, weights, threshold, temperature),
-  test: summarize(test, weights, threshold, temperature),
+  ...(holdout
+    ? {}
+    : { test: summarize(test, weights, threshold, temperature) }),
 };
 const reportPath = outputPath.replace(/\.json$/, "-report.json");
 await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
