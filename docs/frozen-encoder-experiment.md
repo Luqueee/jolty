@@ -64,3 +64,17 @@ The v2 head and its temperature remain unchanged. The v2 calibration split selec
 | Live decision latency p50 / p95 | 8.1 / 13.8 ms | 180.2 / 201.5 ms | — |
 
 At threshold 0.9, the head would cover **6/10 decisions**, but only **4/6 covered decisions** were correct. Its incorrect Read Value and Clear decisions on QA Playground had confidence 0.9995 and 0.9989; the third error, a Lastest button click, had confidence 0.179. A correct movie-name decision initially failed task completion because the authored step named the field by its placeholder instead of its accessible name. The step metadata was corrected and live execution rerun; the selected decision was unchanged. The final head run's live process reached roughly 474 MiB RSS. Each head flow had one measured run; Laya had one warmup per flow. Timings exclude browser setup and model load, and no throughput or multistep recovery was measured. The high-confidence errors directly reject the proposed 0.9 autonomous-execution gate on these new sites. The head remains outside the runtime. More small-site variants or PEFT experiments should only proceed with a larger, more varied training and calibration set and another reserved evaluation set.
+
+## Corpus v4 experiment
+
+Run `pnpm run research:collect-v4`, `pnpm run research:train-frozen-v4`, and `pnpm run research:benchmark-frozen-v4`. The encoder, features, fitting procedure, and calibration rule are unchanged. `JOLTY_RESEARCH_INCLUDE_CODEX=1 pnpm run research:baseline-laya-v4` scores saved observations with Laya and the subscription-backed `gpt-6-sol` teacher. `JOLTY_PUBLIC_CORPUS_VERSION=4 JOLTY_PUBLIC_RUNS=1 JOLTY_PUBLIC_POLICIES='Laya verbose/ranked' pnpm run benchmark:public` runs Laya on fresh pages. The teacher does not execute actions.
+
+The 2026-09-24 run used corpus digest `bc300fd8f944dc5addf8be40c0c025cedba1e28c12d93bce33166716231de3fb`:
+
+| Measure | Frozen v4 head | Laya | ChatGPT subscription reference |
+| --- | ---: | ---: | ---: |
+| Exact next decisions on saved test observations | 8/10 | 8/10 | 10/10 |
+| Exact decisions and completed tasks on fresh pages | 8/10 | 8/10 | — |
+| Live decision latency p50 / p95 | 11.0 / 22.4 ms | 251.6 / 313.2 ms | — |
+
+The head matched 36/40 training and 24/26 calibration decisions. Calibration selected temperature 0.5 and threshold 0.733669 from validation only; it would cover 23/26 validation decisions, all correct. On the untouched test split, it covered 9/10 but only 7/9 covered decisions were correct. Test top-choice Brier score was 0.198. The two failures were the success and error notification buttons on QA Automation Labs: the head chose a `type` action on another candidate with confidence 0.9748 and 0.9750. These high-confidence errors defeat both the learned threshold and the separate 0.9 diagnostic threshold. The live head process reached 459 MiB RSS. Each head flow had one measured run; Laya had one warmup per flow. Model loading and page setup are excluded from decision timing, and no throughput or multistep recovery was measured. The 8/10 tie does not establish value over Laya. The head stays outside the runtime; further work needs broader click-oriented training and calibration cases and new independent test origins before any architecture or tuning decision is claimed effective.

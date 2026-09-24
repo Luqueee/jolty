@@ -11,6 +11,8 @@ const reservedTestOrigins = new Set([
   "https://webdriveruniversity.com",
   "https://lastest.cloud",
   "https://qaplayground.com",
+  "https://testing.qaautomationlabs.com",
+  "https://practicetestautomation.com",
 ]);
 
 export interface ReadinessSample {

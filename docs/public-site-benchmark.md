@@ -8,6 +8,8 @@ Run `pnpm run benchmark:public` to compare the retrieved Top-1 heuristic with La
 
 `JOLTY_PUBLIC_CORPUS_VERSION=3` selects the ten fixed-head abstention probe cases on Lastest Playground and QA Playground. The [probe report](frozen-encoder-experiment.md#fixed-head-abstention-probe-on-v3) compares Laya with the unchanged v2 head. The default remains the original thirteen flows.
 
+`JOLTY_PUBLIC_CORPUS_VERSION=4` selects ten cases on QA Automation Labs and Practice Test Automation. The [v4 experiment](frozen-encoder-experiment.md#corpus-v4-experiment) compares Laya with a newly fitted frozen-encoder head. The default remains the original thirteen flows.
+
 The thirteen one-step flows use four public demonstration sites:
 
 | Site | Prepared state and measured action | Deterministic check |

@@ -49,3 +49,17 @@ The engineering admission gate passes. The two test origins are disjoint from ea
 Run `pnpm run research:collect-v3` to create `artifacts/research-corpus-v3.json`. It retains the v2 training and calibration cases and substitutes ten newly authored test decisions on [Lastest Playground](https://lastest.cloud/playground) and [QA Playground](https://qaplayground.com/). The test actions and deterministic outcomes were checked before scoring the frozen v2 head. The final 2026-09-24 collection produced 70/70 validated labels: 36 training, 24 calibration, and ten test, across disjoint origin splits. Its digest was `cf544117ee150a30e7ac7bd9af411aa0c0b9871d1efed416757522731475be0f`; the engineering admission gate passes. Two repeat captures also validated 70/70 but had different digests because QA Playground inserted an optional feedback button into one observed page at different times. Its goal, retrieved candidates, and label were unchanged. Keep each report tied to its collected digest; live public pages are not byte-for-byte pinned fixtures.
 
 The v3 corpus is used to score the unchanged head trained on v2, not to fit or calibrate a new head. Its new test split contains six clicks, one select, and three type actions. These outcomes are now inspected and cannot serve as untouched evaluation for another tuned variant. See the [fixed-head probe](frozen-encoder-experiment.md#fixed-head-abstention-probe-on-v3).
+
+## Corpus v4
+
+Run `pnpm run research:collect-v4` to create `artifacts/research-corpus-v4.json`. This version keeps the v3 non-test cases, adds four QA Practice Hub training clicks for clearing a form, removing a dynamic item, and opening two tabs, and adds two Practice Automation modal-close decisions to calibration. Ten new test decisions use [QA Automation Labs](https://testing.qaautomationlabs.com/) and [Practice Test Automation](https://practicetestautomation.com/practice/), neither of which appears in earlier training, calibration, or test splits. Their targets and postconditions were checked before model scoring. The modal postconditions wait for the close animation to finish.
+
+The 2026-09-24 collection validated 76/76 labels with digest `bc300fd8f944dc5addf8be40c0c025cedba1e28c12d93bce33166716231de3fb`:
+
+| Split | Origins | Distinct labels | Click | Select | Type |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Train | 3 | 40 | 18 | 3 | 19 |
+| Calibration | 2 | 26 | 14 | 3 | 9 |
+| Test | 2 | 10 | 6 | 0 | 4 |
+
+The engineering admission gate passes. The ten test outcomes have now been inspected through the [v4 experiment](frozen-encoder-experiment.md#corpus-v4-experiment); they cannot be reused as untouched evaluation for a tuned variant. These remain authored, one-step decisions on public practice sites, with no independent multistep or throughput evidence.
