@@ -15,6 +15,7 @@ import { readResearchCorpus } from "./research-corpus-reader.ts";
 
 const corpusPath = process.argv[2] ?? "artifacts/research-corpus-v0.json";
 const outputPath = process.argv[3] ?? "artifacts/frozen-encoder-v0.json";
+const fitActionBias = process.env.JOLTY_FROZEN_ACTION_BIAS !== "0";
 const { digest, samples } = await readResearchCorpus(corpusPath);
 const start = performance.now();
 const { encoded, uniqueTexts } = await encodeSamples(samples);
@@ -23,7 +24,7 @@ const train = encoded.filter((row) => row.split === "train");
 const validation = encoded.filter((row) => row.split === "validation");
 const test = encoded.filter((row) => row.split === "test");
 const fitStart = performance.now();
-const weights = trainHead(train);
+const weights = trainHead(train, fitActionBias);
 const fitMs = performance.now() - fitStart;
 const temperature = calibrateTemperature(validation, weights);
 const threshold = selectThreshold(validation, weights, temperature);
@@ -40,6 +41,7 @@ const head = {
   epochs: 400,
   learning_rate: 0.5,
   l2: 0.01,
+  fit_action_bias: fitActionBias,
   temperature,
   threshold,
   weights,
@@ -55,6 +57,7 @@ const report = {
   unique_texts: uniqueTexts,
   encoding_ms: encodingMs,
   fit_ms: fitMs,
+  fit_action_bias: fitActionBias,
   temperature,
   threshold,
   train: summarize(train, weights),

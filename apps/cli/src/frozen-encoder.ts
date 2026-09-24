@@ -152,7 +152,10 @@ export function probabilities(
   return exps.map((value) => value / total);
 }
 
-export function trainHead(samples: readonly EncodedSample[]): number[] {
+export function trainHead(
+  samples: readonly EncodedSample[],
+  fitActionBias = true,
+): number[] {
   const dimension = samples[0]?.options[0]?.features.length;
   if (
     !dimension ||
@@ -175,12 +178,14 @@ export function trainHead(samples: readonly EncodedSample[]): number[] {
               required(required(sample.options, option).features, feature);
       }
     }
-    for (let feature = 0; feature < dimension; feature++)
+    for (let feature = 0; feature < dimension; feature++) {
+      if (!fitActionBias && feature >= dimension - actions.length) continue;
       weights[feature] =
         required(weights, feature) -
         0.5 *
           (required(gradient, feature) / samples.length +
             0.01 * required(weights, feature));
+    }
   }
   return weights;
 }

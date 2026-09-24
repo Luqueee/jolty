@@ -208,6 +208,8 @@ test("blocks encoder evaluation when labels, action coverage, and sites are miss
     "https://qaplayground.com",
     "https://testing.qaautomationlabs.com",
     "https://practicetestautomation.com",
+    "https://demoqa.com",
+    "https://www.automation-bible.com",
   ]) {
     const reservedTest = assessResearchReadiness([
       {

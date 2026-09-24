@@ -13,6 +13,8 @@ const reservedTestOrigins = new Set([
   "https://qaplayground.com",
   "https://testing.qaautomationlabs.com",
   "https://practicetestautomation.com",
+  "https://demoqa.com",
+  "https://www.automation-bible.com",
 ]);
 
 export interface ReadinessSample {

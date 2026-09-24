@@ -54,3 +54,19 @@ test("fits only training examples and calibrates on validation", () => {
   expect(temperature).toBeGreaterThan(0);
   expect(selectThreshold([validation], weights, temperature)).toBe(0);
 });
+
+test("can freeze global action intercepts without freezing candidate features", () => {
+  const sample: EncodedSample = {
+    sample_id: "click-train",
+    split: "train",
+    labelIndex: 1,
+    options: [
+      { id: "wrong", action: "type", features: [0, 1, 0, 0, 1] },
+      { id: "right", action: "click", features: [1, 0, 1, 0, 0] },
+    ],
+  };
+  const weights = trainHead([sample], false);
+  expect(weights[0]).toBeGreaterThan(0);
+  expect(weights.slice(-3)).toEqual([0, 0, 0]);
+  expect(trainHead([sample]).slice(-3)).not.toEqual([0, 0, 0]);
+});

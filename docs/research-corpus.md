@@ -63,3 +63,17 @@ The 2026-09-24 collection validated 76/76 labels with digest `bc300fd8f944dc5add
 | Test | 2 | 10 | 6 | 0 | 4 |
 
 The engineering admission gate passes. The ten test outcomes have now been inspected through the [v4 experiment](frozen-encoder-experiment.md#corpus-v4-experiment); they cannot be reused as untouched evaluation for a tuned variant. These remain authored, one-step decisions on public practice sites, with no independent multistep or throughput evidence.
+
+## Corpus v5
+
+Run `pnpm run research:collect-v5` to create `artifacts/research-corpus-v5.json`. This version retains the v4 non-test cases, adds a QA Practice Hub toast click to training and a Practice Automation accordion click to calibration, and tests ten new cases on [DemoQA](https://demoqa.com/) and [Automation Bible](https://www.automation-bible.com/). The new test origins have not appeared in earlier splits. A proposed DemoQA registration case initially lacked Top-10 target retrieval; its goal was clarified to name the visible Add control before any model scoring. Two cases whose compact observations and labels were duplicates were removed before scoring. A different site with email addresses in extracted link text was excluded under the dataset sensitive-text guard.
+
+The 2026-09-24 collection validated 78/78 labels with digest `efc5434ea213a6eb8b35ef9487b463be12a92208a56ac148643d84f72131a1fd`:
+
+| Split | Origins | Distinct labels | Click | Select | Type |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Train | 3 | 41 | 19 | 3 | 19 |
+| Calibration | 2 | 27 | 15 | 3 | 9 |
+| Test | 2 | 10 | 8 | 0 | 2 |
+
+The engineering gate passes. The new test cases are now inspected through the [v5 comparison](frozen-encoder-experiment.md#corpus-v5-action-bias-ablation) and cannot be reused as untouched evaluation. The modal-close page presents two controls named Close, but the observed errors in this comparison selected the Small modal trigger rather than either Close control. The set remains small, authored, and one-step.

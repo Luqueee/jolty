@@ -15,20 +15,23 @@ import { researchCasesV1 } from "./research-cases-v1.ts";
 import { researchCasesV2 } from "./research-cases-v2.ts";
 import { researchCasesV3 } from "./research-cases-v3.ts";
 import { researchCasesV4 } from "./research-cases-v4.ts";
+import { researchCasesV5 } from "./research-cases-v5.ts";
 
 const corpusVersion = process.env.JOLTY_RESEARCH_CORPUS_VERSION ?? "0";
-if (!["0", "1", "2", "3", "4"].includes(corpusVersion))
-  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, or 4");
+if (!["0", "1", "2", "3", "4", "5"].includes(corpusVersion))
+  throw new Error("JOLTY_RESEARCH_CORPUS_VERSION must be 0, 1, 2, 3, 4, or 5");
 const cases =
-  corpusVersion === "4"
-    ? researchCasesV4
-    : corpusVersion === "3"
-      ? researchCasesV3
-      : corpusVersion === "2"
-        ? researchCasesV2
-        : corpusVersion === "1"
-          ? researchCasesV1
-          : researchCases;
+  corpusVersion === "5"
+    ? researchCasesV5
+    : corpusVersion === "4"
+      ? researchCasesV4
+      : corpusVersion === "3"
+        ? researchCasesV3
+        : corpusVersion === "2"
+          ? researchCasesV2
+          : corpusVersion === "1"
+            ? researchCasesV1
+            : researchCases;
 const output =
   process.argv[2] ?? `artifacts/research-corpus-v${corpusVersion}.json`;
 const splitByOrigin = new Map<string, ResearchSplit>([
@@ -49,6 +52,8 @@ const splitByOrigin = new Map<string, ResearchSplit>([
   ["https://qaplayground.com", "test"],
   ["https://testing.qaautomationlabs.com", "test"],
   ["https://practicetestautomation.com", "test"],
+  ["https://demoqa.com", "test"],
+  ["https://www.automation-bible.com", "test"],
 ]);
 
 function projectState(state: BrowserState) {
