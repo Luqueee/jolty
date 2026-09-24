@@ -77,3 +77,15 @@ The 2026-09-24 collection validated 78/78 labels with digest `efc5434ea213a6eb8b
 | Test | 2 | 10 | 8 | 0 | 2 |
 
 The engineering gate passes. The new test cases are now inspected through the [v5 comparison](frozen-encoder-experiment.md#corpus-v5-action-bias-ablation) and cannot be reused as untouched evaluation. The modal-close page presents two controls named Close, but the observed errors in this comparison selected the Small modal trigger rather than either Close control. The set remains small, authored, and one-step.
+
+## Corpus v6 and multistep probe
+
+Run `pnpm run research:collect-v6` to collect the v5 training and validation cases with twenty newly authored one-step test decisions on [StepCampus](https://www.stepcampus.in/playground) and [Sreenidhi Rajakrishnan's practice page](https://www.sreenidhirajakrishnan.com/practice). Both origins are new to the research splits. The cases cover thirteen clicks, five typed fields, and two native selections; each has a deterministic postcondition. Collection waits for network idle before observing these pages. The 2026-09-24 collection validated 88/88 labels with digest `e24a663a7ca581e87fece887b434c2ae6c8c9b39ecb118c59f1586377dc9c604`:
+
+| Split | Origins | Distinct labels | Click | Select | Type |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Train | 3 | 41 | 19 | 3 | 19 |
+| Calibration | 2 | 27 | 15 | 3 | 9 |
+| Test | 2 | 20 | 13 | 2 | 5 |
+
+The engineering admission gate passes. During collection, a target index on the Sreenidhi page resolved to a different control because Playwright locators pierce Shadow DOM while browser-state extraction uses main-document `querySelectorAll`. The executor now resolves observed indices with that same DOM query, and a focused regression test reproduces the mismatch. The collected test outcomes are now inspected and must not be used as untouched evaluation for a tuned candidate. See the [fixed-head and multistep comparison](frozen-encoder-experiment.md#fixed-v5-heads-on-v6-and-multistep-flows).

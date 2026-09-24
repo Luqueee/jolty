@@ -75,10 +75,12 @@ async function resolveTarget(
     };
   let handle: ElementHandle | null;
   try {
-    handle = await page
-      .locator(INTERACTIVE_SELECTOR)
-      .nth(observed.domIndex)
-      .elementHandle({ timeout: 1_000 });
+    const resolved = await page.evaluateHandle(
+      ({ selector, index }) => document.querySelectorAll(selector).item(index),
+      { selector: INTERACTIVE_SELECTOR, index: observed.domIndex },
+    );
+    handle = resolved.asElement();
+    if (!handle) await resolved.dispose();
   } catch {
     return {
       reason: "stale_state",

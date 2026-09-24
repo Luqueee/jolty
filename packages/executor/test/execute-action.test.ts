@@ -1,4 +1,4 @@
-import { extractBrowserState } from "@jolty/browser";
+import { extractBrowserState, INTERACTIVE_SELECTOR } from "@jolty/browser";
 import { type Browser, chromium, type Page } from "playwright";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import {
@@ -23,6 +23,38 @@ async function fixture(id: string): Promise<Page> {
   await page.goto(fixtureUrl(id));
   return page;
 }
+
+test("resolves observed DOM indices without piercing shadow roots", async () => {
+  const page = await browser.newPage();
+  try {
+    await page.setContent(`
+      <div id="host"></div>
+      <button id="target">Target</button>
+      <script>
+        const shadow = document.querySelector('#host').attachShadow({ mode: 'open' });
+        shadow.innerHTML = '<button id="shadow-button">Shadow</button>';
+        document.querySelector('#target').addEventListener('click', () => {
+          document.querySelector('#target').textContent = 'Clicked';
+        });
+      </script>
+    `);
+    const state = (await extractBrowserState(page)).state;
+    const target = state.elements.find((element) => element.name === "Target");
+    expect(target?.domIndex).toBe(0);
+    expect(
+      await page.locator(INTERACTIVE_SELECTOR).first().getAttribute("id"),
+    ).toBe("shadow-button");
+    expect(
+      await executeAction(page, state, {
+        action: "click",
+        targetId: target?.id,
+      }),
+    ).toMatchObject({ status: "executed" });
+    expect(await page.locator("#target").textContent()).toBe("Clicked");
+  } finally {
+    await page.close();
+  }
+});
 
 test("executes typed, selected, and clicked model targets", async () => {
   const login = await fixture("login");
